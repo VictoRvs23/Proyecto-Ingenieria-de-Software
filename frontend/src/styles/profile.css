@@ -1,0 +1,124 @@
+/* Contenedor principal del perfil */
+.profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #f9fafb; /* gris claro */
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Cabecera */
+.profile-header {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4f46e5; /* violeta */
+    margin-bottom: 1.5rem;
+}
+
+/* Mensajes informativos */
+.profile-message {
+    text-align: center;
+    font-size: 1rem;
+    color: #374151; /* gris oscuro */
+    margin-bottom: 1rem;
+}
+
+/* Tarjeta de usuario */
+.profile-card {
+    width: 100%;
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.profile-card:hover {
+    transform: scale(1.02);
+}
+
+/* Información del usuario */
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.profile-info span.label {
+    font-size: 0.9rem;
+    color: #6b7280; /* gris oscuro */
+}
+
+.profile-info span.value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background: #f3f4f6; /* gris muy claro */
+    word-break: break-word;
+}
+
+/* Botones de acción (Editar y Eliminar) */
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Botones comunes */
+.profile-actions button {
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Botón Editar */
+.profile-actions button.edit {
+    background: #facc15; /* amarillo */
+    color: white;
+}
+
+.profile-actions button.edit:hover {
+    background: #eab308;
+}
+
+/* Botón Eliminar */
+.profile-actions button.delete {
+    background: #ef4444; /* rojo */
+    color: white;
+}
+
+.profile-actions button.delete:hover {
+    background: #dc2626;
+}
+
+/* Mensaje de error */
+.profile-error {
+    color: #dc2626;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* Mensaje de éxito */
+.profile-success {
+    color: #16a34a; /* verde */
+    font-weight: 600;
+    margin-top: 1rem;
+}
