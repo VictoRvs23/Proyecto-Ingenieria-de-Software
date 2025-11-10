@@ -1,6 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth.service';
+
+// Mock de login para probar frontend sin backend
+const login = async ({ email, password }) => {
+    // Simula un login exitoso si hay email y password
+    if (email && password) {
+        return {
+            data: {
+                token: 'mock-token-123',
+                username: email
+            }
+        };
+    } else {
+        return {
+            message: 'Credenciales incorrectas'
+        };
+    }
+};
 
 const Login = () => {
     const navigate = useNavigate();
@@ -13,7 +29,10 @@ const Login = () => {
         setError(null);
         const res = await login({ email, password });
         if (res && res.data && res.data.token) {
-            navigate('/home');
+            // Guarda token en localStorage si quieres simular sesión
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('username', res.data.username);
+            navigate('/home'); // redirige a la página principal
         } else {
             setError(res.message || 'Credenciales incorrectas');
         }
@@ -21,7 +40,8 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex">
-            <div className="w-full md:w-1/2 bg-gray-900 text-white flex flex-col justify-center p-8 md:p-12">
+            {/* Panel izquierdo: Formulario en azul profundo */}
+            <div className="w-full md:w-1/2 bg-blue-800 text-white flex flex-col justify-center p-8 md:p-12">
                 <h1 className="text-3xl font-bold mb-8 text-center">REGISTRARSE</h1>
 
                 <form className="space-y-6 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
@@ -31,7 +51,7 @@ const Login = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                         required
-                        className="w-full px-4 py-3 bg-gray-800 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-blue-700 rounded-full text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                     <input
@@ -40,12 +60,12 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password"
                         required
-                        className="w-full px-4 py-3 bg-gray-800 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-blue-700 rounded-full text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                     <button 
                         type="submit" 
-                        className="w-full bg-white text-gray-900 font-bold py-3 rounded-full hover:bg-gray-100 transition"
+                        className="w-full bg-white text-blue-800 font-bold py-3 rounded-full hover:bg-blue-50 transition"
                     >
                         LOGIN
                     </button>
@@ -59,15 +79,12 @@ const Login = () => {
                     <button
                         type="button"
                         onClick={() => navigate('/auth/register')}
-                        className="text-blue-400 hover:text-blue-300 hover:underline"
+                        className="text-blue-300 hover:text-blue-200 hover:underline"
                     >
                         ¿No tienes cuenta? Regístrate
                     </button>
                 </div>
             </div>
-
-            
-            <div className="hidden md:block w-1/2 bg-pink-600"></div>
         </div>
     );
 };
