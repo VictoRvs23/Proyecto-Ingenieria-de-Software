@@ -6,7 +6,6 @@ const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const [error, setError] = useState(null);
 
     const handleSubmit = async (e) => {
@@ -19,67 +18,58 @@ const Login = () => {
             setError(res.message || 'Credenciales incorrectas');
         }
     };
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md transform transition-all hover:scale-105">
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-8">
-                        Iniciar sesión
-                    </h1>
-                    
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="usuario@ejemplo.com"
-                            required
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-300"
-                        />
-                    </div>
 
-                    <div className="space-y-2">
-                        <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                            Contraseña
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="**********"
-                            required
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-300"
-                        />
-                    </div>
+    return (
+        <div className="min-h-screen flex">
+            <div className="w-full md:w-1/2 bg-gray-900 text-white flex flex-col justify-center p-8 md:p-12">
+                <h1 className="text-3xl font-bold mb-8 text-center">REGISTRARSE</h1>
+
+                <form className="space-y-6 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        required
+                        className="w-full px-4 py-3 bg-gray-800 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required
+                        className="w-full px-4 py-3 bg-gray-800 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
                     <button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
+                        className="w-full bg-white text-gray-900 font-bold py-3 rounded-full hover:bg-gray-100 transition"
                     >
-                        Iniciar sesión
+                        LOGIN
                     </button>
                 </form>
+
                 {error && (
-                    <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>
+                    <p className="mt-4 text-center text-red-400 font-medium">{error}</p>
                 )}
-                {/* Botón para ir al registro */}
+
                 <div className="mt-6 text-center">
                     <button
                         type="button"
                         onClick={() => navigate('/auth/register')}
-                        className="text-purple-700 hover:underline font-semibold"
+                        className="text-blue-400 hover:text-blue-300 hover:underline"
                     >
                         ¿No tienes cuenta? Regístrate
                     </button>
                 </div>
             </div>
+
+            
+            <div className="hidden md:block w-1/2 bg-pink-600"></div>
         </div>
     );
-}
+};
 
 export default Login;
