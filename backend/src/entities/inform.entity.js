@@ -28,6 +28,10 @@ export const Guard = new EntitySchema({
         length: 100,
         nullable: false,
     },
+    observation: {
+        type: "text",
+        nullable: true,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
