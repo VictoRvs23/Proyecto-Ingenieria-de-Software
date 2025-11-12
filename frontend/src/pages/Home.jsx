@@ -1,10 +1,8 @@
-// src/components/Sidebar.jsx
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaHome, FaUsers, FaFileAlt, FaClock, FaSignOutAlt } from 'react-icons/fa';
 import { CgProfile } from 'react-icons/cg';
 import { GrBike } from "react-icons/gr"; 
-
 
 const Sidebar = ({ userRole }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -20,7 +18,7 @@ const Sidebar = ({ userRole }) => {
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >
-      {/* Header */}
+      
       <div className="p-4 flex items-center justify-between">
         {!isCollapsed && <h2 className="text-lg font-bold text-blue-800">Menú</h2>}
         <button
@@ -37,7 +35,7 @@ const Sidebar = ({ userRole }) => {
         </button>
       </div>
 
-      {/* Navegación */}
+      
       <nav className="px-4 py-2">
         <ul className="space-y-2">
           <li>
@@ -140,7 +138,7 @@ const Sidebar = ({ userRole }) => {
         </ul>
       </nav>
 
-      {/* Logout */}
+      
       <div className="absolute bottom-4 left-4 right-4">
         <button
           onClick={handleLogout}

@@ -21,10 +21,6 @@ export const Turno = new EntitySchema({
       type: "time", 
       nullable: false 
     },
-    bikeRackId: { 
-      type: "int", 
-      nullable: false 
-    },
     created_at: { 
       type: "timestamp", 
       createDate: true, 

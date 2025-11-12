@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Mock de login para probar frontend sin backend
+
 const login = async ({ email, password }) => {
-    // Simula un login exitoso si hay email y password
+    
     if (email && password) {
         return {
             data: {
@@ -29,10 +29,10 @@ const Login = () => {
         setError(null);
         const res = await login({ email, password });
         if (res && res.data && res.data.token) {
-            // Guarda token en localStorage si quieres simular sesión
+            
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('username', res.data.username);
-            navigate('/home'); // redirige a la página principal
+            navigate('/home'); 
         } else {
             setError(res.message || 'Credenciales incorrectas');
         }
@@ -40,7 +40,7 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex">
-            {/* Panel izquierdo: Formulario en azul profundo */}
+            
             <div className="w-full md:w-1/2 bg-blue-800 text-white flex flex-col justify-center p-8 md:p-12">
                 <h1 className="text-3xl font-bold mb-8 text-center">REGISTRARSE</h1>
 
