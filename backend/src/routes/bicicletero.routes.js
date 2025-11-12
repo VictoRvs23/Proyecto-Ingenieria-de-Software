@@ -5,8 +5,8 @@ const router = Router();
 
 router.get("/", getAvaibableSpace);
 
-router.post("/entry", Guard, entryBike);
-router.delete("/outing",Guard, outingBike);
+router.post("/bicicletero", entryBike);
+router.delete("/bibicletero:id", outingBike);
 
 
 export default router;
