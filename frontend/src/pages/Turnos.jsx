@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { turnosService } from '../services/turnos.service';
-import '../styles/turnos.css';
+import '../styles/Turnos.css';
 
 const Turnos = () => {
   const [turnos, setTurnos] = useState([]);

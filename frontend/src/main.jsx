@@ -7,7 +7,9 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-import Profile from '@pages/Profile'
+import Profile from '@pages/Profile';
+import Turnos from '@pages/Turnos'; 
+import { turnosService } from '/src/services/turnos.service';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: '/profile',
         element: <Profile />
+      },
+      {
+        path: '/turnos', 
+        element: <Turnos />
       }
     ]
   }
