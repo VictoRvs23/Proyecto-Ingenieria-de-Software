@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import '../styles/login.css';
 
 const login = async ({ email, password }) => {
-    
     if (email && password) {
         return {
             data: {
@@ -29,29 +28,27 @@ const Login = () => {
         setError(null);
         const res = await login({ email, password });
         if (res && res.data && res.data.token) {
-            
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('username', res.data.username);
-            navigate('/home'); 
+            navigate('/home');
         } else {
             setError(res.message || 'Credenciales incorrectas');
         }
     };
 
     return (
-        <div className="min-h-screen flex">
-            
-            <div className="w-full md:w-1/2 bg-blue-800 text-white flex flex-col justify-center p-8 md:p-12">
-                <h1 className="text-3xl font-bold mb-8 text-center">REGISTRARSE</h1>
+        <div className="login-container">
+            <div className="login-form-section">
+                <h1 className="login-title">REGISTRARSE</h1>
 
-                <form className="space-y-6 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
+                <form className="login-form" onSubmit={handleSubmit}>
                     <input
                         type="text"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                         required
-                        className="w-full px-4 py-3 bg-blue-700 rounded-full text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="login-input"
                     />
 
                     <input
@@ -60,26 +57,26 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password"
                         required
-                        className="w-full px-4 py-3 bg-blue-700 rounded-full text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="login-input"
                     />
 
                     <button 
                         type="submit" 
-                        className="w-full bg-white text-blue-800 font-bold py-3 rounded-full hover:bg-blue-50 transition"
+                        className="login-button"
                     >
                         LOGIN
                     </button>
                 </form>
 
                 {error && (
-                    <p className="mt-4 text-center text-red-400 font-medium">{error}</p>
+                    <p className="login-error">{error}</p>
                 )}
 
-                <div className="mt-6 text-center">
+                <div className="login-footer">
                     <button
                         type="button"
                         onClick={() => navigate('/auth/register')}
-                        className="text-blue-300 hover:text-blue-200 hover:underline"
+                        className="login-register-link"
                     >
                         ¿No tienes cuenta? Regístrate
                     </button>
