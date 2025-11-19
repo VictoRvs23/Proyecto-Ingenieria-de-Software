@@ -75,3 +75,29 @@ export async function deletePrivateProfile(req, res) {
     handleErrorServer(res, 500, "Error al eliminar perfil", error.message);
   }
 }
+
+export async function updateUserRole(req, res) {
+  try {
+    const paramId = req.params?.id;
+    const targetId = Number(paramId);
+    if (!paramId || Number.isNaN(targetId)) {
+      return res.status(400).json({ error: "Id inválido en la ruta" });
+    }
+
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin") return res.status(403).json({ error: "No autorizado" });
+
+    const { role } = req.body;
+    if (!role) return res.status(400).json({ error: "role es requerido en el body" });
+
+    const repo = AppDataSource.getRepository(User);
+    const user = await repo.findOneBy({ id: targetId });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    user.role = role;
+    await repo.save(user);
+    return res.json({ message: "Rol actualizado", user: { id: user.id, email: user.email, role: user.role } });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}

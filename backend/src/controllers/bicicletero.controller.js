@@ -16,13 +16,10 @@ export const entryBike = async (req, res) => {
     try {
         const { error, value } = bikeEntryValidation.validate(req.body);
         if (error) {
-            return res.status(400).json({ 
-                error: error.details[0].message 
-            });
+            return res.status(400).json({ error: error.details[0].message });
         }
-        
-        const added = await service.addBike(req.user.id, value);
-        return res.json(added);
+        await service.addBike(req.user.id, value);
+        return res.status(201).json({ message: "Bicicleta registrada" });
     } catch (e) {
         return res.status(400).json({ error: e.message });
     }

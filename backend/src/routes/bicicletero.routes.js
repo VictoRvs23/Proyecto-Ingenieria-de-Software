@@ -6,8 +6,8 @@ import { getStatus, entryBike, exitBike } from "../controllers/bicicletero.contr
 
 const router = Router();
 
-router.get("/", isGuard, isAdmin, getStatus);
-router.post("/entry", isGuard, isAdmin, entryBike);
-router.delete("/exit/:id", isGuard, isAdmin, exitBike);
+router.get("/", authMiddleware, isGuard, isAdmin, getStatus);
+router.post("/entry",authMiddleware, isGuard, isAdmin, entryBike);
+router.delete("/exit/:id",authMiddleware, isGuard, isAdmin, exitBike);
 
 export default router;

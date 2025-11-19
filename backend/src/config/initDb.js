@@ -22,6 +22,13 @@ export async function createUsers() {
         email: "usuario@gmail.com",
         password: await bcrypt.hash("usuario123", 10),
         role: "specter"
+      },
+      {
+        username: "Guardia Prueba",
+        rut: "11223344-5",
+        email: "guardia@gmail.com",
+        password: await bcrypt.hash("guardia123", 10),
+        role: "guard"
       }
     ];
 
