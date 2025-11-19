@@ -4,14 +4,9 @@ export const Bicicletero = new EntitySchema({
   name: "Bicicletero",
   tableName: "bicicleteros",
   columns: {
-    id: {
+    zone: {
       primary: true,
       type: "int",
-      generated: "increment",
-    },
-    zone: {
-      type: "varchar",
-      length: 100,
       nullable: false,
     },
     space: {

@@ -1,41 +1,39 @@
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import bcrypt from "bcrypt";
+import { BicicleteroService } from "../services/bicicletero.service.js";
+import { spaceValidation, bikeEntryValidation } from "../validations/bicicletero.validation.js";
 
-export function getAvaibableSpace(req, res) {
-    handleSuccess(res, 200, "Espacio disponible obtenido exitosamente", {
-        message: "Espacio disponible obtenido exitosamente",
-    });
-}
+const service = new BicicleteroService();
 
-export async function entryBike(req, res) {
-  try {
-    const { bikeId, ownerName } = req.body;
+export const getStatus = async (req, res) => {
+    try {
+        const data = await service.getStatus();
+        return res.json(data);
+    } catch (e) {
+        return res.status(500).json({ error: e.message });
+    }
+};
 
-    if (!bikeId || !ownerName)
-      return handleErrorClient(res, "Datos insuficientes", 400);
+export const entryBike = async (req, res) => {
+    try {
+        const { error, value } = bikeEntryValidation.validate(req.body);
+        if (error) {
+            return res.status(400).json({ 
+                error: error.details[0].message 
+            });
+        }
+        
+        const added = await service.addBike(req.user.id, value);
+        return res.json(added);
+    } catch (e) {
+        return res.status(400).json({ error: e.message });
+    }
+};
 
-    const entryId = bcrypt.hashSync(Date.now().toString(), 5).replace(/\//g, "");
-    const query = "INSERT INTO bikes (entry_id, bike_id, owner_name) VALUES ($1, $2, $3) RETURNING *";
-    const values = [entryId, bikeId, ownerName];
+export const exitBike = async (req, res) => {
+    try {
+        await service.removeBike(req.user.id, req.params.id);
+        return res.json({ message: "Bicicleta retirada" });
+    } catch (e) {
+        return res.status(400).json({ error: e.message });
+    }
+};
 
-    const result = await pool.query(query, values);
-    handleSuccess(res, 201, "Entrada registrada correctamente", result.rows[0]);
-  } catch (error) {
-    handleErrorServer(res, error);
-  }
-}
-
-
-export async function outingBike(req, res) {
-     try {
-    const { id } = req.params;
-
-    const result = await pool.query("DELETE FROM bikes WHERE entry_id = $1 RETURNING *", [id]);
-    if (result.rowCount === 0)
-      return handleErrorClient(res, "Bicicleta no encontrada", 404);
-
-    handleSuccess(res, 200, "Bicicleta eliminada exitosamente", result.rows[0]);
-  } catch (error) {
-    handleErrorServer(res, error);
-  }
-}
