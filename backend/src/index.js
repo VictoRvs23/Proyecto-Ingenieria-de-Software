@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { AppDataSource, connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
+import { createUsers } from "./config/initDb.js";
 
 const app = express();
 app.use(express.json());
@@ -26,8 +27,14 @@ connectDB()
 
     // Levanta el servidor Express
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
+    app.listen(PORT, async () => {
       console.log(`Servidor iniciado en http://localhost:${PORT}`);
+
+      try {
+        await createUsers();
+      } catch (err) {
+        console.error("Error al crear usuarios:", err);
+      }
     });
   })
   .catch((error) => {

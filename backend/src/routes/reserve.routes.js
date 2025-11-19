@@ -11,10 +11,10 @@ import { uploadFields } from "../middleware/upload.middleware.js";
 
 const router = Router();
 
-router.get("/Reserve:token", getReserve);
-router.get("/Reserve", getReserves);
-router.post("/Reserve", uploadFields, authMiddleware, createReserve);
-router.patch("/Reserve:token", uploadFields, authMiddleware, updateReserve);
-router.delete("/Reserve:token", authMiddleware, deleteReserve);
+router.get("/:token", getReserve);
+router.get("/", getReserves);
+router.post("/", uploadFields, authMiddleware, createReserve);
+router.patch("/:token", uploadFields, authMiddleware, updateReserve);
+router.delete("/:token", authMiddleware, deleteReserve);
 
 export default router;

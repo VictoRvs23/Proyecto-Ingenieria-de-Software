@@ -18,6 +18,22 @@ export const Reserve = new EntitySchema({
       type: "varchar",
       length: 100,
       nullable: false,
+      default: "ingresada"
+    },
+    user_id: {
+      type: "int",
+      nullable: false,
+    },
+    //para el multer
+    foto_url: {
+      type: "varchar",
+      length: 500,
+      nullable: true,
+    },
+    doc_url: {
+      type: "varchar", 
+      length: 500,
+      nullable: true,
     },
     created_at: {
       type: "timestamp",
@@ -36,9 +52,22 @@ export const Reserve = new EntitySchema({
       target: "User",
       joinColumn: {
         name: "user_id",
+        referencedColumnName: "id"
       },
       nullable: false,
       onDelete: "CASCADE",
+      inverseSide: "reserves"
     },
   },
+  indices: [
+    {
+      name: "IDX_RESERVE_TOKEN",
+      columns: ["token"],
+      unique: true
+    },
+    {
+      name: "IDX_RESERVE_USER",
+      columns: ["user_id"]
+    }
+  ]
 });
