@@ -4,7 +4,7 @@ export const Bicicletero = new EntitySchema({
   name: "Bicicletero",
   tableName: "bicicleteros",
   columns: {
-    zone: {
+    number: {
       primary: true,
       type: "int",
       nullable: false,
@@ -22,6 +22,18 @@ export const Bicicletero = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bikes: {
+      type: "one-to-many",
+      target: "Bike",
+      inverseSide: "bicicletero",
+    },
+    informs: {
+      type: "one-to-many",
+      target: "Inform",
+      inverseSide: "bicicletero",
     },
   },
 });

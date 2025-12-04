@@ -4,28 +4,17 @@ export const Inform = new EntitySchema({
   name: "Inform",
   tableName: "informs",
   columns: {
-    id: {
-      primary: true,
-      type: "int",
-      generated: "increment",
-    },
     date: {
+        primary: true,
         type: "date",
         nullable: false,
     },
-    uploadTime: {
-        type: "varchar",
-        length: 50,
+    bicicletero_number: {
+        type: "int",
         nullable: false,
     },
-    bicicleto: {
-        type: "varchar",
-        length: 100,
-        nullable: false,
-    },
-    guard: {
-        type: "varchar",
-        length: 100,
+    guard_id: {
+        type: "int",
         nullable: false,
     },
     observation: {
@@ -41,6 +30,26 @@ export const Inform = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bicicletero: {
+      type: "many-to-one",
+      target: "Bicicletero",
+      joinColumn: {
+        name: "bicicletero_number",
+        referencedColumnName: "number",
+      },
+      inverseSide: "informs",
+    },
+    guard: {
+      type: "many-to-one",
+      target: "Guard",
+      joinColumn: {
+        name: "guard_id",
+        referencedColumnName: "id",
+      },
+      inverseSide: "informs",
     },
   },
 });

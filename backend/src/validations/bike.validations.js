@@ -2,6 +2,17 @@
 import Joi from "joi";
 
 export const bikeValidation = Joi.object({
+    brand: Joi.string()
+        .min(2)
+        .max(50)
+        .required()
+        .messages({
+            "string.empty": "La marca de la bicicleta no puede estar vacía.",
+            "any.required": "La marca de la bicicleta es obligatoria.",
+            "string.base": "La marca de la bicicleta debe ser de tipo texto.",
+            "string.min": "La marca de la bicicleta debe tener al menos 2 caracteres.",
+            "string.max": "La marca de la bicicleta debe tener como máximo 50 caracteres.",
+        }),
     model: Joi.string()
         .min(2)
         .max(50)

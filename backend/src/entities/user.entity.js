@@ -20,6 +20,12 @@ export const User = new EntitySchema({
       length: 255,
       nullable: false,
     },
+    role: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+      default: "user",
+    },
     created_at: {
       type: "timestamp",
       createDate: true,

@@ -1,7 +1,19 @@
 import { BicicleteroService } from "../services/bicicletero.service.js";
-import { spaceValidation, bikeEntryValidation } from "../validations/bicicletero.validation.js";
 
 const service = new BicicleteroService();
+
+export const getBicicleteroByNumber = async (req, res) => {
+  try {
+    const { number } = req.params;
+    if (!number) {
+      return res.status(400).json({ error: "Falta parámetro: number" });
+    }
+    const data = await service.getBicicleteroByNumber(number);
+    return res.json(data);
+  } catch (error) {
+    return res.status(404).json({ error: error.message });
+  }
+};
 
 export const getStatus = async (req, res) => {
     try {
@@ -13,16 +25,28 @@ export const getStatus = async (req, res) => {
 };
 
 export const entryBike = async (req, res) => {
-    try {
-        const { error, value } = bikeEntryValidation.validate(req.body);
-        if (error) {
-            return res.status(400).json({ error: error.details[0].message });
-        }
-        await service.addBike(req.user.id, value);
-        return res.status(201).json({ message: "Bicicleta registrada" });
-    } catch (e) {
-        return res.status(400).json({ error: e.message });
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "No autenticado" });
     }
+    const guardId = Number(req.user.id);
+
+    const { brand, model, color, owner, bicicletero, space } = req.body;
+    if (!model || !owner || !color || !brand || !bicicletero) {
+      return res.status(400).json({ error: "Faltan campos" });
+    }
+
+    const spaceNum = space ? Number(space) : undefined;
+    const bicicleteroId = Number(bicicletero);
+
+    const bikeData = { brand, model, color, owner, bicicletero, space: spaceNum };
+
+    const result = await service.addBike(guardId, bikeData, bicicleteroId);
+    return res.status(201).json({ message: "Bicicleta ingresada", bike: result });
+  } catch (error) {
+    console.error("[entryBike] error:", error);
+    return res.status(400).json({ error: error.message });
+  }
 };
 
 export const exitBike = async (req, res) => {
@@ -33,4 +57,6 @@ export const exitBike = async (req, res) => {
         return res.status(400).json({ error: e.message });
     }
 };
+
+
 

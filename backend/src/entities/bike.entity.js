@@ -9,6 +9,11 @@ export const Bike = new EntitySchema({
       type: "int",
       generated: "increment",
     },
+    brand: {
+        type: "varchar",
+        length: 100,
+        nullable: false,
+    },
     model:{
         type: "varchar",
         length: 100,
@@ -24,6 +29,10 @@ export const Bike = new EntitySchema({
       length: 255,
       nullable: false,
     },
+    bicicletero_number: {
+      type: "int",
+      nullable: true,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -33,6 +42,17 @@ export const Bike = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bicicletero: {
+      type: "many-to-one",
+      target: "Bicicletero",
+      joinColumn: {
+        name: "bicicletero_number",
+        referencedColumnName: "number",
+      },
+      inverseSide: "bikes",
     },
   },
 });

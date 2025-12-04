@@ -1,7 +1,7 @@
 "use strict";
 import { DataSource } from "typeorm";
 import { DATABASE, DB_USERNAME, HOST, DB_PASSWORD, DB_PORT } from "./configEnv.js";
-import { createUsers } from "./initDb.js";
+import { createUsers, seedBicicleteros } from "./initDb.js";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -20,8 +20,9 @@ export async function connectDB() {
     await AppDataSource.initialize();
     console.log("Conexión a BD exitosa");
     await createUsers();
+    await seedBicicleteros(AppDataSource);
   } catch (error) {
-    console.error("Error al conectar:", error);
+    console.error("Error al conectar a BD:", error);
     throw error;
   }
 }
