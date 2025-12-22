@@ -1,30 +1,39 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Root from './pages/Root';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Bicicletero from './pages/Bicicletero';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
-    errorElement: <div>Error 404</div>,
+    element: <Navigate to="/login" replace />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/home", 
+    element: <Root />, 
     children: [
       {
-        index: true,
+        index: true, 
         element: <Home />,
       },
       {
-        path: "bicicletero",
+        path: "bicicletero", 
         element: <Bicicletero />,
       },
     ],
   },
-  {
-      path: "/login",
-      element: <div>Aquí va tu Login</div>
-  }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
