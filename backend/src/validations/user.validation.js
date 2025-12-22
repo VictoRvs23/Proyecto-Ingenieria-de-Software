@@ -71,6 +71,24 @@ export const loginValidation = Joi.object({
       "string.max": "La contraseña debe tener como máximo 26 caracteres.",
       "string.pattern.base": "La contraseña solo puede contener letras y números. No se permiten símbolos especiales.",
     }),
+  numeroTelefonico: Joi.string()
+    .min(7)
+    .max(10)
+    .messages({
+      "string.min": "El número telefónico debe tener al menos 8 caracteres.",
+      "string.max": "El número telefónico debe tener como máximo 10 caracteres.",
+    }),
+
+  nombre: Joi.string()
+    .min(2)
+    .max(100)
+    .required()
+    .messages({
+      "string.empty": "El nombre no puede estar vacío.",
+      "any.required": "El nombre es obligatorio.",
+      "string.min": "El nombre debe tener al menos 2 caracteres.",
+      "string.max": "El nombre debe tener como máximo 100 caracteres.",
+    }),
 })
   .unknown(false)
   .messages({

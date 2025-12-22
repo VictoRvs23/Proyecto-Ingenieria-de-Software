@@ -26,6 +26,16 @@ export const User = new EntitySchema({
       nullable: false,
       default: "user",
     },
+    numeroTelefonico: {
+      type: "varchar",
+      length: 20,
+      nullable: false,
+    },
+    nombre: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
