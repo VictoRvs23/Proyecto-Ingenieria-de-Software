@@ -1,16 +1,14 @@
 import React from 'react';
-import "@styles/home.css"; // Importamos los estilos específicos
+import "@styles/home.css";
 
 const Home = () => {
   return (
     <div className="home-container">
-      {/* Título INICIO con la tipografía correcta */}
       <h1 className="home-title">INICIO</h1>
-
-      {/* Contenedor tipo "Card" para la imagen */}
+      
       <div className="home-banner-card">
         <img 
-          src="/inicio-banner.png" 
+          src="/inicioB.png" 
           alt="Bienvenida al Bicicletero" 
           className="home-image" 
         />
