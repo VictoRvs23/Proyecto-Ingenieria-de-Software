@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/auth.service"; 
+// Importar los iconos
+import { FaEye, FaEyeSlash } from "react-icons/fa"; 
 import "@styles/form.css"; 
 
 const Register = () => {
@@ -10,10 +12,9 @@ const Register = () => {
     email: "",
     password: ""
   });
-  
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -86,13 +87,22 @@ const Register = () => {
 
           <div className="input-group">
             <label>Contraseña</label>
-            <input 
-              type="password" 
-              name="password" 
-              value={formData.password} 
-              onChange={handleChange} 
-              required
-            />
+            <div className="password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                required
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="toggle-password-btn"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
           <button 
@@ -103,6 +113,7 @@ const Register = () => {
             {loading ? "Registrando..." : "Registrar"}
           </button>
         </form>
+        
         <div className="auth-toggle" style={{ zIndex: 10, position: 'relative' }}>
           <button type="button" onClick={() => navigate("/login")}>Iniciar Sesión</button>
           <button type="button" className="active">Registrar</button>

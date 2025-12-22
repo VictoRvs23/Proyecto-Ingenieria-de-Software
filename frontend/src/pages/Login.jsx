@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/auth.service";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; 
 import "@styles/form.css"; 
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -53,13 +55,23 @@ const Login = () => {
 
           <div className="input-group">
             <label>Contraseña</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="********"
-              required 
-            />
+            <div className="password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="********"
+                required 
+                className="password-input"
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="toggle-password-btn"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
           <button 
@@ -70,6 +82,7 @@ const Login = () => {
             {loading ? "Cargando..." : "Iniciar Sesion"}
           </button>
         </form>
+        
         <div className="auth-toggle" style={{ zIndex: 10, position: 'relative' }}>
           <button type="button" className="active">Iniciar Sesión</button>
           <button type="button" onClick={() => navigate("/register")}>Registrar</button>
