@@ -16,6 +16,8 @@ export async function loginUser(email, password) {
   const payload = {
     sub: user.id,
     email: user.email,
+    numeroTelefonico: user.numeroTelefonico,
+    nombre: user.nombre,
     role: user.role
   };
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });

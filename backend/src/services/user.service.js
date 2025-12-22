@@ -10,6 +10,9 @@ export async function createUser(data) {
   const newUser = userRepository.create({
     email: data.email,
     password: hashedPassword,
+    numeroTelefonico: data.numeroTelefonico,
+    nombre: data.nombre,
+    role: "user",
   });
 
   return await userRepository.save(newUser);

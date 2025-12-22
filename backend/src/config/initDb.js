@@ -37,23 +37,29 @@ export async function createUsers() {
     const users = [
       {
         username: "Admin",
+        nombre: "Admin",
         rut: "12345678-9",
         email: "admin@gmail.com",
         password: await bcrypt.hash("admin123", 10),
+        numeroTelefonico: "123456789",
         role: "admin",
       },
       {
         username: "Usuario Prueba",
+        nombre: "Usuario Prueba",
         rut: "98765432-1",
         email: "usuario@gmail.com",
         password: await bcrypt.hash("usuario123", 10),
+        numeroTelefonico: "987654321",
         role: "user",
       },
       {
         username: "Guardia Prueba",
+        nombre: "Guardia Prueba",
         rut: "11223344-5",
         email: "guardia@gmail.com",
         password: await bcrypt.hash("guardia123", 10),
+        numeroTelefonico: "112233445",
         role: "guard",
       },
     ];
