@@ -8,86 +8,100 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
   const getProfileData = async () => {
     setLoading(true);
-    const profileData = await fetchProfile();
+    const response = await fetchProfile();
     setLoading(false);
-    setProfileData(profileData?.data || null);
+    setProfileData(response?.data || null);
   };
 
-  
   useEffect(() => {
     getProfileData();
   }, []);
 
-
-  const handleEditProfile = async () => {
-    if (!profileData) return;
-
-    const newEmail = prompt("Ingrese el nuevo email:", profileData.email) || profileData.email;
-    const newPassword = prompt("Ingrese la nueva contraseña (se encriptará):", "") || undefined;
-
-    const updatedData = { email: newEmail };
-    if (newPassword) updatedData.password = newPassword;
-
-    setLoading(true);
-    const response = await updateProfile(updatedData);
-    setLoading(false);
-
-    if (response) {
-      alert(response.message || "Perfil actualizado correctamente");
-      getProfileData();
-    }
-  };
-
-
-  const handleDeleteProfile = async () => {
-    if (!profileData) return;
-
-    const confirmDelete = window.confirm(
-      "¿Está seguro de eliminar su perfil? Esta acción no se puede deshacer."
-    );
-    if (!confirmDelete) return;
-
-    setLoading(true);
-    const response = await eliminateProfile();
-    setLoading(false);
-
-    if (response) {
-      alert(response.message || "Perfil eliminado correctamente");
-      setProfileData(null); 
-    }
-  };
-
   return (
-    <div className="profile-container">
-      <h2 className="profile-header">Perfil del Usuario</h2>
+    <div className="main-content">
+      <h1 className="view-title">PERFIL DE USUARIO</h1>
+      
+      {loading && <p className="loading-text">Cargando datos...</p>}
 
-      {loading && <p className="profile-message">Cargando...</p>}
-
-      {profileData ? (
-        <div className="profile-card">
-          <div className="profile-info">
-            <span className="label">Email</span>
-            <span className="value">{profileData.email}</span>
-
-            <span className="label">Password (encriptada)</span>
-            <span className="value">{profileData.password}</span>
+      <div className="profile-cards-container">
+        {/* TARJETA 1: INFORMACIÓN PERSONAL */}
+        <div className="glass-card">
+          <div className="profile-avatar-container">
+            <img 
+              src="/path-to-grumpy-cat.png" 
+              alt="Avatar" 
+              className="avatar-img" 
+            />
           </div>
+          
+          <button className="action-button-blue">Cambiar Foto de Perfil</button>
 
-          <div className="profile-actions">
-            <button className="edit" onClick={handleEditProfile} disabled={loading}>
-              Editar
-            </button>
-            <button className="delete" onClick={handleDeleteProfile} disabled={loading}>
-              Eliminar
-            </button>
+          <div className="data-display-area">
+            <div className="data-row">
+              <span className="data-label">Rol</span>
+              <span className="data-value">{profileData?.rol || "Usuario"}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label">Nombre</span>
+              <span className="data-value">{profileData?.nombre || "N/A"}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label">Email</span>
+              <span className="data-value">{profileData?.email || "Cargando..."}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label">Número Telefónico</span>
+              <span className="data-value">{profileData?.telefono || "No registrado"}</span>
+            </div>
           </div>
         </div>
-      ) : (
-        !loading && <p className="profile-message">No hay perfil cargado.</p>
-      )}
+
+        {/* TARJETA 2: INFORMACIÓN DE BICICLETA */}
+        <div className="glass-card">
+          <div className="bike-icons-top">
+            <span className="icon-plus">+</span>
+            <span className="icon-refresh">🔄</span>
+          </div>
+
+          <div className="profile-avatar-container">
+            <img 
+              src="/path-to-bike-image.png" 
+              alt="Bicicleta" 
+              className="avatar-img" 
+            />
+          </div>
+
+          <button className="action-button-blue">Cambiar Foto de Bicicleta</button>
+
+          <div className="data-display-area">
+            <div className="data-row">
+              <span className="data-label">Marca</span>
+              <span className="data-value">{profileData?.bicicleta?.marca || "Sin asignar"}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label">Modelo</span>
+              <span className="data-value">{profileData?.bicicleta?.modelo || "Sin asignar"}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label">Color</span>
+              <span className="data-value">{profileData?.bicicleta?.color || "Sin asignar"}</span>
+            </div>
+          </div>
+
+          <div className="pagination-indicator">
+            <span className="dot active"></span>
+            <span className="dot"></span>
+          </div>
+        </div>
+      </div>
+
+      {/* BOTONES DE ACCIÓN (FOOTER O LATERAL) */}
+      <div className="danger-zone">
+        <button className="btn-edit" onClick={() => {/* Lógica edit */}}>Editar Perfil</button>
+        <button className="btn-delete" onClick={() => {/* Lógica delete */}}>Eliminar Cuenta</button>
+      </div>
     </div>
   );
 };

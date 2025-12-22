@@ -1,59 +1,80 @@
-import { useState } from 'react';
-import { registerUser } from '../services/auth.service';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "@styles/form.css"; // Asegúrate de importar el estilo
 
 const Register = () => {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [formData, setFormData] = useState({
+    nombre: "",
+    numeroTelefonico: "",
+    email: "",
+    password: ""
+  });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
-    const res = await registerUser(form.email, form.password);
-    if (res && res.message) {
-      setMessage(res.message);
-    } else {
-      setMessage('Usuario registrado correctamente');
-    }
-    setLoading(false);
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-6 text-center">Registro de Usuario</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-xl"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-xl"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-xl mt-2"
-        >
-          {loading ? 'Registrando...' : 'Registrar'}
-        </button>
-      </form>
-      {message && <p className="mt-4 text-center text-indigo-600">{message}</p>}
+    <div className="auth-background">
+      <div className="register-container">
+        {/* Cabecera con Logo y Título */}
+        <div className="register-header">
+          <div className="header-logo-container">
+            <img src="/logo-uach.png" alt="Logo" className="uach-logo" />
+          </div>
+          <h1>¡Bienvenido/a al Bicicletero!</h1>
+        </div>
+
+        {/* Formulario en Grid (2 columnas como en tu diseño) */}
+        <form className="register-form">
+          <div className="form-group">
+            <label>Nombre</label>
+            <input 
+              type="text" 
+              name="nombre" 
+              value={formData.nombre} 
+              onChange={handleChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>Número Telefónico</label>
+            <input 
+              type="text" 
+              name="numeroTelefonico" 
+              value={formData.numeroTelefonico} 
+              onChange={handleChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input 
+              type="email" 
+              name="email" 
+              value={formData.email} 
+              onChange={handleChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>Contraseña</label>
+            <input 
+              type="password" 
+              name="password" 
+              value={formData.password} 
+              onChange={handleChange} 
+            />
+          </div>
+
+          <button type="submit" className="btn-registrar">Registrar</button>
+        </form>
+
+        {/* Selector inferior de Iniciar Sesión / Registrar */}
+        <div className="auth-switch">
+          <button onClick={() => navigate("/login")}>Iniciar Sesión</button>
+          <button className="active">Registrar</button>
+        </div>
+      </div>
     </div>
   );
 };
