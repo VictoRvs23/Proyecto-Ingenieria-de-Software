@@ -23,3 +23,4 @@ const Bicicleteros = () => {
     </div>
   );
 };
+export default Bicicleteros;
