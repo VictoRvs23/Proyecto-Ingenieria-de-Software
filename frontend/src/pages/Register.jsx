@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "@styles/form.css"; // Asegúrate de importar el estilo
+import { register } from "../services/auth.service"; 
+import "@styles/form.css"; 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ const Register = () => {
     email: "",
     password: ""
   });
+  
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -16,29 +19,51 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!formData.nombre || !formData.email || !formData.password) {
+        alert("Por favor completa los campos obligatorios");
+        setLoading(false);
+        return;
+    }
+
+    const response = await register(formData);
+    setLoading(false);
+
+    if (response.status === "error") {
+        alert("Error: " + response.message);
+    } else {
+        alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+        navigate("/login");
+    }
+  };
+
   return (
-    <div className="auth-background">
-      <div className="register-container">
-        {/* Cabecera con Logo y Título */}
-        <div className="register-header">
-          <div className="header-logo-container">
-            <img src="/logo-uach.png" alt="Logo" className="uach-logo" />
-          </div>
-          <h1>¡Bienvenido/a al Bicicletero!</h1>
+    <div className="auth-screen">
+      <div className="auth-card">
+        
+        <div className="logo-badge">
+          <img src="/logoubb.png" alt="Logo" className="ubb-logo-img" />
         </div>
 
-        {/* Formulario en Grid (2 columnas como en tu diseño) */}
-        <form className="register-form">
-          <div className="form-group">
+        <h1 className="auth-title">¡Bienvenido/a al Bicicletero!</h1>
+
+        <form className="register-grid" onSubmit={handleSubmit}>
+          
+          <div className="input-group">
             <label>Nombre</label>
             <input 
               type="text" 
               name="nombre" 
               value={formData.nombre} 
               onChange={handleChange} 
+              required
             />
           </div>
-          <div className="form-group">
+
+          <div className="input-group">
             <label>Número Telefónico</label>
             <input 
               type="text" 
@@ -47,33 +72,42 @@ const Register = () => {
               onChange={handleChange} 
             />
           </div>
-          <div className="form-group">
+
+          <div className="input-group">
             <label>Email</label>
             <input 
               type="email" 
               name="email" 
               value={formData.email} 
               onChange={handleChange} 
+              required
             />
           </div>
-          <div className="form-group">
+
+          <div className="input-group">
             <label>Contraseña</label>
             <input 
               type="password" 
               name="password" 
               value={formData.password} 
               onChange={handleChange} 
+              required
             />
           </div>
 
-          <button type="submit" className="btn-registrar">Registrar</button>
+          <button 
+            type="submit" 
+            className="btn-main-green"
+            disabled={loading}
+          >
+            {loading ? "Registrando..." : "Registrar"}
+          </button>
         </form>
-
-        {/* Selector inferior de Iniciar Sesión / Registrar */}
-        <div className="auth-switch">
-          <button onClick={() => navigate("/login")}>Iniciar Sesión</button>
-          <button className="active">Registrar</button>
+        <div className="auth-toggle" style={{ zIndex: 10, position: 'relative' }}>
+          <button type="button" onClick={() => navigate("/login")}>Iniciar Sesión</button>
+          <button type="button" className="active">Registrar</button>
         </div>
+
       </div>
     </div>
   );

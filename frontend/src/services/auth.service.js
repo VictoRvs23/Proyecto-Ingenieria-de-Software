@@ -1,48 +1,30 @@
+import axios from './root.service';
 
-export async function registerUser(email, password) {
-    return await register({ email, password });
-}
-import axios from './root.service.js';
-import cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
+export const register = async (userData) => {
+  try {
+    const response = await axios.post('/auth/register', userData);
+    return response.data; 
+  } catch (error) {
+    console.error("Error en register:", error);
+    return { 
+        status: "error", 
+        message: error.response?.data?.message || "Error al conectar con el servidor" 
+    };
+  }
+};
 
-export async function login(dataUser) {
-    try {
-        const { email, password } = dataUser;
-        const response = await axios.post('/auth/login', {
-            email,
-            password
-        });
-        
-        const { token, user } = response.data.data;
-        
-        cookies.set('jwt-auth', token, { path: '/' });
-        sessionStorage.setItem('usuario', JSON.stringify(user));
-        
-        return response.data;
-    } catch (error) {
-        return error.response?.data || { message: 'Error al conectar con el servidor' };
-    }
-}
+export const login = async (credentials) => {
+  try {
+    const response = await axios.post('/auth/login', credentials);
+    return response.data;
+  } catch (error) {
+    console.error("Error en login:", error);
+    return { 
+        status: "error", 
+        message: error.response?.data?.message || "Credenciales incorrectas" 
+    };
+  }
+};
 
-export async function register(data) {
-    try {
-        const { email, password } = data;
-        const response = await axios.post('/auth/register', {
-            email,
-            password
-        });
-        return response.data;
-    } catch (error) {
-        return error.response?.data || { message: 'Error al conectar con el servidor' };
-    }
-}
-
-export async function logout() {
-    try {
-        sessionStorage.removeItem('usuario');
-        cookies.remove('jwt-auth');
-    } catch (error) {
-        console.error('Error al cerrar sesión:', error);
-    }
-}
+export const logout = () => {
+};
