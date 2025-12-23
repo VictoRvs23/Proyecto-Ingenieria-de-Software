@@ -62,10 +62,14 @@ const Profile = () => {
       const bikesData = Array.isArray(bikesRes) ? bikesRes : (bikesRes.data || []);
       
       if (bikesData) {
-          const formattedBikes = bikesData.map(b => ({
-              ...b,
-              image: b.bikeImage ? `${SERVER_URL}${b.bikeImage}?t=${timestamp}` : defaultBikeImg
-          }));
+          const formattedBikes = bikesData.map(b => {
+              // Si no hay imagen o es la ruta por defecto del backend, usar la imagen por defecto del frontend
+              const hasValidImage = b.bikeImage && !b.bikeImage.includes('default-bike.png');
+              return {
+                  ...b,
+                  image: hasValidImage ? `${SERVER_URL}${b.bikeImage}?t=${timestamp}` : defaultBikeImg
+              };
+          });
           setBikesList(formattedBikes);
       }
     } catch (error) {

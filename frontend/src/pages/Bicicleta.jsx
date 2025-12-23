@@ -51,29 +51,35 @@ const AgregarBicicleta = () => {
 
     try {
       const response = await createBike(formData); 
+      console.log('🚴 Respuesta al crear bicicleta:', response);
 
       if (response && response.data) {
         const newBikeId = response.data.id;
+        console.log('🚴 ID de la nueva bicicleta:', newBikeId);
+        console.log('🚴 ¿Hay imagen seleccionada?', !!selectedFile);
         
         if (selectedFile && newBikeId) {
           const imageFormData = new FormData();
           imageFormData.append('image', selectedFile);
           
           try {
-            await updateBikeImage(newBikeId, imageFormData);
+            const imgResponse = await updateBikeImage(newBikeId, imageFormData);
+            console.log('🚴 Respuesta al actualizar imagen:', imgResponse);
           } catch (imageError) {
-            console.warn("Bicicleta creada pero no se pudo subir la imagen:", imageError);
+            console.error("🚴 Error subiendo imagen:", imageError);
           }
         }
-        
-        await Swal.fire({
-          title: '¡Logrado!',
-          text: 'Tu bicicleta ha sido registrada correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#1b7e3c'
-        });
-        navigate('/home/profile');
+      } else {
+        console.error('🚴 Respuesta no tiene el formato esperado:', response);
       }
+        
+      await Swal.fire({
+        title: '¡Logrado!',
+        text: 'Tu bicicleta ha sido registrada correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#1b7e3c'
+      });
+      navigate('/home/profile');
     } catch (error) {
       console.error("Error al crear bicicleta:", error);
       Swal.fire({

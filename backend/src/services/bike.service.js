@@ -36,7 +36,7 @@ export async function createNewBike(bikeData, userId) {
     const bike = bikeRepository.create({
       ...bikeData,
       user: user,
-      bikeImage: "/default-bike.png" 
+      bikeImage: null 
     });
 
     return await bikeRepository.save(bike);
