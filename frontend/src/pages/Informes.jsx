@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllBicicleteros } from '../services/bicicletero.service';
 import '../styles/informes.css';
 
 const Informes = () => {
+  const navigate = useNavigate();
   const [bicicleteros, setBicicleteros] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,9 +24,8 @@ const Informes = () => {
   };
 
   const handleGenerarInforme = (numero) => {
-    console.log(`Generando informe para Bicicletero ${numero}`);
-    // Aquí puedes agregar la lógica para generar el informe
-    alert(`Generando informe del Bicicletero ${numero}`);
+    console.log(`Navegando al informe del Bicicletero ${numero}`);
+    navigate(`/home/informes/${numero}`);
   };
 
   return (

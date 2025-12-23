@@ -53,10 +53,11 @@ const Espacios = () => {
 
   return (
     <div className="espacios-container">
+      <button className="back-button" onClick={() => navigate('/home/bicicletero')}>
+        <FaArrowLeft />
+      </button>
+      
       <div className="espacios-header">
-        <button className="back-button" onClick={() => navigate('/home/bicicletero')}>
-          <FaArrowLeft />
-        </button>
         <h1 className="espacios-title">BICICLETERO ({id})</h1>
       </div>
 

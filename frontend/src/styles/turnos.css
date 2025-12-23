@@ -1,0 +1,139 @@
+.turnos-container {
+  width: 100%;
+  padding: 2rem;
+  padding-top: 60px;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.turnos-title {
+  font-family: 'Roboto', sans-serif;
+  color: #1565C0;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #1565C0;
+  margin-top: 2rem;
+}
+
+.tabla-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f0f0f0;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.tabla-turnos {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.tabla-turnos thead {
+  background: #2b79c2;
+  color: white;
+}
+
+.tabla-turnos thead th {
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  border-right: 2px solid white;
+}
+
+.tabla-turnos thead th:last-child {
+  border-right: none;
+}
+
+.tabla-turnos tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tabla-turnos tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tabla-turnos tbody td {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+  color: #333;
+  border-right: 1px solid #e0e0e0;
+}
+
+.tabla-turnos tbody td:last-child {
+  border-right: none;
+}
+
+.tabla-turnos tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.datos-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.bicicletero-select {
+  background: #7fa8d4;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+  min-width: 150px;
+  transition: background-color 0.3s;
+}
+
+.bicicletero-select option {
+  text-align: center;
+}
+
+.bicicletero-select:hover {
+  background: #5a8cc4;
+}
+
+.bicicletero-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(43, 121, 194, 0.3);
+}
+
+@media (max-width: 768px) {
+  .turnos-title {
+    font-size: 2rem;
+  }
+  
+  .tabla-wrapper {
+    padding: 1rem;
+  }
+  
+  .tabla-turnos thead th,
+  .tabla-turnos tbody td {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .bicicletero-select {
+    min-width: 100px;
+    padding: 0.5rem 1rem;
+  }
+}

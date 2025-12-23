@@ -9,7 +9,9 @@ import Bicicletero from './pages/Bicicletero';
 import Espacios from './pages/Espacios';
 import Profile from './pages/Profile'; 
 import AgregarBicicleta from './pages/Bicicleta';
-import Informes from './pages/Informes'; 
+import Informes from './pages/Informes';
+import TablaInforme from './pages/TablaInforme';
+import Turnos from './pages/Turnos'; 
 
 const router = createBrowserRouter([
   {
@@ -51,6 +53,14 @@ const router = createBrowserRouter([
       {
         path: "informes",
         element: <Informes />,
+      },
+      {
+        path: "informes/:id",
+        element: <TablaInforme />,
+      },
+      {
+        path: "turnos",
+        element: <Turnos />,
       },
     ],
   },

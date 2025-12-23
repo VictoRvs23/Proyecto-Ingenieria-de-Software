@@ -1,27 +1,19 @@
 .espacios-container {
   width: 100%;
   padding: 2rem;
-  padding-top: 60px;
+  padding-top: 20px;
   min-height: 100vh;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.espacios-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin-bottom: 25px;
 }
 
 .back-button {
   position: absolute;
-  left: 0;
+  top: 10px;
+  left: 80px;
   background: #ffffff;
   border: 2px solid #1565C0;
   color: #1565C0;
@@ -34,11 +26,23 @@
   cursor: pointer;
   font-size: 1.2rem;
   transition: all 0.3s;
+  z-index: 10;
 }
 
 .back-button:hover {
   background: #1565C0;
   color: white;
+}
+
+.espacios-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 25px;
+  margin-top: 40px;
 }
 
 .espacios-title {
@@ -105,8 +109,8 @@
 }
 
 .espacio-item.ocupado {
-  background: #940404;
-  border: 2px solid #590404;
+  background: #FF6B6B;
+  border: 2px solid #990505;
 }
 
 .loading-message {
