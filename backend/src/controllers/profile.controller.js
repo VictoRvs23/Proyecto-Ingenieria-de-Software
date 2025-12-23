@@ -14,15 +14,16 @@ export async function getPrivateProfile(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ email: userFromToken.email });
+    
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }
+    
+    const { password, ...userData } = user;
+
     handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
-      message: `¡Hola, ${user.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
-      userData: {
-        email: user.email,
-        password: user.password
-      }
+      message: `¡Hola, ${user.email}!`,
+      userData: userData
     });
   } catch (error) {
     handleErrorServer(res, 500, "Error al obtener perfil privado", error.message);
@@ -32,28 +33,40 @@ export async function getPrivateProfile(req, res) {
 export async function updatePrivateProfile(req, res) {
   try {
     const userFromToken = req.user;
-    const { email, password } = req.body;
+    const { email, password, nombre, numeroTelefonico } = req.body;
+    const imageFile = req.file; 
 
-    if (!email && !password) {
-      return handleErrorClient(res, 400, "Debes proporcionar email y/o password para actualizar.");
+    if (!email && !password && !nombre && !numeroTelefonico && !imageFile) {
+      return handleErrorClient(res, 400, "Debes proporcionar datos para actualizar.");
     }
 
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneBy({ id: userFromToken.sub });
+    const user = await userRepository.findOneBy({ id: userFromToken.sub }); 
+
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }
 
-  
     if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
+    if (nombre) user.nombre = nombre;
+    if (numeroTelefonico) user.numeroTelefonico = numeroTelefonico;
+    
+    if (password) {
+        user.password = await bcrypt.hash(password, 10);
+    }
+
+    if (imageFile) {
+        user.userImage = `/uploads/${imageFile.filename}`;
+    }
 
     await userRepository.save(user);
-    delete user.password;
-    handleSuccess(res, 200, "Perfil privado actualizado exitosamente", {
-      message: `¡Hola, ${user.email}! Tu perfil ha sido actualizado.`,
-      userData: user,
+    const { password: _, ...userWithoutPass } = user;
+
+    handleSuccess(res, 200, "Perfil actualizado exitosamente", {
+      message: `¡Datos actualizados!`,
+      userData: userWithoutPass,
     });
+
   } catch (error) {
     handleErrorServer(res, 500, "Error al actualizar perfil", error.message);
   }

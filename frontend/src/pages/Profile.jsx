@@ -1,87 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
-// CAMBIO: Importamos FaMinus en lugar de FaSyncAlt
 import { FaPlus, FaMinus } from 'react-icons/fa'; 
 import '../styles/profile.css';
 
 const Profile = () => {
   const defaultUserImg = "/default-user.png"; 
   const defaultBikeImg = "/default-bike.png"; 
-
+  const currentUserEmail = localStorage.getItem("email") || "";
+  const currentUserName = localStorage.getItem("name") || "Sin Nombre";
+  const currentUserRole = localStorage.getItem("role") || "Usuario";
   const [userImage, setUserImage] = useState(() => {
-    return localStorage.getItem('userImage') || defaultUserImg;
+    const savedImg = localStorage.getItem(`userImage_${currentUserEmail}`);
+    return savedImg || defaultUserImg;
   });
 
-  const [bikeImage, setBikeImage] = useState(() => {
-    return localStorage.getItem('bikeImage') || defaultBikeImg;
+  const [bikesList, setBikesList] = useState(() => {
+    const savedBikes = localStorage.getItem(`bikesList_${currentUserEmail}`);
+    if (savedBikes) {
+      return JSON.parse(savedBikes);
+    }
+    const oldSingleBike = localStorage.getItem('bikeData');
+    if (oldSingleBike) {
+      const parsedBike = JSON.parse(oldSingleBike);
+      const oldBikeImg = localStorage.getItem('bikeImage') || defaultBikeImg;
+      return [{ ...parsedBike, image: oldBikeImg }];
+    }
+    return [];
   });
-  
+
+  const [currentBikeIndex, setCurrentBikeIndex] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // === DATOS ===
-  const [userData, setUserData] = useState({ role: "", name: "", email: "" });
-
-  const [bikeData, setBikeData] = useState(() => {
-    const savedData = localStorage.getItem('bikeData');
-    return savedData ? JSON.parse(savedData) : null;
-  });
+  useEffect(() => {
+    if (currentUserEmail) {
+      localStorage.setItem(`bikesList_${currentUserEmail}`, JSON.stringify(bikesList));
+    }
+  }, [bikesList, currentUserEmail]);
 
   useEffect(() => {
-    const role = localStorage.getItem("role") || "Usuario";
-    const name = localStorage.getItem("name") || "Sin Nombre";
-    const email = localStorage.getItem("email") || "Sin Email";
-    setUserData({ role, name, email });
-  }, []);
+    if (currentUserEmail && userImage !== defaultUserImg) {
+      localStorage.setItem(`userImage_${currentUserEmail}`, userImage);
+    }
+  }, [userImage, currentUserEmail]);
 
   const userInfoList = [
-    `Rol: ${userData.role.toUpperCase()}`,
-    `Nombre: ${userData.name}`,
-    `Email: ${userData.email}`,
+    `Rol: ${currentUserRole.toUpperCase()}`,
+    `Nombre: ${currentUserName}`,
+    `Email: ${currentUserEmail}`,
     "Tel: +56 9 1234 5678"
   ];
 
-  const bikeInfoList = bikeData ? [
-    `Marca: ${bikeData.marca}`,
-    `Modelo: ${bikeData.modelo}`,
-    `Color: ${bikeData.color}`
+  const currentBike = bikesList[currentBikeIndex];
+  const bikeInfoList = currentBike ? [
+    `Marca: ${currentBike.marca}`,
+    `Modelo: ${currentBike.modelo}`,
+    `Color: ${currentBike.color}`
   ] : [];
 
   const handleAddBike = () => {
-    const newBike = { marca: "Trek", modelo: "Marlin 5", color: "Negro" };
-    setBikeData(newBike);
-    localStorage.setItem('bikeData', JSON.stringify(newBike));
-    setBikeImage(defaultBikeImg);
-    localStorage.setItem('bikeImage', defaultBikeImg);
+    const newBike = { 
+      marca: "Marca Nueva", 
+      modelo: "Modelo Nuevo", 
+      color: "Color", 
+      image: defaultBikeImg
+    };
+    
+    const updatedList = [...bikesList, newBike];
+    setBikesList(updatedList);
+    setCurrentBikeIndex(updatedList.length - 1);
+    setHasUnsavedChanges(true);
   };
+
   const handleDeleteBike = () => {
-    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar tu bicicleta?");
+    if (bikesList.length === 0) return;
+
+    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar esta bicicleta?");
     if (confirmDelete) {
-      setBikeData(null); 
-      localStorage.removeItem('bikeData');
-      
-      setBikeImage(defaultBikeImg); 
-      localStorage.removeItem('bikeImage');
-      
-      alert("Bicicleta eliminada.");
+      const updatedList = bikesList.filter((_, index) => index !== currentBikeIndex);
+      setBikesList(updatedList);
+      if (currentBikeIndex >= updatedList.length) {
+        setCurrentBikeIndex(Math.max(0, updatedList.length - 1));
+      }
+      setHasUnsavedChanges(true);
     }
   };
 
-  const bikeIcons = (
-    <>
-      <button className="float-icon left"><FaPlus /></button>
-      <button className="float-icon right" onClick={handleDeleteBike} title="Eliminar bicicleta">
-        <FaMinus />
-      </button>
-    </>
-  );
   const handleImageUpdate = (type, newImageUrl) => {
     if (type === 'user') {
       setUserImage(newImageUrl);
-      localStorage.setItem('userImage', newImageUrl);
     } else if (type === 'bike') {
-      if (bikeData) {
-         setBikeImage(newImageUrl);
-         localStorage.setItem('bikeImage', newImageUrl);
+      if (bikesList.length > 0) {
+        const updatedList = [...bikesList];
+        updatedList[currentBikeIndex].image = newImageUrl;
+        setBikesList(updatedList);
       }
     }
     setHasUnsavedChanges(true); 
@@ -91,6 +102,17 @@ const Profile = () => {
     alert("¡Cambios guardados exitosamente!");
     setHasUnsavedChanges(false);
   };
+
+  const bikeIcons = (
+    <>
+      <button className="float-icon left" onClick={handleAddBike} title="Agregar otra bicicleta">
+        <FaPlus />
+      </button>
+      <button className="float-icon right" onClick={handleDeleteBike} title="Eliminar esta bicicleta">
+        <FaMinus />
+      </button>
+    </>
+  );
 
   return (
     <div className="profile-container">
@@ -103,15 +125,18 @@ const Profile = () => {
           infoList={userInfoList}
           onImageChange={(newUrl) => handleImageUpdate('user', newUrl)}
         />
-
         <ProfileCard 
-          image={bikeImage}
+          image={currentBike ? currentBike.image : defaultBikeImg}
           btnText="Cambiar Foto de Bicicleta"
           infoList={bikeInfoList} 
           topIcons={bikeIcons}
-          showDots={true}
+          showDots={bikesList.length > 1}
+          totalItems={bikesList.length}
+          currentIndex={currentBikeIndex}
+          onDotClick={(index) => setCurrentBikeIndex(index)}
+          
           onImageChange={(newUrl) => handleImageUpdate('bike', newUrl)}
-          onAddClick={handleAddBike} 
+          onAddClick={handleAddBike}
         />
       </div>
 

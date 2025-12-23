@@ -36,6 +36,12 @@ export const User = new EntitySchema({
       length: 100,
       nullable: false,
     },
+    userImage: {
+      type: "varchar",
+      length: 255,
+      nullable: true, 
+    },
+    // ====================================
     created_at: {
       type: "timestamp",
       createDate: true,

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js"; 
 import {
   getPublicProfile,
   getPrivateProfile,
@@ -15,7 +16,7 @@ router.get("/public", getPublicProfile);
 
 router.get("/private", authMiddleware, getPrivateProfile);
 
-router.patch("/private", authMiddleware, updatePrivateProfile);
+router.patch("/private", authMiddleware, upload.single("image"), updatePrivateProfile);
 
 router.delete("/private", authMiddleware, deletePrivateProfile);
 
