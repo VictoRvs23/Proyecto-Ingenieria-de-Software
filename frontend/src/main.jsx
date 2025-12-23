@@ -8,7 +8,8 @@ import Register from './pages/Register';
 import Bicicletero from './pages/Bicicletero';
 import Espacios from './pages/Espacios';
 import Profile from './pages/Profile'; 
-import AgregarBicicleta from './pages/Bicicleta'; 
+import AgregarBicicleta from './pages/Bicicleta';
+import Informes from './pages/Informes'; 
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: "agregar-bicicleta",
         element: <AgregarBicicleta />,
+      },
+      {
+        path: "informes",
+        element: <Informes />,
       },
     ],
   },
