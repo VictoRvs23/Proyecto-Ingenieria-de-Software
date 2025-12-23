@@ -43,18 +43,12 @@ const Register = () => {
     setLoading(true);
 
     try {
-        // === 1. LIMPIEZA DEL TELÉFONO ===
-        // Quitamos '+' y espacios
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace('+', '').replace(/\s/g, '') : "";
 
-        // SI EL NÚMERO ES MUY LARGO (Más de 10 caracteres):
-        // Tu base de datos solo aguanta 10. Si viene como "569..." (11 chars),
-        // le quitamos el "56" del principio para que quede "9..." (9 chars).
         if (phoneClean.startsWith('56') && phoneClean.length > 10) {
             phoneClean = phoneClean.slice(2);
         }
-
-        // === 2. PREPARAR DATOS ===
+        
         const dataForBackend = {
             nombre: data.nombre, 
             email: data.email,
@@ -63,8 +57,6 @@ const Register = () => {
         };
 
         console.log("Enviando al backend:", dataForBackend);
-
-        // === 3. ENVIAR AL BACKEND ===
         const response = await register(dataForBackend);
         setLoading(false);
 
@@ -72,8 +64,6 @@ const Register = () => {
             alert("Error del servidor: " + response.message);
             return;
         }
-
-        // === 4. ÉXITO (LocalStorage) ===
         const existingUsers = JSON.parse(localStorage.getItem("usersDB")) || [];
         if (!existingUsers.find(u => u.email === data.email)) {
             existingUsers.push({ 
@@ -85,7 +75,6 @@ const Register = () => {
             localStorage.setItem("usersDB", JSON.stringify(existingUsers));
         }
 
-        // Limpieza de sesión
         localStorage.removeItem("bikeData");
         localStorage.removeItem("bikeImage");
         localStorage.removeItem("userImage");

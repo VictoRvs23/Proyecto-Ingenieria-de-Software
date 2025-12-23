@@ -6,9 +6,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Bicicletero from './pages/Bicicletero';
-
-/* 1. IMPORTA LA PÁGINA DE PERFIL */
 import Profile from './pages/Profile'; 
+import AgregarBicicleta from './pages/Bicicleta'; 
 
 const router = createBrowserRouter([
   {
@@ -38,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "profile", 
         element: <Profile />,
+      },
+      {
+        path: "agregar-bicicleta",
+        element: <AgregarBicicleta />,
       },
     ],
   },
