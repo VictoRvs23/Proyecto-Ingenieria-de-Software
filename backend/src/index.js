@@ -19,7 +19,15 @@ app.use(cors({
   credentials: true
 }));
 
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/uploads', (req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
+  next();
+}, express.static(path.join(__dirname, '..', 'uploads')));
 
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi API REST con TypeORM!");

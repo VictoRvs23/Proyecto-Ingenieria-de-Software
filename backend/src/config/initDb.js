@@ -45,6 +45,15 @@ export async function createUsers() {
         role: "admin",
       },
       {
+        username: "Admin Bicicletero",
+        nombre: "Admin Bicicletero",
+        rut: "12334455-6",
+        email: "adminbici@gmail.com",
+        password: await bcrypt.hash("adminbici123", 10),
+        numeroTelefonico: "123344556",
+        role: "adminBicicletero",
+      },
+      {
         username: "Usuario Prueba",
         nombre: "Usuario Prueba",
         rut: "98765432-1",

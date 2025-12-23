@@ -1,0 +1,148 @@
+.espacios-container {
+  width: 100%;
+  padding: 2rem;
+  padding-top: 60px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.espacios-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 25px;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  background: #ffffff;
+  border: 2px solid #1565C0;
+  color: #1565C0;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background: #1565C0;
+  color: white;
+}
+
+.espacios-title {
+  font-family: 'Roboto', sans-serif;
+  color: #1565C0;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.espacios-card {
+  background: #f0f0f0;
+  border-radius: 2rem;
+  padding: 20px 70px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 100%;
+}
+
+.espacios-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+.espacio-item {
+  width: 100px;
+  height: 140px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #000000;
+  border: 2px solid #333;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.espacio-item:hover {
+  transform: scale(1.05);
+}
+
+.espacio-numero {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.espacio-bike-icon {
+  font-size: 1.3rem;
+  color: #000000;
+  margin-top: 5px;
+}
+
+.espacio-item.disponible {
+  background: #90EE90;
+  border: 2px solid #059914;
+}
+
+.espacio-item.ocupado {
+  background: #940404;
+  border: 2px solid #590404;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #1565C0;
+  margin-top: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .espacios-card {
+    padding: 40px 50px;
+  }
+  
+  .espacios-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .espacios-title {
+    font-size: 2rem;
+  }
+  
+  .espacios-card {
+    padding: 30px 20px;
+  }
+  
+  .espacios-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+  
+  .espacio-item {
+    width: 80px;
+    height: 110px;
+    font-size: 1.5rem;
+  }
+}

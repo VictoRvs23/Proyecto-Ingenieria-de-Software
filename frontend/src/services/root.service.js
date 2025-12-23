@@ -18,6 +18,12 @@ instance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    // Si no hay Content-Type definido o es FormData, eliminar el Content-Type
+    // para que el navegador lo establezca automáticamente
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => {

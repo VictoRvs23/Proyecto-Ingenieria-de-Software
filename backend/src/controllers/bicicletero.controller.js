@@ -2,6 +2,15 @@ import { BicicleteroService } from "../services/bicicletero.service.js";
 
 const service = new BicicleteroService();
 
+export const getAllBicicleteros = async (req, res) => {
+  try {
+    const data = await service.getAllBicicleteros();
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export const getBicicleteroByNumber = async (req, res) => {
   try {
     const { number } = req.params;

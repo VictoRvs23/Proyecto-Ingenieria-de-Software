@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Bicicletero from './pages/Bicicletero';
+import Espacios from './pages/Espacios';
 import Profile from './pages/Profile'; 
 import AgregarBicicleta from './pages/Bicicleta'; 
 
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "bicicletero", 
         element: <Bicicletero />,
+      },
+      {
+        path: "bicicletero/:id",
+        element: <Espacios />,
       },
       {
         path: "profile", 

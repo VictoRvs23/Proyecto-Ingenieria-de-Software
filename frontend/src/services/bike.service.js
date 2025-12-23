@@ -20,11 +20,16 @@ export async function createBike(bikeData) {
 
 export async function updateBikeImage(id, formData) {
     try {
-        const response = await axios.patch(`/bikes/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        console.log('📤 Actualizando imagen de bicicleta ID:', id);
+        // Para FormData, dejar que el navegador maneje todo automáticamente
+        const response = await axios.patch(`/bikes/${id}`, formData);
+        console.log('✅ Respuesta exitosa:', response.data);
         return response.data;
     } catch (error) {
+        console.error('❌ Error al actualizar imagen de bicicleta:', {
+            status: error.response?.status,
+            data: error.response?.data
+        });
         return error.response?.data || { status: "error", message: 'Error al actualizar imagen' };
     }
 }

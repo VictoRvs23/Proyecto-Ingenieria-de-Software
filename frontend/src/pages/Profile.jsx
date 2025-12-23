@@ -22,6 +22,8 @@ const Profile = () => {
     image: defaultUserImg 
   });
   
+  const [imageKey, setImageKey] = useState(Date.now()); // Key para forzar re-render
+  
   const [bikesList, setBikesList] = useState([]);
   const [currentBikeIndex, setCurrentBikeIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ const Profile = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const timestamp = new Date().getTime();
+      const timestamp = Date.now(); // Usar Date.now() para un timestamp más único
 
       const userRes = await getPrivateProfile(); 
       const u = userRes.data || userRes; 
@@ -46,7 +48,12 @@ const Profile = () => {
         const data = u.userData || u.data || u; 
         console.log('📸 Datos del usuario recibidos:', data);
         console.log('📸 userImage del servidor:', data.userImage);
-        const imageUrl = data.userImage ? `${SERVER_URL}${data.userImage}?t=${timestamp}` : defaultUserImg;
+        
+        // Verificar si la imagen es válida y no es null/undefined/vacía
+        const hasValidUserImage = data.userImage && data.userImage.trim() !== '' && data.userImage !== 'null';
+        const imageUrl = hasValidUserImage
+          ? `${SERVER_URL}${data.userImage}?v=${timestamp}&r=${Math.random()}` 
+          : defaultUserImg;
         console.log('📸 URL construida:', imageUrl);
         
         setUserData({
@@ -63,11 +70,16 @@ const Profile = () => {
       
       if (bikesData) {
           const formattedBikes = bikesData.map(b => {
-              // Si no hay imagen o es la ruta por defecto del backend, usar la imagen por defecto del frontend
-              const hasValidImage = b.bikeImage && !b.bikeImage.includes('default-bike.png');
+              // Verificar si la imagen de bicicleta es válida
+              const hasValidBikeImage = b.bikeImage && 
+                                        b.bikeImage.trim() !== '' && 
+                                        b.bikeImage !== 'null' && 
+                                        !b.bikeImage.includes('default-bike.png');
               return {
                   ...b,
-                  image: hasValidImage ? `${SERVER_URL}${b.bikeImage}?t=${timestamp}` : defaultBikeImg
+                  image: hasValidBikeImage 
+                    ? `${SERVER_URL}${b.bikeImage}?v=${timestamp}&r=${Math.random()}` 
+                    : defaultBikeImg
               };
           });
           setBikesList(formattedBikes);
@@ -109,7 +121,7 @@ const Profile = () => {
             showConfirmButton: false
           });
 
-          // Ajustar el índice si es necesario
+
           if (currentBikeIndex >= bikesList.length - 1) {
             setCurrentBikeIndex(Math.max(0, bikesList.length - 2));
           }
@@ -128,65 +140,97 @@ const Profile = () => {
   };
 
   const handleImageUpdate = async (type, previewUrl, file) => {
-    if (!file) return;
+    if (!file) {
+      console.log('❌ No se seleccionó archivo');
+      return;
+    }
+
+    console.log('🔧 Iniciando actualización de imagen:', { 
+      type, 
+      fileName: file.name,
+      fileSize: file.size, 
+      fileType: file.type 
+    });
 
     const formData = new FormData();
     formData.append('image', file); 
+
+    // Verificar FormData
+    console.log('📦 FormData creado correctamente');
     
     try {
         if (type === 'user') {
+            console.log('👤 Actualizando imagen de usuario...');
+            
+            console.log('📤 Enviando al servidor...');
             const response = await updatePrivateProfile(formData); 
+            console.log('✅ Respuesta del servidor:', response);
             
-            if (response) {
-                setUserData(prev => ({
-                    ...prev,
-                    image: previewUrl
-                }));
-                
-                await Swal.fire({ 
-                    title: '¡Éxito!', 
-                    text: 'Foto de perfil actualizada', 
-                    icon: 'success', 
-                    timer: 1500, 
-                    showConfirmButton: false 
-                });
-                await fetchData(); 
-            }
-        } else if (type === 'bike') {
-            const bikeToUpdate = bikesList[currentBikeIndex];
-            if (!bikeToUpdate) return;
+            // Forzar cambio de key ANTES de mostrar el success
+            setImageKey(Date.now());
             
-            const response = await updateBikeImage(bikeToUpdate.id, formData); 
-            
-            if (response) {
-                setBikesList(prev => prev.map((bike, idx) => 
-                    idx === currentBikeIndex 
-                        ? { ...bike, image: previewUrl }
-                        : bike
-                ));
-                
-                await Swal.fire({ 
-                    title: '¡Éxito!', 
-                    text: 'Foto de bicicleta actualizada', 
-                    icon: 'success', 
-                    timer: 1500, 
-                    showConfirmButton: false 
-                });
+            await Swal.fire({ 
+                title: '¡Éxito!', 
+                text: 'Foto de perfil actualizada', 
+                icon: 'success', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
 
-                await fetchData(); 
+            // Esperar a que el servidor guarde el archivo
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Forzar recarga completa
+            await fetchData();
+        } else if (type === 'bike') {
+            console.log('🚴 Actualizando imagen de bicicleta...');
+            const bikeToUpdate = bikesList[currentBikeIndex];
+            if (!bikeToUpdate) {
+              console.log('❌ No se encontró la bicicleta');
+              return;
             }
+            
+            console.log('🚴 Bicicleta a actualizar:', bikeToUpdate.id);
+            
+            // Actualizar preview inmediatamente
+            setBikesList(prev => prev.map((bike, idx) => 
+                idx === currentBikeIndex 
+                    ? { ...bike, image: previewUrl }
+                    : bike
+            ));
+            
+            console.log('📤 Enviando al servidor...');
+            const response = await updateBikeImage(bikeToUpdate.id, formData); 
+            console.log('✅ Respuesta del servidor:', response);
+            
+            await Swal.fire({ 
+                title: '¡Éxito!', 
+                text: 'Foto de bicicleta actualizada', 
+                icon: 'success', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await fetchData();
         }
     } catch (error) {
-        console.error("Detalles del error del servidor:", error.response?.data);
+        console.error("❌ Error completo:", error);
+        console.error("❌ Respuesta del servidor:", error.response);
+        console.error("❌ Datos del error:", error.response?.data);
+        console.error("❌ Status:", error.response?.status);
         
-        const serverMessage = error.response?.data?.message;
-        const fallbackMessage = 'El servidor no reconoció los datos. Verifica el formato del archivo.';
+        const serverMessage = error.response?.data?.message || error.response?.data?.error;
+        const fallbackMessage = 'Error al actualizar la imagen. Verifica el formato del archivo.';
 
-        Swal.fire({ 
+        await Swal.fire({ 
             title: 'Error de actualización', 
             text: serverMessage || fallbackMessage, 
             icon: 'error' 
         });
+        
+        // Revertir preview en caso de error
+        await fetchData();
     }
   };
 
@@ -204,6 +248,7 @@ const Profile = () => {
 
       <div className="profile-cards-grid">
         <ProfileCard 
+          key={`user-profile-${imageKey}`}
           image={userData.image}
           btnText="Cambiar Foto de Perfil"
           infoList={[

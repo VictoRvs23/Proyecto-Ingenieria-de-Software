@@ -1,32 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAllBicicleteros } from '../services/bicicletero.service';
 import '../styles/bicicletero.css';
 
 const Bicicletero = () => {
   const navigate = useNavigate();
   const [bicicleteros, setBicicleteros] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const dataBicicleteros = [
-      { numero: 1, espaciosOcupados: 5, espaciosTotales: 15 },
-      { numero: 2, espaciosOcupados: 9, espaciosTotales: 15 },
-      { numero: 3, espaciosOcupados: 1, espaciosTotales: 15 },
-      { numero: 4, espaciosOcupados: 15, espaciosTotales: 15 } 
-    ];
-    setBicicleteros(dataBicicleteros);
+    loadBicicleteros();
+    
+    const interval = setInterval(() => {
+      loadBicicleteros();
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
+  const loadBicicleteros = async () => {
+    try {
+      const data = await getAllBicicleteros();
+      setBicicleteros(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error al cargar bicicleteros:', error);
+      setLoading(false);
+    }
+  };
+
   const handleBicicleteroClick = (numero) => {
-    console.log(`Navegando a bicicletero ${numero}`);
+    navigate(`/home/bicicletero/${numero}`);
   };
 
   return (
     <div className="bicicleteros-container">
       <h1 className="bicicleteros-title">BICICLETEROS</h1>
 
-      <div className="bicicleteros-grid">
-        {bicicleteros.map((bici) => {
-          const estaLleno = bici.espaciosOcupados >= bici.espaciosTotales;
+      {loading ? (
+        <div className="loading-message">Cargando bicicleteros...</div>
+      ) : (
+        <div className="bicicleteros-grid">
+          {bicicleteros.map((bici) => {
+            const estaLleno = bici.espaciosOcupados >= bici.espaciosTotales;
           
           return (
             <div 
@@ -52,7 +68,8 @@ const Bicicletero = () => {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

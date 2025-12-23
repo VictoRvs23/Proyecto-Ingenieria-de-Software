@@ -9,7 +9,11 @@ const Home = () => {
         <img 
           src="/inicioB.png" 
           alt="Bienvenida al Bicicletero" 
-          className="home-image" 
+          className="home-image"
+          onError={(e) => {
+            console.error('Error cargando imagen de inicio');
+            e.target.style.display = 'none';
+          }}
         />
       </div>
     </div>

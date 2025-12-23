@@ -9,6 +9,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
+    console.log('🔍 Rol del localStorage:', storedRole);
     if (storedRole) {
       setUserRole(storedRole);
     }
@@ -21,7 +22,10 @@ const Sidebar = () => {
     localStorage.removeItem("bikeImage");
     navigate('/login');
   };
-  const showAdminModules = userRole === 'admin' || userRole === 'guardia';
+  
+  // Roles que pueden ver Informes y Turnos (sin .toLowerCase())
+  const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
+  console.log('🔍 userRole:', userRole, '| showAdminModules:', showAdminModules);
   return (
     <div className="sidebar">
       <div className="sidebar-header">

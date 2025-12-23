@@ -41,9 +41,13 @@ const ProfileCard = ({
 
       <div className="image-circle">
         <img 
-          src={image} 
+          src={image || '/default-user.png'} 
           alt="Avatar" 
-          style={{ opacity: 1, objectFit: 'cover' }} 
+          style={{ opacity: 1, objectFit: 'cover' }}
+          onError={(e) => {
+            console.error('Error cargando imagen:', image);
+            e.target.src = '/default-user.png';
+          }}
         />
       </div>
       <input 

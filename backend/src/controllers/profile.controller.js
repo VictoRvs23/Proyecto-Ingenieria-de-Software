@@ -32,20 +32,29 @@ export async function getPrivateProfile(req, res) {
 
 export async function updatePrivateProfile(req, res) {
   try {
+    console.log('========== UPDATE PROFILE START ==========');
+    console.log('🔐 Usuario del token:', req.user);
+    console.log('📦 Body recibido:', req.body);
+    console.log('📷 Archivo recibido:', req.file);
+    
     const userFromToken = req.user;
     const { email, password, nombre, numeroTelefonico } = req.body;
     const imageFile = req.file; 
 
     if (!email && !password && !nombre && !numeroTelefonico && !imageFile) {
+      console.log('❌ No hay datos para actualizar');
       return handleErrorClient(res, 400, "Debes proporcionar datos para actualizar.");
     }
 
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneBy({ id: userFromToken.sub }); 
+    const user = await userRepository.findOneBy({ id: userFromToken.id }); 
 
     if (!user) {
+      console.log('❌ Usuario no encontrado en BD');
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }
+    
+    console.log('✅ Usuario encontrado:', { id: user.id, email: user.email, role: user.role });
 
     if (email) user.email = email;
     if (nombre) user.nombre = nombre;
@@ -56,18 +65,25 @@ export async function updatePrivateProfile(req, res) {
     }
 
     if (imageFile) {
+        console.log('📷 Guardando imagen:', imageFile.filename);
         user.userImage = `/uploads/${imageFile.filename}`;
     }
 
     await userRepository.save(user);
+    console.log('✅ Usuario guardado en BD');
+    
     const { password: _, ...userWithoutPass } = user;
 
+    console.log('✅ Respuesta a enviar:', userWithoutPass);
+    console.log('========== UPDATE PROFILE END ==========');
+    
     handleSuccess(res, 200, "Perfil actualizado exitosamente", {
       message: `¡Datos actualizados!`,
       userData: userWithoutPass,
     });
 
   } catch (error) {
+    console.error('❌❌ ERROR EN updatePrivateProfile:', error);
     handleErrorServer(res, 500, "Error al actualizar perfil", error.message);
   }
 }

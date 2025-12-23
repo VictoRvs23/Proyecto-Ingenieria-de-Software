@@ -3,6 +3,19 @@ import { Bicicletero } from "../entities/bicicletero.entity.js";
 import { Bike } from "../entities/bike.entity.js";
 
 export class BicicleteroService {
+  async getAllBicicleteros() {
+    const repo = AppDataSource.getRepository(Bicicletero);
+    const bicicleteros = await repo.find({
+      relations: ["bikes"]
+    });
+    
+    return bicicleteros.map(b => ({
+      numero: b.number,
+      espaciosOcupados: b.bikes ? b.bikes.length : 0,
+      espaciosTotales: b.space
+    }));
+  }
+
   async getStatus() {
     const repo = AppDataSource.getRepository(Bicicletero);
     const data = await repo.findOne({ 
