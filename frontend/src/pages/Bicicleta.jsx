@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/bicicleta.css';
-import { createBike } from '../services/bike.service';
+import { createBike, updateBikeImage } from '../services/bike.service';
 import Swal from 'sweetalert2';
 
 const AgregarBicicleta = () => {
@@ -9,8 +9,8 @@ const AgregarBicicleta = () => {
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    marca: '',
-    modelo: '',
+    brand: '',
+    model: '',
     color: ''
   });
 
@@ -39,7 +39,7 @@ const AgregarBicicleta = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.marca || !formData.modelo || !formData.color) {
+    if (!formData.brand || !formData.model || !formData.color) {
       Swal.fire({
         title: 'Campos incompletos',
         text: 'Por favor, rellena todos los campos de la bicicleta.',
@@ -52,7 +52,20 @@ const AgregarBicicleta = () => {
     try {
       const response = await createBike(formData); 
 
-      if (response) {
+      if (response && response.data) {
+        const newBikeId = response.data.id;
+        
+        if (selectedFile && newBikeId) {
+          const imageFormData = new FormData();
+          imageFormData.append('image', selectedFile);
+          
+          try {
+            await updateBikeImage(newBikeId, imageFormData);
+          } catch (imageError) {
+            console.warn("Bicicleta creada pero no se pudo subir la imagen:", imageError);
+          }
+        }
+        
         await Swal.fire({
           title: '¡Logrado!',
           text: 'Tu bicicleta ha sido registrada correctamente.',
@@ -105,10 +118,10 @@ const AgregarBicicleta = () => {
                     <label className="form-label-bici">Marca</label>
                     <input 
                       type="text" 
-                      name="marca"
+                      name="brand"
                       className="form-input-bici" 
                       placeholder="Introduce la marca" 
-                      value={formData.marca}
+                      value={formData.brand}
                       onChange={handleChange}
                     />
                 </div>
@@ -117,10 +130,10 @@ const AgregarBicicleta = () => {
                     <label className="form-label-bici">Modelo</label>
                     <input 
                       type="text" 
-                      name="modelo"
+                      name="model"
                       className="form-input-bici" 
                       placeholder="Introduce el modelo" 
-                      value={formData.modelo}
+                      value={formData.model}
                       onChange={handleChange}
                     />
                 </div>

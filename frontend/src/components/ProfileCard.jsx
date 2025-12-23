@@ -14,33 +14,38 @@ const ProfileCard = ({
   onAddClick 
 }) => {
   const fileInputRef = useRef(null);
-  const hasInfo = infoList && infoList.length > 0;
+  const hasInfo = infoList && infoList.length > 0 && infoList[0] !== "No tienes bicicletas registradas";
 
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && onImageChange) {
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        onImageChange(reader.result, file);
-      };
-      
-      reader.readAsDataURL(file);
+  const handleButtonClick = (e) => {
+    e.preventDefault();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
+  const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file && onImageChange) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      onImageChange(reader.result, file);
+      event.target.value = ""; 
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
   return (
     <div className="profile-card">
-      {hasInfo && topIcons && <div className="card-top-icons">{topIcons}</div>}
+      {topIcons && <div className="card-top-icons">{topIcons}</div>}
 
       <div className="image-circle">
-        <img src={image} alt="Avatar" style={{ opacity: hasInfo ? 1 : 0.5 }} />
+        <img 
+          src={image} 
+          alt="Avatar" 
+          style={{ opacity: 1, objectFit: 'cover' }} 
+        />
       </div>
-      
       <input 
         type="file" 
         ref={fileInputRef}
@@ -48,13 +53,11 @@ const ProfileCard = ({
         accept="image/*"
         onChange={handleFileChange}
       />
-      
-      {hasInfo && (
-        <button className="action-btn" onClick={handleButtonClick}>
+      {btnText && (
+        <button className="action-btn" onClick={handleButtonClick} style={{ zIndex: 5 }}>
           {btnText}
         </button>
       )}
-      
       <div className="info-box" style={{ justifyContent: hasInfo ? 'flex-start' : 'center' }}>
         {hasInfo ? (
           infoList.map((text, index) => (
@@ -62,24 +65,15 @@ const ProfileCard = ({
           ))
         ) : (
           <button 
+            className="save-changes-btn"
             onClick={onAddClick}
-            style={{
-              backgroundColor: '#1b7e3c',
-              color: 'white',
-              border: 'none',
-              padding: '15px 30px',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              fontSize: '1rem'
-            }}
+            style={{ backgroundColor: '#1b7e3c', color: 'white', borderRadius: '10px', padding: '10px 20px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
           >
-            + Agregar bicicleta
+            Agregar bicicleta
           </button>
         )}
       </div>
-
-      {hasInfo && showDots && (
+      {hasInfo && showDots && totalItems > 1 && (
         <div className="pagination-dots">
           {Array.from({ length: totalItems }).map((_, index) => (
             <div 

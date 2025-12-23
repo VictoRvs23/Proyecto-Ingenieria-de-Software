@@ -5,16 +5,20 @@ export async function getPrivateProfile() {
         const response = await axios.get('/profile/private');
         return response.data;
     } catch (error) {
-        return error.response?.data || { message: 'Error al obtener perfil' };
+        throw error;
     }
 }
 
 export async function updatePrivateProfile(profileData) {
     try {
-        const response = await axios.patch('/profile/private', profileData);
+        const config = profileData instanceof FormData 
+            ? { headers: { 'Content-Type': 'multipart/form-data' } }
+            : {};
+        
+        const response = await axios.patch('/profile/private', profileData, config);
         return response.data;
     } catch (error) {
-        return error.response?.data || { message: 'Error al actualizar perfil' };
+        throw error; 
     }
 }
 
@@ -23,6 +27,6 @@ export async function deletePrivateProfile() {
         const response = await axios.delete('/profile/private');
         return response.data;
     } catch (error) {
-        return error.response?.data || { message: 'Error al eliminar perfil' };
+        throw error;
     }
 }
