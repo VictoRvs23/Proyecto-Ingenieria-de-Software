@@ -27,33 +27,37 @@ const Login = () => {
   ];
 
   const handleLoginSubmit = async (data) => {
-    const { email, password } = data;
-    setLoading(true);
-    
-    try {
-      const response = await login({ email, password });
-      
-      if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-      }
-      
-      if (response.data?.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('email', response.data.user.email);
-        localStorage.setItem('role', response.data.user.role);
-        localStorage.setItem('name', response.data.user.username || response.data.user.nombre);
-      }
-      
-      showSuccessAlert("¡Éxito!", "Inicio de sesión exitoso");
-      navigate("/home");
-    } catch (error) {
-      console.error("Error en login:", error);
-      const errorMessage = error.response?.data?.message || "Error al iniciar sesión";
-      showErrorAlert("Error", errorMessage);
-    } finally {
-      setLoading(false);
+  const { email, password } = data;
+  setLoading(true);
+  
+  try {
+    const response = await login({ email, password });
+    const responseData = response.data || response;
+
+    if (!responseData || !responseData.token) {
+      throw new Error("No se recibió un token de acceso.");
     }
-  };
+
+    localStorage.setItem('token', responseData.token);
+    
+    if (responseData.user) {
+      localStorage.setItem('user', JSON.stringify(responseData.user));
+      localStorage.setItem('email', responseData.user.email);
+      localStorage.setItem('role', responseData.user.role);
+      localStorage.setItem('name', responseData.user.username || responseData.user.nombre);
+    }
+    
+    showSuccessAlert("¡Éxito!", "Inicio de sesión exitoso");
+    navigate("/home");
+
+  } catch (error) {
+    console.error("Error en login:", error);
+    const errorMessage = error.response?.data?.message || error.message || "Error al iniciar sesión";
+    showErrorAlert("Error", errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-screen">
