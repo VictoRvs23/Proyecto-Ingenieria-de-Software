@@ -54,7 +54,7 @@
 }
 
 .action-btn {
-  background-color: #1565C0;
+  background-color: #2b79c2;
   color: white;
   border: none;
   padding: 12px 30px;
@@ -68,7 +68,7 @@
 }
 
 .action-btn:hover {
-  background-color: #0d47a1;
+  background-color: #1565C0;
 }
 
 .info-box {

@@ -1,0 +1,93 @@
+.bicicleteros-container {
+  width: 100%;
+  padding: 2rem;
+  padding-top: 60px;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.bicicleteros-title {
+  font-family: 'Roboto', sans-serif;
+  color: #1565C0;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.bicicleteros-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.8rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.bicicletero-card {
+  background: #f0f0f0;
+  border-radius: 1.5rem;
+  padding: 25px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 250px;
+  width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+
+.bicicletero-header-card {
+  background: #2b79c2;
+  color: white;
+  padding: 1.2rem 2.5rem;
+  border-radius: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  width: 85%;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.bicicletero-header-card:hover {
+  background: #1565C0;
+  transform: scale(1.02);
+}
+
+.bicicletero-status {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.status-badge {
+  padding: 0.5rem 2rem;
+  border-radius: 2rem;
+  font-size: 1rem;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.disponible {
+  background: #5CB85C;
+}
+
+.status-badge.lleno {
+  background: #E57373;
+}
+
+@media (max-width: 768px) {
+  .bicicleteros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bicicleteros-title {
+    font-size: 2rem;
+  }
+}
