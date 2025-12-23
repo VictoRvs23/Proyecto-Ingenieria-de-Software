@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Form from "../components/Form";
+import Form from "../components/Form"; 
+import { login } from "../services/auth.service.js";
+import { showErrorAlert, showSuccessAlert } from "../helpers/sweetAlert.js";
 import "@styles/form.css"; 
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
   const loginFields = [
     {
       name: "email",
@@ -22,57 +25,34 @@ const Login = () => {
       required: true
     }
   ];
-  const handleLoginSubmit = (data) => {
+
+  const handleLoginSubmit = async (data) => {
     const { email, password } = data;
     setLoading(true);
-    setTimeout(() => {
-        let isAuthenticated = false;
-        let role = "user";
-        let userName = "Usuario";
-
-        if (email === "admin@gmail.com") {
-            if (password === "admin1234") {
-                isAuthenticated = true;
-                role = "admin";
-                userName = "Administrador Principal";
-            } else {
-                alert("Contraseña incorrecta para Administrador");
-                setLoading(false);
-                return;
-            }
-        } 
-        else {
-            const usersDB = JSON.parse(localStorage.getItem("usersDB")) || [];
-            const foundUser = usersDB.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-            if (foundUser) {
-                if (foundUser.password === password) { 
-                    isAuthenticated = true;
-                    userName = foundUser.name;
-                    role = foundUser.role || "user";
-                } else {
-                    alert("Contraseña incorrecta");
-                    setLoading(false);
-                    return;
-                }
-            } else {
-                alert("Usuario no registrado");
-                setLoading(false);
-                return;
-            }
-        }
-
-        if (isAuthenticated) {
-            console.log("Login exitoso");
-            localStorage.setItem("role", role);
-            localStorage.setItem("name", userName);
-            localStorage.setItem("email", email);
-            
-            navigate("/home");
-        }
-        
-        setLoading(false);
-    }, 1000);
+    
+    try {
+      const response = await login({ email, password });
+      
+      if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      
+      if (response.data?.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('email', response.data.user.email);
+        localStorage.setItem('role', response.data.user.role);
+        localStorage.setItem('name', response.data.user.username || response.data.user.nombre);
+      }
+      
+      showSuccessAlert("¡Éxito!", "Inicio de sesión exitoso");
+      navigate("/home");
+    } catch (error) {
+      console.error("Error en login:", error);
+      const errorMessage = error.response?.data?.message || "Error al iniciar sesión";
+      showErrorAlert("Error", errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

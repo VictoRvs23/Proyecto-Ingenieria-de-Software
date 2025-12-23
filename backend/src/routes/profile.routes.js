@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
-import { upload } from "../middlewares/upload.middleware.js"; 
+import { upload } from "../middleware/upload.middleware.js"; 
 import {
   getPublicProfile,
   getPrivateProfile,

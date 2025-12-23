@@ -41,7 +41,6 @@ export const User = new EntitySchema({
       length: 255,
       nullable: true, 
     },
-    // ====================================
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -51,6 +50,13 @@ export const User = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bikes: {
+      type: "one-to-many", 
+      target: "Bike",
+      inverseSide: "user",
     },
   },
 });

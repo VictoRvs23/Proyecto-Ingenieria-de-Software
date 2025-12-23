@@ -1,14 +1,25 @@
 import { Router } from "express";
-import {createBike, getBike, getBikes, uploadBike, deleteBike} from "../controllers/bike.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js"; 
+import { upload } from "../middleware/upload.middleware.js"; 
+import{
+    createBike, 
+    getBike, 
+    getBikes, 
+    updateBike,
+    deleteBike
+} from "../controllers/bike.controller.js";
 
 const router = Router();
 
-router.get("/", getBikes);      
-router.get("/:id", getBike);     
+router.use(authMiddleware);
+
+router.get("/", getBikes);       
+router.get("/:id", getBike);    
 
 router.post("/", createBike);     
-router.put("/:id", uploadBike);  
-router.delete("/:id", deleteBike); 
 
+router.patch("/:id", upload.single("image"), updateBike);  
+
+router.delete("/:id", deleteBike); 
 
 export default router;

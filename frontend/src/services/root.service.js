@@ -1,5 +1,4 @@
 import axios from 'axios';
-import cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api';
 
@@ -8,18 +7,34 @@ const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: true, 
 });
 
 instance.interceptors.request.use(
   (config) => {
-    const token = cookies.get('jwt-auth', { path: '/' });
-    if(token) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      window.location.href = '/auth';
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default instance;

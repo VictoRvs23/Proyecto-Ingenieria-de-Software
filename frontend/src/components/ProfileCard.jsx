@@ -24,9 +24,11 @@ const ProfileCard = ({
     const file = event.target.files[0];
     if (file && onImageChange) {
       const reader = new FileReader();
+      
       reader.onloadend = () => {
-        onImageChange(reader.result);
+        onImageChange(reader.result, file);
       };
+      
       reader.readAsDataURL(file);
     }
   };
@@ -46,11 +48,13 @@ const ProfileCard = ({
         accept="image/*"
         onChange={handleFileChange}
       />
+      
       {hasInfo && (
         <button className="action-btn" onClick={handleButtonClick}>
           {btnText}
         </button>
       )}
+      
       <div className="info-box" style={{ justifyContent: hasInfo ? 'flex-start' : 'center' }}>
         {hasInfo ? (
           infoList.map((text, index) => (
@@ -74,6 +78,7 @@ const ProfileCard = ({
           </button>
         )}
       </div>
+
       {hasInfo && showDots && (
         <div className="pagination-dots">
           {Array.from({ length: totalItems }).map((_, index) => (

@@ -10,24 +10,25 @@ export const Bike = new EntitySchema({
       generated: "increment",
     },
     brand: {
-        type: "varchar",
-        length: 100,
-        nullable: false,
+      type: "varchar",
+      length: 100,
+      nullable: false,
     },
-    model:{
-        type: "varchar",
-        length: 100,
-        nullable: false,
+    model: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
     },
-    color:{
+    color: {
       type: "varchar",
       length: 50,
       nullable: false,
     },
-    owner: {
+    bikeImage: {
       type: "varchar",
       length: 255,
-      nullable: false,
+      nullable: true, 
+      default: "/default-bike.png" 
     },
     bicicletero_number: {
       type: "int",
@@ -53,6 +54,13 @@ export const Bike = new EntitySchema({
         referencedColumnName: "number",
       },
       inverseSide: "bikes",
+    },
+    user: { 
+      type: "many-to-one", 
+      target: "User",
+      joinColumn: { name: "user_id" }, 
+      inverseSide: "bikes", 
+      onDelete: "CASCADE"   
     },
   },
 });
