@@ -1,35 +1,78 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/auth.service";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import Form from "../components/Form";
 import "@styles/form.css"; 
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const loginFields = [
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      placeholder: "correo@ejemplo.com",
+      required: true
+    },
+    {
+      name: "password",
+      label: "Contraseña",
+      type: "password",
+      placeholder: "********",
+      required: true
+    }
+  ];
+  const handleLoginSubmit = (data) => {
+    const { email, password } = data;
     setLoading(true);
+    setTimeout(() => {
+        let isAuthenticated = false;
+        let role = "user";
+        let userName = "Usuario";
 
-    if (!email || !password) {
-        alert("Por favor ingrese sus credenciales");
+        if (email === "admin@gmail.com") {
+            if (password === "admin1234") {
+                isAuthenticated = true;
+                role = "admin";
+                userName = "Administrador Principal";
+            } else {
+                alert("Contraseña incorrecta para Administrador");
+                setLoading(false);
+                return;
+            }
+        } 
+        else {
+            const usersDB = JSON.parse(localStorage.getItem("usersDB")) || [];
+            const foundUser = usersDB.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (foundUser) {
+                if (foundUser.password === password) { 
+                    isAuthenticated = true;
+                    userName = foundUser.name;
+                    role = foundUser.role || "user";
+                } else {
+                    alert("Contraseña incorrecta");
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                alert("Usuario no registrado");
+                setLoading(false);
+                return;
+            }
+        }
+
+        if (isAuthenticated) {
+            console.log("Login exitoso");
+            localStorage.setItem("role", role);
+            localStorage.setItem("name", userName);
+            localStorage.setItem("email", email);
+            
+            navigate("/home");
+        }
+        
         setLoading(false);
-        return;
-    }
-
-    const response = await login({ email, password });
-    setLoading(false);
-
-    if (response.status === "error") {
-        alert(response.message);
-    } else {
-        console.log("Login exitoso:", response);
-        navigate("/home");
-    }
+    }, 1000);
   };
 
   return (
@@ -38,56 +81,19 @@ const Login = () => {
         <div className="logo-badge">
           <img src="/logoubb.png" alt="Logo UBB" className="ubb-logo-img" />
         </div>
-
-        <h1 className="auth-title">¡Bienvenido/a al Bicicletero!</h1>
-
-        <form className="login-stack" onSubmit={handleLogin}>
-          <div className="input-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              placeholder="correo@ejemplo.com"
-              required 
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Contraseña</label>
-            <div className="password-wrapper">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="********"
-                required 
-                className="password-input"
-              />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)}
-                className="toggle-password-btn"
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn-main-green"
-            disabled={loading}
-          >
-            {loading ? "Cargando..." : "Iniciar Sesion"}
-          </button>
-        </form>
         
-        <div className="auth-toggle" style={{ zIndex: 10, position: 'relative' }}>
+        <h1 className="auth-title">¡Bienvenido/a al Bicicletero!</h1>
+        <Form 
+          fields={loginFields}
+          buttonText="Iniciar Sesión"
+          onSubmit={handleLoginSubmit}
+          loading={loading}
+        />
+
+        <div className="auth-toggle">
           <button type="button" className="active">Iniciar Sesión</button>
           <button type="button" onClick={() => navigate("/register")}>Registrar</button>
         </div>
-
       </div>
     </div>
   );

@@ -1,120 +1,125 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/auth.service"; 
-// Importar los iconos
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import Form from "../components/Form"; 
 import "@styles/form.css"; 
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    nombre: "",
-    numeroTelefonico: "",
-    email: "",
-    password: ""
-  });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const registerFields = [
+    {
+      name: "nombre",
+      label: "Nombre",
+      type: "text",
+      placeholder: "Tu nombre completo",
+      required: true
+    },
+    {
+      name: "numeroTelefonico",
+      label: "Número Telefónico",
+      type: "text",
+      placeholder: "+56 9 ...",
+      required: true 
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      placeholder: "correo@ejemplo.com",
+      required: true
+    },
+    {
+      name: "password",
+      label: "Contraseña",
+      type: "password",
+      placeholder: "********",
+      required: true
+    }
+  ];
+
+  const handleRegisterSubmit = async (data) => {
     setLoading(true);
 
-    if (!formData.nombre || !formData.email || !formData.password) {
-        alert("Por favor completa los campos obligatorios");
+    try {
+        // === 1. LIMPIEZA DEL TELÉFONO ===
+        // Quitamos '+' y espacios
+        let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace('+', '').replace(/\s/g, '') : "";
+
+        // SI EL NÚMERO ES MUY LARGO (Más de 10 caracteres):
+        // Tu base de datos solo aguanta 10. Si viene como "569..." (11 chars),
+        // le quitamos el "56" del principio para que quede "9..." (9 chars).
+        if (phoneClean.startsWith('56') && phoneClean.length > 10) {
+            phoneClean = phoneClean.slice(2);
+        }
+
+        // === 2. PREPARAR DATOS ===
+        const dataForBackend = {
+            nombre: data.nombre, 
+            email: data.email,
+            password: data.password,
+            numeroTelefonico: phoneClean 
+        };
+
+        console.log("Enviando al backend:", dataForBackend);
+
+        // === 3. ENVIAR AL BACKEND ===
+        const response = await register(dataForBackend);
         setLoading(false);
-        return;
-    }
 
-    const response = await register(formData);
-    setLoading(false);
+        if (response.status === "error") {
+            alert("Error del servidor: " + response.message);
+            return;
+        }
 
-    if (response.status === "error") {
-        alert("Error: " + response.message);
-    } else {
+        // === 4. ÉXITO (LocalStorage) ===
+        const existingUsers = JSON.parse(localStorage.getItem("usersDB")) || [];
+        if (!existingUsers.find(u => u.email === data.email)) {
+            existingUsers.push({ 
+                email: data.email, 
+                name: data.nombre, 
+                password: data.password, 
+                role: "user" 
+            });
+            localStorage.setItem("usersDB", JSON.stringify(existingUsers));
+        }
+
+        // Limpieza de sesión
+        localStorage.removeItem("bikeData");
+        localStorage.removeItem("bikeImage");
+        localStorage.removeItem("userImage");
+        localStorage.removeItem("role");
+        localStorage.removeItem("name");
+        localStorage.removeItem("email");
+
         alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
         navigate("/login");
+
+    } catch (error) {
+        setLoading(false);
+        console.error("Error inesperado:", error);
+        alert("Ocurrió un error inesperado.");
     }
   };
 
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        
         <div className="logo-badge">
           <img src="/logoubb.png" alt="Logo" className="ubb-logo-img" />
         </div>
-
-        <h1 className="auth-title">¡Bienvenido/a al Bicicletero!</h1>
-
-        <form className="register-grid" onSubmit={handleSubmit}>
-          
-          <div className="input-group">
-            <label>Nombre</label>
-            <input 
-              type="text" 
-              name="nombre" 
-              value={formData.nombre} 
-              onChange={handleChange} 
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Número Telefónico</label>
-            <input 
-              type="text" 
-              name="numeroTelefonico" 
-              value={formData.numeroTelefonico} 
-              onChange={handleChange} 
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              name="email" 
-              value={formData.email} 
-              onChange={handleChange} 
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Contraseña</label>
-            <div className="password-wrapper">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                name="password" 
-                value={formData.password} 
-                onChange={handleChange} 
-                required
-              />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)}
-                className="toggle-password-btn"
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn-main-green"
-            disabled={loading}
-          >
-            {loading ? "Registrando..." : "Registrar"}
-          </button>
-        </form>
         
-        <div className="auth-toggle" style={{ zIndex: 10, position: 'relative' }}>
+        <h1 className="auth-title">¡Bienvenido/a al Bicicletero!</h1>
+        
+        <Form 
+          fields={registerFields}
+          buttonText="Registrar"
+          onSubmit={handleRegisterSubmit}
+          loading={loading}
+        />
+        
+        <div className="auth-toggle">
           <button type="button" onClick={() => navigate("/login")}>Iniciar Sesión</button>
           <button type="button" className="active">Registrar</button>
         </div>

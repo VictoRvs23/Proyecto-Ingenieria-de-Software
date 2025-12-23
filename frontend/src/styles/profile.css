@@ -1,124 +1,149 @@
-/* Contenedor principal del perfil */
 .profile-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #f9fafb; /* gris claro */
-    border-radius: 1rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 2000px;
+  padding-top: 60px; 
 }
 
-.profile-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+.profile-title {
+  font-family:'Roboto', sans-serif;
+  color: #1565C0;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  text-align: center;
 }
 
-/* Cabecera */
-.profile-header {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    color: #4f46e5; /* violeta */
-    margin-bottom: 1.5rem;
+.profile-cards-grid {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
-/* Mensajes informativos */
-.profile-message {
-    text-align: center;
-    font-size: 1rem;
-    color: #374151; /* gris oscuro */
-    margin-bottom: 1rem;
-}
-
-/* Tarjeta de usuario */
 .profile-card {
-    width: 100%;
-    background: white;
-    border-radius: 1rem;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    transition: transform 0.2s ease;
+  background-color: #f0f0f0;
+  border-radius: 25px;      
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 500px;          
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;   
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
-.profile-card:hover {
-    transform: scale(1.02);
+.image-circle {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Información del usuario */
-.profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+.image-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.profile-info span.label {
-    font-size: 0.9rem;
-    color: #6b7280; /* gris oscuro */
+.action-btn {
+  background-color: #1565C0;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background 0.3s;
 }
 
-.profile-info span.value {
-    font-size: 1.2rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    background: #f3f4f6; /* gris muy claro */
-    word-break: break-word;
+.action-btn:hover {
+  background-color: #0d47a1;
 }
 
-/* Botones de acción (Editar y Eliminar) */
-.profile-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+.info-box {
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  padding: 25px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Botones comunes */
-.profile-actions button {
-    padding: 0.5rem 1.5rem;
-    font-weight: 600;
-    border-radius: 0.75rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.info-text {
+  color: #000;
+  font-size: 1.1rem;
+  font-family: 'Roboto', sans-serif;
 }
 
-/* Botón Editar */
-.profile-actions button.edit {
-    background: #facc15; /* amarillo */
-    color: white;
+.float-icon {
+  position: absolute;
+  top: 15px;
+  width: 32px;
+  height: 32px;
+  background-color: #1565C0;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
 }
 
-.profile-actions button.edit:hover {
-    background: #eab308;
+.float-icon.left { left: 15px; }
+.float-icon.right { right: 15px; }
+
+.pagination-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
 }
 
-/* Botón Eliminar */
-.profile-actions button.delete {
-    background: #ef4444; /* rojo */
-    color: white;
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+.dot.active {
+  background-color: #1565C0; /* Azul activo */
 }
 
-.profile-actions button.delete:hover {
-    background: #dc2626;
+.save-changes-container {
+  width: 30%;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
-/* Mensaje de error */
-.profile-error {
-    color: #dc2626;
-    font-weight: 600;
-    margin-top: 1rem;
+.save-changes-btn {
+  background-color: #1b7e3c;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-/* Mensaje de éxito */
-.profile-success {
-    color: #16a34a; /* verde */
-    font-weight: 600;
-    margin-top: 1rem;
+.save-changes-btn:hover {
+  background-color: #146c33;
+  transform: translateY(-2px);
 }
