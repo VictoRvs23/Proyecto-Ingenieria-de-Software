@@ -2,14 +2,14 @@
 import Joi from "joi";
 
 export const createReserveValidation = Joi.object({
-  user_id: Joi.number()
+  bike_id: Joi.number()
     .integer()
     .positive()
     .required()
     .messages({
-      "any.required": "El ID de usuario es obligatorio",
-      "number.base": "El ID de usuario debe ser un número",
-      "number.positive": "El ID de usuario debe ser positivo",
+      "any.required": "El ID de la bicicleta es obligatorio",
+      "number.base": "El ID de la bicicleta debe ser un número",
+      "number.positive": "El ID de la bicicleta debe ser positivo",
     }),
 
   foto_url: Joi.string().uri().optional().messages({

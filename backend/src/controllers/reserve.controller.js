@@ -1,7 +1,9 @@
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
 import { AppDataSource } from "../config/configDb.js";
 import { Reserve } from "../entities/reserve.entity.js";
+import { Bike } from "../entities/bike.entity.js";
 
+const bikeRepository = AppDataSource.getRepository(Bike);
 const reserveRepository = AppDataSource.getRepository(Reserve);
 
 export async function getReserve(req, res) {
@@ -41,14 +43,18 @@ export async function getReserves(req, res) {
 
 export async function createReserve(req, res) {
     try {
-        const { user_id } = req.body;
+        const { bike_id } = req.body;
         const userFromToken = req.user;
 
         console.log("user_id from body:", user_id, "type:", typeof user_id);
-        console.log("userFromToken.sub:", userFromToken.sub, "type:", typeof userFromToken.sub);
+        console.log("userFromToken.id:", userFromToken.id, "type:", typeof userFromToken.id);
 
-        if (parseInt(user_id) !== userFromToken.sub) {
+        if (parseInt(user_id) !== userFromToken.id) {
             return handleErrorClient(res, 403, "No tienes permiso para crear una reserva para otro usuario");
+        }
+        const bike = await bikeRepository.findOneBy({ id: parseInt(bike_id) });
+        if (!bike) {
+            return handleErrorClient(res, 404, "La bicicleta especificada no existe");
         }
 
         // Multer
@@ -68,7 +74,7 @@ export async function createReserve(req, res) {
         const newReserve = reserveRepository.create({
             estado: "ingresada",
             token,
-            user: { id: parseInt(user_id) },
+            bike: { id: parseInt(bike_id) },
             foto_url: foto_url,
             doc_url: doc_url
         });

@@ -24,6 +24,10 @@ export const Reserve = new EntitySchema({
       type: "int",
       nullable: false,
     },
+    bike_id: {
+      type: "int",
+      nullable: true,
+    },
     //para el multer
     foto_url: {
       type: "varchar",
@@ -58,6 +62,13 @@ export const Reserve = new EntitySchema({
       onDelete: "CASCADE",
       inverseSide: "reserves"
     },
+    bike: {
+      type: "many-to-one",
+      target: "Bike", 
+      joinColumn: { name: "bike_id" },
+      nullable: false,
+      onDelete: "CASCADE",
+    },
   },
   indices: [
     {
@@ -68,6 +79,10 @@ export const Reserve = new EntitySchema({
     {
       name: "IDX_RESERVE_USER",
       columns: ["user_id"]
+    },
+    {
+      name: "IDX_RESERVE_BIKE",
+      columns: ["bike_id"]
     }
   ]
 });

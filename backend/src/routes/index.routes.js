@@ -2,6 +2,8 @@ import { Router } from "express";
 import authRoutes from "./auth.routes.js";
 import profileRoutes from "./profile.routes.js";
 import reserveRoutes from "./reserve.routes.js";
+import bikeRoutes from "./bike.routes.js";
+import bicicleteroRoutes from "./bicicletero.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -9,4 +11,8 @@ export function routerApi(app) {
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);
   router.use("/reserve", reserveRoutes);
+  router.use("/bikes", bikeRoutes);
+  router.use("/bicicletero", bicicleteroRoutes);
 }
+
+

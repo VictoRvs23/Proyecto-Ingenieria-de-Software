@@ -10,8 +10,8 @@ export const Bicicletero = new EntitySchema({
       generated: "increment",
     },
     zone: {
-      type: "varchar",
-      length: 100,
+      primary: true,
+      type: "int",
       nullable: false,
     },
     space: {
