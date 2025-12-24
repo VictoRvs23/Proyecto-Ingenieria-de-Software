@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/sidebar.css'; 
-import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt, FaUsers } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -17,14 +17,20 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     console.log("Cerrando sesión...");
+    // Limpiar TODOS los datos del usuario
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("userImage");
     localStorage.removeItem("bikeImage");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("usuario");
     navigate('/login');
   };
   
   // Roles que pueden ver Informes y Turnos (sin .toLowerCase())
   const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
+  const showUsuariosModule = ['admin', 'adminBicicletero'].includes(userRole);
   console.log('🔍 userRole:', userRole, '| showAdminModules:', showAdminModules);
   return (
     <div className="sidebar">
@@ -54,6 +60,16 @@ const Sidebar = () => {
             
             <Link to="/home/turnos" className="menu-item">
               <FaClock className="icon" /> Turnos
+            </Link>
+          </>
+        )}
+
+        {showUsuariosModule && (
+          <>
+            <div style={{ margin: '10px 20px', borderTop: '1px solid rgba(255,255,255,0.3)' }}></div>
+            
+            <Link to="/home/usuarios" className="menu-item">
+              <FaUsers className="icon" /> Usuarios
             </Link>
           </>
         )}

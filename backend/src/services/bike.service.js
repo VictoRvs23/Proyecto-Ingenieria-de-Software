@@ -8,7 +8,8 @@ const userRepository = AppDataSource.getRepository(User);
 export async function getAllBikes(userId) {
   try {
     return await bikeRepository.find({
-      where: { user: { id: userId } }
+      where: { user: { id: userId } },
+      order: { id: 'ASC' }
     });
   } catch (error) {
     throw new Error(`Error al obtener bicicletas: ${error.message}`);

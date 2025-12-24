@@ -153,9 +153,8 @@ const Profile = () => {
     });
 
     const formData = new FormData();
-    formData.append('image', file); 
+    formData.append('image', file);
 
-    // Verificar FormData
     console.log('📦 FormData creado correctamente');
     
     try {
@@ -191,16 +190,19 @@ const Profile = () => {
             }
             
             console.log('🚴 Bicicleta a actualizar:', bikeToUpdate.id);
+            const currentBikeId = bikeToUpdate.id;
+            // Guardar el orden actual de IDs
+            const currentOrder = bikesList.map(b => b.id);
             
             // Actualizar preview inmediatamente
-            setBikesList(prev => prev.map((bike, idx) => 
-                idx === currentBikeIndex 
+            setBikesList(prev => prev.map((bike) => 
+                bike.id === currentBikeId
                     ? { ...bike, image: previewUrl }
                     : bike
             ));
             
             console.log('📤 Enviando al servidor...');
-            const response = await updateBikeImage(bikeToUpdate.id, formData); 
+            const response = await updateBikeImage(currentBikeId, formData); 
             console.log('✅ Respuesta del servidor:', response);
             
             await Swal.fire({ 
@@ -211,8 +213,39 @@ const Profile = () => {
                 showConfirmButton: false 
             });
 
+            // Recargar datos pero mantener la posición
             await new Promise(resolve => setTimeout(resolve, 500));
-            await fetchData();
+            const timestamp = Date.now();
+            const bikesRes = await getBikes();
+            const bikesData = Array.isArray(bikesRes) ? bikesRes : (bikesRes.data || []);
+            
+            if (bikesData) {
+                const formattedBikes = bikesData.map(b => {
+                    const hasValidBikeImage = b.bikeImage && 
+                                            b.bikeImage.trim() !== '' && 
+                                            b.bikeImage !== 'null' && 
+                                            !b.bikeImage.includes('default-bike.png');
+                    return {
+                        ...b,
+                        image: hasValidBikeImage 
+                          ? `${SERVER_URL}${b.bikeImage}?v=${timestamp}&r=${Math.random()}` 
+                          : defaultBikeImg
+                    };
+                });
+                
+                // Restaurar el orden original usando currentOrder
+                const orderedBikes = currentOrder
+                    .map(id => formattedBikes.find(b => b.id === id))
+                    .filter(Boolean); // Filtrar nulls por si se eliminó alguna
+                
+                // Agregar bicicletas nuevas al final si las hay
+                const newBikes = formattedBikes.filter(b => !currentOrder.includes(b.id));
+                const finalBikes = [...orderedBikes, ...newBikes];
+                
+                setBikesList(finalBikes);
+                
+                // El índice se mantiene igual porque el orden no cambió
+            }
         }
     } catch (error) {
         console.error("❌ Error completo:", error);

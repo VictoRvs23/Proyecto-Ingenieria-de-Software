@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js"; 
-import { upload } from "../middleware/upload.middleware.js"; 
+import { upload, processImage } from "../middleware/upload.middleware.js"; 
 import{
     createBike, 
     getBike, 
@@ -18,7 +18,7 @@ router.get("/:id", getBike);
 
 router.post("/", createBike);     
 
-router.patch("/:id", upload.single("image"), updateBike);  
+router.patch("/:id", upload.single("image"), processImage, updateBike);  
 
 router.delete("/:id", deleteBike); 
 

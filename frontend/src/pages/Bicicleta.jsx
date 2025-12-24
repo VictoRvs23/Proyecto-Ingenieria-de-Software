@@ -155,10 +155,15 @@ const AgregarBicicleta = () => {
                         <option value="">Seleccionar color...</option>
                         <option value="Negro">Negro</option>
                         <option value="Blanco">Blanco</option>
-                        <option value="Rojo">Rojo</option>
-                        <option value="Azul">Azul</option>
-                        <option value="Verde">Verde</option>
                         <option value="Gris">Gris</option>
+                        <option value="Rojo">Rojo</option>
+                        <option value="Rosado">Rosado</option>
+                        <option value="Morado">Morado</option>
+                        <option value="Azul">Azul</option>
+                        <option value="Celeste">Celeste</option>
+                        <option value="Verde">Verde</option>
+                        <option value="Amarillo">Amarillo</option>
+                        <option value="Naranjo">Naranjo</option>
                     </select>
                 </div>
                 <button className="btn-verde-bici" onClick={handleSubmit}>

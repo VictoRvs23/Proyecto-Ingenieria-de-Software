@@ -12,6 +12,7 @@ import AgregarBicicleta from './pages/Bicicleta';
 import Informes from './pages/Informes';
 import TablaInforme from './pages/TablaInforme';
 import Turnos from './pages/Turnos'; 
+import Usuarios from './pages/Usuarios'; 
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
       {
         path: "turnos",
         element: <Turnos />,
+      },
+      {
+        path: "usuarios",
+        element: <Usuarios />,
       },
     ],
   },

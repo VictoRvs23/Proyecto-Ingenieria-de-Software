@@ -2,6 +2,7 @@ import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../config/configDb.js";
 import { User } from "../entities/user.entity.js";
+import { getAllUsers } from "../services/user.service.js";
 
 export function getPublicProfile(req, res) {
   handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
@@ -114,10 +115,17 @@ export async function updateUserRole(req, res) {
     }
 
     if (!req.user) return res.status(401).json({ error: "No autenticado" });
-    if (req.user.role !== "admin") return res.status(403).json({ error: "No autorizado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
 
     const { role } = req.body;
     if (!role) return res.status(400).json({ error: "role es requerido en el body" });
+
+    const validRoles = ['user', 'guard', 'adminBicicletero', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ error: "Rol inválido" });
+    }
 
     const repo = AppDataSource.getRepository(User);
     const user = await repo.findOneBy({ id: targetId });
@@ -128,5 +136,19 @@ export async function updateUserRole(req, res) {
     return res.json({ message: "Rol actualizado", user: { id: user.id, email: user.email, role: user.role } });
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+}
+
+export async function getUsers(req, res) {
+  try {
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const users = await getAllUsers();
+    handleSuccess(res, 200, "Usuarios obtenidos exitosamente", users);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener usuarios", error.message);
   }
 }

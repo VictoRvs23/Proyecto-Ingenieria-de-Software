@@ -24,16 +24,16 @@ const ProfileCard = ({
   };
 
   const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file && onImageChange) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onImageChange(reader.result, file);
-      event.target.value = ""; 
-    };
-    reader.readAsDataURL(file);
-  }
-};
+    const file = event.target.files[0];
+    if (file && onImageChange) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onImageChange(reader.result, file);
+        event.target.value = "";
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="profile-card">
@@ -58,7 +58,10 @@ const ProfileCard = ({
         onChange={handleFileChange}
       />
       {btnText && (
-        <button className="action-btn" onClick={handleButtonClick} style={{ zIndex: 5 }}>
+        <button 
+          className="action-btn" 
+          onClick={handleButtonClick}
+        >
           {btnText}
         </button>
       )}
@@ -68,13 +71,7 @@ const ProfileCard = ({
             <span key={index} className="info-text">{text}</span>
           ))
         ) : (
-          <button 
-            className="save-changes-btn"
-            onClick={onAddClick}
-            style={{ backgroundColor: '#1b7e3c', color: 'white', borderRadius: '10px', padding: '10px 20px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            Agregar bicicleta
-          </button>
+          <span className="info-text" style={{ color: '#999' }}>No tienes bicicletas registradas</span>
         )}
       </div>
       {hasInfo && showDots && totalItems > 1 && (

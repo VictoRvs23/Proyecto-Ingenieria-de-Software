@@ -21,3 +21,15 @@ export async function createUser(data) {
 export async function findUserByEmail(email) {
   return await userRepository.findOneBy({ email });
 }
+
+export async function getAllUsers() {
+  try {
+    const users = await userRepository.find({
+      select: ['id', 'email', 'role', 'nombre', 'numeroTelefonico', 'created_at'],
+      order: { id: 'ASC' }
+    });
+    return users;
+  } catch (error) {
+    throw new Error(`Error al obtener usuarios: ${error.message}`);
+  }
+}
