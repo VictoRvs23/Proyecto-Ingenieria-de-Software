@@ -11,7 +11,7 @@ export async function getBikes(req, res) {
     }
 }
 
-export async function getBike(req, res) {  // <- cambiar getNewBike por getBike
+export async function getBike(req, res) { 
     try {
         const { id } = req.params;
         const bike = await getOneById(id);
