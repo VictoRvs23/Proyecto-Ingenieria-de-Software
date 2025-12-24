@@ -1,76 +1,152 @@
-.container {
+.auth-screen {
+  background-color: #2b74ad;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  font-family: 'Times New Roman', serif;
 }
 
-.form {
+.auth-card {
   background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  border-radius: 40px;
+  padding: 60px 40px 40px 40px;
+  width: 90%;
+  max-width: 1000px;
+  position: relative; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.form-title {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 2rem;
+.ubb-logo-img {
+  height: 140px !important;
+  width: auto;
+  display: block;
 }
 
-.form-field {
+.logo-badge {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 10px 25px 0 25px; 
+  border-radius: 20px 20px 0 0;
+}
+
+.auth-title {
+  margin-top: 20px;
   margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #000;
+  text-align: center;
 }
 
-.form-field label {
-  display: block;
-  margin-bottom: 8px;
-  color: #555;
-  font-weight: 500;
+.login-stack {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
 }
 
-.form-field input {
+.register-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 80%; 
+}
+
+.input-group {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 5px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.input-group input {
+  width: 100%;
+  border: 2px solid #2b74ad;
+  border-radius: 10px;
+  padding: 10px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
-.form-field input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.error-message {
-  display: block;
-  color: #d33;
-  font-size: 0.875rem;
-  margin-top: 5px;
-}
-
-.submit-button {
+.password-wrapper {
+  position: relative;
   width: 100%;
-  padding: 12px;
-  background: #667eea;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; 
+}
+
+.toggle-password-btn {
+  position: absolute; 
+  right: 10px;
+  top: 50%; 
+  transform: translateY(-50%); 
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280; 
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 5;
+}
+
+.toggle-password-btn:hover {
+  color: #374151; 
+}
+
+.btn-main-green {
+  background-color: #1b7e3c;
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 10px 40px;
+  border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  margin-top: 20px;
+  grid-column: span 2; 
+  justify-self: center;
 }
 
-.submit-button:hover {
-  background: #5568d3;
+.auth-toggle {
+  display: flex;
+  background: #e0e0e0;
+  border-radius: 8px;
+  margin-top: 30px;
+  padding: 4px;
+  position: relative;
+  z-index: 100;
 }
 
-.submit-button:active {
-  transform: translateY(1px);
+.auth-toggle button {
+  border: none;
+  padding: 8px 20px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.auth-toggle button.active {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: bold;
 }

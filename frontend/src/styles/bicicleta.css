@@ -1,0 +1,124 @@
+#seccion-agregar-bici {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 2000px;
+    padding-top: 60px; 
+    font-family: 'Roboto', sans-serif;
+    background-color: #ffffff;
+}
+
+.main-content-bici {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-title-bici {
+    font-family: 'Roboto', sans-serif;
+    color: #1565C0;
+    font-size: 3rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.panels-container-bici {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.panel-box-bici {
+    background-color: #f0f0f0;
+    border-radius: 25px;
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 550px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.form-group-bici {
+    width: 100%;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-label-bici {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #000;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+}
+
+.form-input-bici {
+    width: 80%;
+    padding: 12px 20px;
+    border: 2px solid #1565C0;
+    border-radius: 15px;
+    font-size: 1rem;
+    outline: none;
+    background-color: white;
+}
+
+.btn-verde-bici {
+    background-color: #1b7e3c; 
+    color: white;
+    border: none;
+    padding: 15px 50px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+}
+
+.btn-verde-bici:hover {
+    background-color: #146c33;
+}
+
+.btn-azul-bici {
+    background-color: #1565C0;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s;
+}
+
+.image-circle-bici {
+    width: 330px;
+    height: 330px;
+    background-color: white;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+}
+
+.bicycle-img-bici {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

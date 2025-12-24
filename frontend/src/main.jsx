@@ -1,44 +1,78 @@
+import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from '@pages/Login';
-import Home from '@pages/Home';
-import Error404 from '@pages/Error404';
-import Root from '@pages/Root';
-import ProtectedRoute from '@components/ProtectedRoute';
-import '@styles/styles.css';
-import Register from '@pages/Register';
-import Profile from '@pages/Profile'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import Root from './pages/Root';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Bicicletero from './pages/Bicicletero';
+import Espacios from './pages/Espacios';
+import Profile from './pages/Profile'; 
+import AgregarBicicleta from './pages/Bicicleta';
+import Informes from './pages/Informes';
+import TablaInforme from './pages/TablaInforme';
+import Turnos from './pages/Turnos'; 
+import Usuarios from './pages/Usuarios'; 
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Root />,
-    errorElement: <Error404 />,
+    path: "/",
+    element: <Navigate to="/login" replace />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/home", 
+    element: <Root />, 
     children: [
       {
-        path: '/',
-        element: <Login />
+        index: true, 
+        element: <Home />,
       },
       {
-        path: '/auth',
-        element: <Login />
+        path: "bicicletero", 
+        element: <Bicicletero />,
       },
-       {
-        path: "/profile",
+      {
+        path: "bicicletero/:id",
+        element: <Espacios />,
+      },
+      {
+        path: "profile", 
         element: <Profile />,
       },
       {
-        path: '/auth/register',
-        element: <Register />
+        path: "agregar-bicicleta",
+        element: <AgregarBicicleta />,
       },
       {
-        path: '/home',
-        element: <Home />
-      }
-    ]
-  }
+        path: "informes",
+        element: <Informes />,
+      },
+      {
+        path: "informes/:id",
+        element: <TablaInforme />,
+      },
+      {
+        path: "turnos",
+        element: <Turnos />,
+      },
+      {
+        path: "usuarios",
+        element: <Usuarios />,
+      },
+    ],
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
 );
