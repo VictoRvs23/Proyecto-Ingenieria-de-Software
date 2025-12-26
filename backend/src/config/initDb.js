@@ -41,7 +41,7 @@ export async function createUsers() {
         rut: "12345678-9",
         email: "admin@gmail.com",
         password: await bcrypt.hash("admin123", 10),
-        numeroTelefonico: "123456789",
+        numeroTelefonico: "912345678",
         role: "admin",
       },
       {
@@ -50,7 +50,7 @@ export async function createUsers() {
         rut: "12334455-6",
         email: "adminbici@gmail.com",
         password: await bcrypt.hash("adminbici123", 10),
-        numeroTelefonico: "123344556",
+        numeroTelefonico: "912334455",
         role: "adminBicicletero",
       },
       {
@@ -59,7 +59,7 @@ export async function createUsers() {
         rut: "98765432-1",
         email: "usuario@gmail.com",
         password: await bcrypt.hash("usuario123", 10),
-        numeroTelefonico: "987654321",
+        numeroTelefonico: "998765432",
         role: "user",
       },
       {
@@ -68,7 +68,7 @@ export async function createUsers() {
         rut: "11223344-5",
         email: "guardia@gmail.com",
         password: await bcrypt.hash("guardia123", 10),
-        numeroTelefonico: "112233445",
+        numeroTelefonico: "911223344",
         role: "guard",
       },
     ];

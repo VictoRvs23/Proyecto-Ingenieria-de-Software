@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getAllUsers } from '../services/user.service';
 import '../styles/turnos.css';
 
 const Turnos = () => {
@@ -9,28 +10,35 @@ const Turnos = () => {
     loadGuardias();
   }, []);
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone || phone === 'Sin teléfono') return 'Sin teléfono';
+    const phoneStr = String(phone);
+    
+    if (phoneStr.startsWith('9') && phoneStr.length === 9) {
+      return `9 ${phoneStr.slice(1)}`;
+    } else if (phoneStr.length === 8) {
+      return `9 ${phoneStr}`;
+    }
+    return phoneStr;
+  };
+
   const loadGuardias = async () => {
     try {
-      const guardiasEjemplo = [
-        { 
-          id: 1, 
-          nombre: 'Raimundo Koch', 
-          rut: '12.345.678-9',
-          email: 'raimundo@gmail.com', 
-          telefono: '+56912345678',
-          bicicletero: '' 
-        },
-        { 
-          id: 2, 
-          nombre: 'Cristobal Novoa', 
-          rut: '98.765.432-1',
-          email: 'cristobal@gmail.com', 
-          telefono: '+56987654321',
-          bicicletero: '' 
-        },
-      ];
+      const response = await getAllUsers();
+      const users = response.data || [];
       
-      setGuardias(guardiasEjemplo);
+      const guardiasConRol = users
+        .filter(user => user.role === 'guard')
+        .map(user => ({
+          id: user.id,
+          nombre: user.nombre || 'Sin nombre',
+          email: user.email,
+          telefono: user.numeroTelefonico || 'Sin teléfono',
+          bicicletero: '',
+          jornada: ''
+        }));
+      
+      setGuardias(guardiasConRol);
       setLoading(false);
     } catch (error) {
       console.error('Error al cargar guardias:', error);
@@ -42,8 +50,14 @@ const Turnos = () => {
     setGuardias(guardias.map(g => 
       g.id === guardiaId ? { ...g, bicicletero } : g
     ));
-    // Aquí puedes guardar el cambio en el backend
     console.log(`Guardia ${guardiaId} asignado a bicicletero ${bicicletero}`);
+  };
+
+  const handleJornadaChange = (guardiaId, jornada) => {
+    setGuardias(guardias.map(g => 
+      g.id === guardiaId ? { ...g, jornada } : g
+    ));
+    console.log(`Guardia ${guardiaId} asignado a jornada ${jornada}`);
   };
 
   return (
@@ -59,6 +73,7 @@ const Turnos = () => {
               <tr>
                 <th>GUARDIAS</th>
                 <th>DATOS</th>
+                <th>JORNADA</th>
                 <th>BICICLETERO</th>
               </tr>
             </thead>
@@ -69,10 +84,20 @@ const Turnos = () => {
                     <td>{guardia.nombre}</td>
                     <td>
                       <div className="datos-cell">
-                        <div>Rut</div>
-                        <div>Email</div>
-                        <div>Numero Telefónico</div>
+                        <div>{guardia.email}</div>
+                        <div>{formatPhoneNumber(guardia.telefono)}</div>
                       </div>
+                    </td>
+                    <td>
+                      <select 
+                        value={guardia.jornada}
+                        onChange={(e) => handleJornadaChange(guardia.id, e.target.value)}
+                        className="jornada-select"
+                      >
+                        <option value="">PREDETERMINADA</option>
+                        <option value="Mañana">Mañana</option>
+                        <option value="Tarde">Tarde</option>
+                      </select>
                     </td>
                     <td>
                       <select 
@@ -91,7 +116,7 @@ const Turnos = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
+                  <td colSpan="4" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
                 </tr>
               )}
             </tbody>

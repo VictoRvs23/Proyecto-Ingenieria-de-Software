@@ -36,12 +36,14 @@ export const registerValidation = Joi.object({
       "string.pattern.base": "La contraseña solo puede contener letras y números. No se permiten símbolos especiales.",
     }),
   numeroTelefonico: Joi.string()
-    .min(8)
-    .max(10)
+    .length(9)
+    .pattern(/^9[0-9]{8}$/)
     .required()
     .messages({
-      "string.min": "El número telefónico debe tener al menos 8 caracteres.",
-      "string.max": "El número telefónico debe tener como máximo 10 caracteres.",
+      "string.length": "El número telefónico debe tener exactamente 9 caracteres.",
+      "string.pattern.base": "El número telefónico debe comenzar con 9 y tener 8 dígitos adicionales.",
+      "string.empty": "El número telefónico es obligatorio.",
+      "any.required": "El número telefónico es obligatorio.",
     }),
   nombre: Joi.string()
     .min(2)

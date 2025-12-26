@@ -97,13 +97,25 @@ const Usuarios = () => {
     return labels[role] || role;
   };
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return 'N/A';
+    const phoneStr = String(phone);
+    
+    if (phoneStr.startsWith('9') && phoneStr.length === 9) {
+      return `9 ${phoneStr.slice(1)}`;
+    } else if (phoneStr.length === 8) {
+      return `9 ${phoneStr}`;
+    }
+    return phoneStr;
+  };
+
   const handleCreateUser = async (initialValues = {}) => {
     const { value: formValues } = await Swal.fire({
       title: 'Crear Nuevo Usuario',
       html: `
         <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${initialValues.nombre || ''}">
         <input id="swal-email" class="swal2-input" placeholder="Email (debe terminar en @gmail.com)" type="email" value="${initialValues.email || ''}">
-        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (máx. 10 dígitos)" value="${initialValues.numeroTelefonico || ''}">
+        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (máx. 8 caracteres)" value="${initialValues.numeroTelefonico || ''}">
         <input id="swal-password" class="swal2-input" placeholder="Contraseña (mín. 8 caracteres)" type="password" value="${initialValues.password || ''}">
       `,
       focusConfirm: false,
@@ -129,11 +141,10 @@ const Usuarios = () => {
 
     if (formValues) {
       try {
-        // Limpiar el número telefónico igual que en el registro
-        let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace('+', '').replace(/\s/g, '') : "";
+        let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace(/\D/g, '') : "";
         
-        if (phoneClean.startsWith('56') && phoneClean.length > 10) {
-          phoneClean = phoneClean.slice(2);
+        if (phoneClean.length === 8) {
+          phoneClean = '9' + phoneClean;
         }
         
         const dataForBackend = {
@@ -291,7 +302,7 @@ const Usuarios = () => {
                   <td>{user.id}</td>
                   <td>{user.nombre || 'N/A'}</td>
                   <td>{user.email}</td>
-                  <td>{user.numeroTelefonico || 'N/A'}</td>
+                  <td>{formatPhoneNumber(user.numeroTelefonico)}</td>
                   <td>
                     <select
                       className="role-select"

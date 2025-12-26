@@ -89,6 +89,7 @@
   align-items: center;
 }
 
+.jornada-select,
 .bicicletero-select {
   background: #7fa8d4;
   color: white;
@@ -104,14 +105,17 @@
   transition: background-color 0.3s;
 }
 
+.jornada-select option,
 .bicicletero-select option {
   text-align: center;
 }
 
+.jornada-select:hover,
 .bicicletero-select:hover {
   background: #5a8cc4;
 }
 
+.jornada-select:focus,
 .bicicletero-select:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(43, 121, 194, 0.3);
@@ -132,6 +136,7 @@
     font-size: 0.9rem;
   }
   
+  .jornada-select,
   .bicicletero-select {
     min-width: 100px;
     padding: 0.5rem 1rem;
