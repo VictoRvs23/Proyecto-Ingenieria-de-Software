@@ -29,7 +29,9 @@ export async function register(req, res) {
     delete newUser.password;
     handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
   } catch (error) {
-    if (error.code === '23505') {
+    if (error.message === "Este correo ya está registrado") {
+      handleErrorClient(res, 409, error.message);
+    } else if (error.code === '23505') {
       handleErrorClient(res, 409, "El email ya está registrado");
     } else {
       handleErrorServer(res, 500, "Error interno del servidor", error.message);
