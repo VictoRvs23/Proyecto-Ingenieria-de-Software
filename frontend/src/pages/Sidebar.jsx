@@ -17,7 +17,6 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     console.log("Cerrando sesión...");
-    // Limpiar TODOS los datos del usuario
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");

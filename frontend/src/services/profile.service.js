@@ -13,9 +13,6 @@ export async function updatePrivateProfile(profileData) {
     try {
         console.log('📤 Enviando actualización de perfil');
         console.log('📦 Tipo de datos:', profileData instanceof FormData ? 'FormData' : typeof profileData);
-        
-        // Para FormData, no establecer ninguna configuración especial
-        // El navegador lo manejará automáticamente
         const response = await axios.patch('/profile/private', profileData);
         console.log('✅ Respuesta exitosa del servicio:', response.data);
         return response.data;

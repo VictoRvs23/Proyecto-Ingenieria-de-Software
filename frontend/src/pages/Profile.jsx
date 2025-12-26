@@ -22,7 +22,7 @@ const Profile = () => {
     image: defaultUserImg 
   });
   
-  const [imageKey, setImageKey] = useState(Date.now()); // Key para forzar re-render
+  const [imageKey, setImageKey] = useState(Date.now());
   
   const [bikesList, setBikesList] = useState([]);
   const [currentBikeIndex, setCurrentBikeIndex] = useState(0);
@@ -39,7 +39,7 @@ const Profile = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const timestamp = Date.now(); // Usar Date.now() para un timestamp más único
+      const timestamp = Date.now();
 
       const userRes = await getPrivateProfile(); 
       const u = userRes.data || userRes; 
@@ -48,8 +48,6 @@ const Profile = () => {
         const data = u.userData || u.data || u; 
         console.log('📸 Datos del usuario recibidos:', data);
         console.log('📸 userImage del servidor:', data.userImage);
-        
-        // Verificar si la imagen es válida y no es null/undefined/vacía
         const hasValidUserImage = data.userImage && data.userImage.trim() !== '' && data.userImage !== 'null';
         const imageUrl = hasValidUserImage
           ? `${SERVER_URL}${data.userImage}?v=${timestamp}&r=${Math.random()}` 
@@ -70,7 +68,6 @@ const Profile = () => {
       
       if (bikesData) {
           const formattedBikes = bikesData.map(b => {
-              // Verificar si la imagen de bicicleta es válida
               const hasValidBikeImage = b.bikeImage && 
                                         b.bikeImage.trim() !== '' && 
                                         b.bikeImage !== 'null' && 
@@ -165,7 +162,6 @@ const Profile = () => {
             const response = await updatePrivateProfile(formData); 
             console.log('✅ Respuesta del servidor:', response);
             
-            // Forzar cambio de key ANTES de mostrar el success
             setImageKey(Date.now());
             
             await Swal.fire({ 
@@ -176,10 +172,8 @@ const Profile = () => {
                 showConfirmButton: false 
             });
 
-            // Esperar a que el servidor guarde el archivo
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            // Forzar recarga completa
             await fetchData();
         } else if (type === 'bike') {
             console.log('🚴 Actualizando imagen de bicicleta...');
@@ -191,10 +185,8 @@ const Profile = () => {
             
             console.log('🚴 Bicicleta a actualizar:', bikeToUpdate.id);
             const currentBikeId = bikeToUpdate.id;
-            // Guardar el orden actual de IDs
             const currentOrder = bikesList.map(b => b.id);
             
-            // Actualizar preview inmediatamente
             setBikesList(prev => prev.map((bike) => 
                 bike.id === currentBikeId
                     ? { ...bike, image: previewUrl }
@@ -213,7 +205,6 @@ const Profile = () => {
                 showConfirmButton: false 
             });
 
-            // Recargar datos pero mantener la posición
             await new Promise(resolve => setTimeout(resolve, 500));
             const timestamp = Date.now();
             const bikesRes = await getBikes();
@@ -233,18 +224,14 @@ const Profile = () => {
                     };
                 });
                 
-                // Restaurar el orden original usando currentOrder
                 const orderedBikes = currentOrder
                     .map(id => formattedBikes.find(b => b.id === id))
-                    .filter(Boolean); // Filtrar nulls por si se eliminó alguna
+                    .filter(Boolean);
                 
-                // Agregar bicicletas nuevas al final si las hay
                 const newBikes = formattedBikes.filter(b => !currentOrder.includes(b.id));
                 const finalBikes = [...orderedBikes, ...newBikes];
                 
                 setBikesList(finalBikes);
-                
-                // El índice se mantiene igual porque el orden no cambió
             }
         }
     } catch (error) {
@@ -262,7 +249,6 @@ const Profile = () => {
             icon: 'error' 
         });
         
-        // Revertir preview en caso de error
         await fetchData();
     }
   };

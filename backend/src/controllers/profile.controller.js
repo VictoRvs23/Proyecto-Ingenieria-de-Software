@@ -152,3 +152,73 @@ export async function getUsers(req, res) {
     handleErrorServer(res, 500, "Error al obtener usuarios", error.message);
   }
 }
+
+export async function deleteUserByAdmin(req, res) {
+  try {
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const paramId = req.params?.id;
+    const targetId = Number(paramId);
+    if (!paramId || Number.isNaN(targetId)) {
+      return res.status(400).json({ error: "Id inválido en la ruta" });
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ id: targetId });
+    
+    if (!user) {
+      return handleErrorClient(res, 404, "Usuario no encontrado");
+    }
+
+    await userRepository.remove(user);
+    handleSuccess(res, 200, "Usuario eliminado exitosamente", {
+      message: `El usuario ${user.email} ha sido eliminado`,
+      id: targetId
+    });
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al eliminar usuario", error.message);
+  }
+}
+
+export async function updateUserByAdmin(req, res) {
+  try {
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const paramId = req.params?.id;
+    const targetId = Number(paramId);
+    if (!paramId || Number.isNaN(targetId)) {
+      return res.status(400).json({ error: "Id inválido en la ruta" });
+    }
+
+    const { nombre, email, numeroTelefonico } = req.body;
+    
+    if (!nombre && !email && !numeroTelefonico) {
+      return res.status(400).json({ error: "Debes proporcionar al menos un campo para actualizar" });
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ id: targetId });
+    
+    if (!user) {
+      return handleErrorClient(res, 404, "Usuario no encontrado");
+    }
+
+    if (nombre) user.nombre = nombre;
+    if (email) user.email = email;
+    if (numeroTelefonico) user.numeroTelefonico = numeroTelefonico;
+
+    await userRepository.save(user);
+    
+    const { password, ...userWithoutPass } = user;
+    
+    handleSuccess(res, 200, "Usuario actualizado exitosamente", userWithoutPass);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al actualizar usuario", error.message);
+  }
+}

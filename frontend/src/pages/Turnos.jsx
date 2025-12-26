@@ -11,8 +11,6 @@ const Turnos = () => {
 
   const loadGuardias = async () => {
     try {
-      // Aquí puedes cargar los guardias desde el backend
-      // Por ahora usamos datos de ejemplo
       const guardiasEjemplo = [
         { 
           id: 1, 

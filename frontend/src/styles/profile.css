@@ -143,11 +143,6 @@
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.save-changes-btn:hover {
-  background-color: #146c33;
-  transform: translateY(-2px);
-}
-
 .bike-card-wrapper {
   position: relative;
   width: 500px;
