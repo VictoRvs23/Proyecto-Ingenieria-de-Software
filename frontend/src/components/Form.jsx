@@ -36,7 +36,7 @@ const Form = ({ fields, buttonText, onSubmit, loading }) => {
                 type="button" 
                 onClick={() => togglePassword(field.name)}
                 className="toggle-password-btn"
-                tabIndex="-1" // Para que no se enfoque al tabular
+                tabIndex="-1"
               >
                 {showPasswords[field.name] ? <FaEyeSlash /> : <FaEye />}
               </button>
