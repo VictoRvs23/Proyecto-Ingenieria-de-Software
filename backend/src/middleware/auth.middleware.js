@@ -18,7 +18,7 @@ export function authMiddleware(req, res, next) {
     console.log('✅ Token decodificado:', decoded);
     
     req.user = {
-      sub: decoded.sub ?? decoded.id ?? decoded.userId,  // Mantener 'sub' para consistencia
+      sub: decoded.sub ?? decoded.id ?? decoded.userId, 
       id: decoded.sub ?? decoded.id ?? decoded.userId,
       email: decoded.email,
       role: decoded.role,

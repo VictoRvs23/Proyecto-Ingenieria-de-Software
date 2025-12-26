@@ -3,7 +3,6 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 
-// Configuración para el almacenamiento temporal en memoria
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
@@ -20,7 +19,6 @@ export const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// Middleware para procesar y redimensionar imágenes
 export const processImage = async (req, res, next) => {
   if (!req.file) {
     return next();
@@ -28,8 +26,7 @@ export const processImage = async (req, res, next) => {
 
   try {
     const uploadPath = 'uploads/';
-    
-    // Crear directorio si no existe
+  
     if (!fs.existsSync(uploadPath)){
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -38,19 +35,17 @@ export const processImage = async (req, res, next) => {
     const filename = `${uniqueSuffix}.jpg`;
     const filepath = path.join(uploadPath, filename);
 
-    // Procesar la imagen: redimensionar, optimizar y convertir a JPEG
     await sharp(req.file.buffer)
       .resize(800, 800, {
-        fit: 'inside',          // Mantiene la proporción, la imagen cabe dentro de 800x800
-        withoutEnlargement: true // No agranda imágenes pequeñas
+        fit: 'inside',          
+        withoutEnlargement: true 
       })
       .jpeg({ 
-        quality: 85,            // Calidad del JPEG (0-100)
-        progressive: true       // JPEG progresivo para mejor carga web
+        quality: 85,            
+        progressive: true      
       })
       .toFile(filepath);
 
-    // Actualizar req.file con la nueva información
     req.file.filename = filename;
     req.file.path = filepath;
     

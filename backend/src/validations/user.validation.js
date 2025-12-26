@@ -37,11 +37,11 @@ export const registerValidation = Joi.object({
     }),
   numeroTelefonico: Joi.string()
     .min(8)
-    .max(12)
+    .max(10)
     .required()
     .messages({
       "string.min": "El número telefónico debe tener al menos 8 caracteres.",
-      "string.max": "El número telefónico debe tener como máximo 12 caracteres.",
+      "string.max": "El número telefónico debe tener como máximo 10 caracteres.",
     }),
   nombre: Joi.string()
     .min(2)

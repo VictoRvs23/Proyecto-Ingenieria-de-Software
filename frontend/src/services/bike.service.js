@@ -21,7 +21,6 @@ export async function createBike(bikeData) {
 export async function updateBikeImage(id, formData) {
     try {
         console.log('📤 Actualizando imagen de bicicleta ID:', id);
-        // Para FormData, dejar que el navegador maneje todo automáticamente
         const response = await axios.patch(`/bikes/${id}`, formData);
         console.log('✅ Respuesta exitosa:', response.data);
         return response.data;
