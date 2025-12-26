@@ -30,6 +30,18 @@ const Profile = () => {
 
   const hasBikes = bikesList.length > 0;
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return 'Sin teléfono';
+    const phoneStr = String(phone);
+    
+    if (phoneStr.startsWith('9') && phoneStr.length === 9) {
+      return `9 ${phoneStr.slice(1)}`;
+    } else if (phoneStr.length === 8) {
+      return `9 ${phoneStr}`;
+    }
+    return phoneStr;
+  };
+
   useEffect(() => {
     fetchData();
     window.addEventListener('focus', fetchData);
@@ -274,7 +286,7 @@ const Profile = () => {
             `Rol: ${userData.role.toUpperCase()}`, 
             `Nombre: ${userData.name}`, 
             `Email: ${userData.email}`, 
-            `Tel: ${userData.phone}`
+            `Tel: ${formatPhoneNumber(userData.phone)}`
           ]}
           onImageChange={(preview, file) => handleImageUpdate('user', preview, file)}
         />

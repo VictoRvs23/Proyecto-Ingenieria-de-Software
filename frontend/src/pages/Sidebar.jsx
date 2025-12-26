@@ -26,8 +26,7 @@ const Sidebar = () => {
     sessionStorage.removeItem("usuario");
     navigate('/login');
   };
-  
-  // Roles que pueden ver Informes y Turnos (sin .toLowerCase())
+
   const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
   const showUsuariosModule = ['admin', 'adminBicicletero'].includes(userRole);
   console.log('🔍 userRole:', userRole, '| showAdminModules:', showAdminModules);

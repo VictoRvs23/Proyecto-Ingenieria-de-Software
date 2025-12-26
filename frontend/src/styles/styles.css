@@ -8,6 +8,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow: hidden;
+  height: 100vh;
+}
+
 body {
   font-family:'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
