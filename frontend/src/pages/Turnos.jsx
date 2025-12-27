@@ -7,8 +7,14 @@ const Turnos = () => {
   const [guardias, setGuardias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hayCambiosSinGuardar, setHayCambiosSinGuardar] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
+    const role = localStorage.getItem('role') || sessionStorage.getItem('role');
+    const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+    setUserRole(role);
+    setCurrentUser(userId);
     loadGuardias();
   }, []);
 
@@ -26,6 +32,40 @@ const Turnos = () => {
 
   const loadGuardias = async () => {
     try {
+      const role = localStorage.getItem('role') || sessionStorage.getItem('role');
+      
+      if (role === 'guard') {
+        const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+        const userName = localStorage.getItem('nombre') || sessionStorage.getItem('nombre') || 'Guardia';
+        const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
+        
+        const savedData = localStorage.getItem('turnosGuardias');
+        let turnoGuardia = { bicicletero: '', jornada: '' };
+        
+        if (savedData) {
+          try {
+            const parsedData = JSON.parse(savedData);
+            const miTurno = parsedData.find(t => String(t.id) === String(userId));
+            if (miTurno) {
+              turnoGuardia = { bicicletero: miTurno.bicicletero, jornada: miTurno.jornada };
+            }
+          } catch (error) {
+            console.error('Error al parsear datos guardados:', error);
+          }
+        }
+        
+        setGuardias([{
+          id: userId,
+          nombre: userName,
+          email: userEmail,
+          telefono: '',
+          bicicletero: turnoGuardia.bicicletero || '',
+          jornada: turnoGuardia.jornada || ''
+        }]);
+        setLoading(false);
+        return;
+      }
+      
       const response = await getAllUsers();
       const users = response.data || [];
       
@@ -67,7 +107,6 @@ const Turnos = () => {
       g.id === guardiaId ? { ...g, bicicletero } : g
     ));
     setHayCambiosSinGuardar(true);
-    console.log(`Guardia ${guardiaId} asignado a bicicletero ${bicicletero}`);
   };
 
   const handleJornadaChange = (guardiaId, jornada) => {
@@ -75,7 +114,6 @@ const Turnos = () => {
       g.id === guardiaId ? { ...g, jornada } : g
     ));
     setHayCambiosSinGuardar(true);
-    console.log(`Guardia ${guardiaId} asignado a jornada ${jornada}`);
   };
 
   const handleGuardarCambios = () => {
@@ -100,6 +138,47 @@ const Turnos = () => {
 
       {loading ? (
         <div className="loading-message">Cargando turnos...</div>
+      ) : userRole === 'guard' ? (
+        (() => {
+          const miTurno = guardias.find(g => String(g.id) === String(currentUser));
+          
+          if (!miTurno) {
+            return (
+              <div className="turno-card-container">
+                <div className="turno-card">
+                  <div className="no-turno-message-card">
+                    No se encontró información de turno
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="turno-card-container">
+              <div className="turno-card">
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Guardia</h2>
+                  <p className="turno-card-value">{miTurno.nombre}</p>
+                </div>
+
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Jornada Asignada</h2>
+                  <p className="turno-card-value">
+                    {miTurno.jornada || 'Sin asignar'}
+                  </p>
+                </div>
+
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Bicicletero</h2>
+                  <p className="turno-card-value">
+                    {miTurno.bicicletero ? `Número ${miTurno.bicicletero}` : 'Sin asignar'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()
       ) : (
         <div className="tabla-wrapper">
           <table className="tabla-turnos">
