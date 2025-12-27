@@ -59,7 +59,14 @@ export async function updatePrivateProfile(req, res) {
 
     if (email) user.email = email;
     if (nombre) user.nombre = nombre;
-    if (numeroTelefonico) user.numeroTelefonico = numeroTelefonico;
+    if (numeroTelefonico) {
+      const existingPhone = await userRepository.findOneBy({ numeroTelefonico });
+      if (existingPhone && existingPhone.id !== user.id) {
+        console.log('❌ Número telefónico ya registrado');
+        return handleErrorClient(res, 409, "Este número telefónico ya está registrado");
+      }
+      user.numeroTelefonico = numeroTelefonico;
+    }
     
     if (password) {
         user.password = await bcrypt.hash(password, 10);
@@ -131,6 +138,10 @@ export async function updateUserRole(req, res) {
     const user = await repo.findOneBy({ id: targetId });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede modificar el rol de un administrador" });
+    }
+
     user.role = role;
     await repo.save(user);
     return res.json({ message: "Rol actualizado", user: { id: user.id, email: user.email, role: user.role } });
@@ -173,6 +184,10 @@ export async function deleteUserByAdmin(req, res) {
       return handleErrorClient(res, 404, "Usuario no encontrado");
     }
 
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede eliminar un usuario administrador" });
+    }
+
     await userRepository.remove(user);
     handleSuccess(res, 200, "Usuario eliminado exitosamente", {
       message: `El usuario ${user.email} ha sido eliminado`,
@@ -209,9 +224,19 @@ export async function updateUserByAdmin(req, res) {
       return handleErrorClient(res, 404, "Usuario no encontrado");
     }
 
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede modificar un usuario administrador" });
+    }
+
     if (nombre) user.nombre = nombre;
     if (email) user.email = email;
-    if (numeroTelefonico) user.numeroTelefonico = numeroTelefonico;
+    if (numeroTelefonico) {
+      const existingPhone = await userRepository.findOneBy({ numeroTelefonico });
+      if (existingPhone && existingPhone.id !== user.id) {
+        return res.status(409).json({ error: "Este número telefónico ya está registrado" });
+      }
+      user.numeroTelefonico = numeroTelefonico;
+    }
 
     await userRepository.save(user);
     

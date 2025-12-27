@@ -29,21 +29,21 @@ const Informes = () => {
   };
 
   return (
-    <div className="bicicleteros-container">
-      <h1 className="bicicleteros-title">INFORMES</h1>
+    <div className="informes-container">
+      <h1 className="informes-title">INFORMES</h1>
 
       {loading ? (
-        <div className="loading-message">Cargando bicicleteros...</div>
+        <div className="loading-message">Cargando informes...</div>
       ) : (
-        <div className="bicicleteros-grid">
+        <div className="informes-grid">
           {bicicleteros.map((bici) => {
             return (
               <div 
                 key={bici.numero} 
-                className="bicicletero-card"
+                className="informe-card"
               >
                 <button 
-                  className="bicicletero-header-card"
+                  className="informe-header-card"
                   onClick={() => handleGenerarInforme(bici.numero)}
                 >
                   BICICLETERO {bici.numero}

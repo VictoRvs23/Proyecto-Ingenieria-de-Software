@@ -29,7 +29,7 @@ export async function register(req, res) {
     delete newUser.password;
     handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
   } catch (error) {
-    if (error.message === "Este correo ya está registrado") {
+    if (error.message === "Este correo ya está registrado" || error.message === "Este número telefónico ya está registrado") {
       handleErrorClient(res, 409, error.message);
     } else if (error.code === '23505') {
       handleErrorClient(res, 409, "El email ya está registrado");

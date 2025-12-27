@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers } from '../services/user.service';
+import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
 
 const Turnos = () => {
   const [guardias, setGuardias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hayCambiosSinGuardar, setHayCambiosSinGuardar] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
+    const role = localStorage.getItem('role') || sessionStorage.getItem('role');
+    const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+    setUserRole(role);
+    setCurrentUser(userId);
     loadGuardias();
   }, []);
 
@@ -24,8 +32,56 @@ const Turnos = () => {
 
   const loadGuardias = async () => {
     try {
+      const role = localStorage.getItem('role') || sessionStorage.getItem('role');
+      
+      if (role === 'guard') {
+        const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+        const userName = localStorage.getItem('nombre') || sessionStorage.getItem('nombre') || 'Guardia';
+        const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
+        
+        const savedData = localStorage.getItem('turnosGuardias');
+        let turnoGuardia = { bicicletero: '', jornada: '' };
+        
+        if (savedData) {
+          try {
+            const parsedData = JSON.parse(savedData);
+            const miTurno = parsedData.find(t => String(t.id) === String(userId));
+            if (miTurno) {
+              turnoGuardia = { bicicletero: miTurno.bicicletero, jornada: miTurno.jornada };
+            }
+          } catch (error) {
+            console.error('Error al parsear datos guardados:', error);
+          }
+        }
+        
+        setGuardias([{
+          id: userId,
+          nombre: userName,
+          email: userEmail,
+          telefono: '',
+          bicicletero: turnoGuardia.bicicletero || '',
+          jornada: turnoGuardia.jornada || ''
+        }]);
+        setLoading(false);
+        return;
+      }
+      
       const response = await getAllUsers();
       const users = response.data || [];
+      
+      const savedData = localStorage.getItem('turnosGuardias');
+      let savedGuardias = {};
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          savedGuardias = parsedData.reduce((acc, item) => {
+            acc[item.id] = { bicicletero: item.bicicletero, jornada: item.jornada };
+            return acc;
+          }, {});
+        } catch (error) {
+          console.error('Error al parsear datos guardados:', error);
+        }
+      }
       
       const guardiasConRol = users
         .filter(user => user.role === 'guard')
@@ -34,8 +90,8 @@ const Turnos = () => {
           nombre: user.nombre || 'Sin nombre',
           email: user.email,
           telefono: user.numeroTelefonico || 'Sin teléfono',
-          bicicletero: '',
-          jornada: ''
+          bicicletero: savedGuardias[user.id]?.bicicletero || '',
+          jornada: savedGuardias[user.id]?.jornada || ''
         }));
       
       setGuardias(guardiasConRol);
@@ -50,14 +106,30 @@ const Turnos = () => {
     setGuardias(guardias.map(g => 
       g.id === guardiaId ? { ...g, bicicletero } : g
     ));
-    console.log(`Guardia ${guardiaId} asignado a bicicletero ${bicicletero}`);
+    setHayCambiosSinGuardar(true);
   };
 
   const handleJornadaChange = (guardiaId, jornada) => {
     setGuardias(guardias.map(g => 
       g.id === guardiaId ? { ...g, jornada } : g
     ));
-    console.log(`Guardia ${guardiaId} asignado a jornada ${jornada}`);
+    setHayCambiosSinGuardar(true);
+  };
+
+  const handleGuardarCambios = () => {
+    try {
+      const dataToSave = guardias.map(g => ({
+        id: g.id,
+        bicicletero: g.bicicletero,
+        jornada: g.jornada
+      }));
+      localStorage.setItem('turnosGuardias', JSON.stringify(dataToSave));
+      setHayCambiosSinGuardar(false);
+      showSuccessAlert('Cambios guardados exitosamente');
+    } catch (error) {
+      console.error('Error al guardar cambios:', error);
+      showErrorAlert('Error al guardar los cambios');
+    }
   };
 
   return (
@@ -66,6 +138,47 @@ const Turnos = () => {
 
       {loading ? (
         <div className="loading-message">Cargando turnos...</div>
+      ) : userRole === 'guard' ? (
+        (() => {
+          const miTurno = guardias.find(g => String(g.id) === String(currentUser));
+          
+          if (!miTurno) {
+            return (
+              <div className="turno-card-container">
+                <div className="turno-card">
+                  <div className="no-turno-message-card">
+                    No se encontró información de turno
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="turno-card-container">
+              <div className="turno-card">
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Guardia</h2>
+                  <p className="turno-card-value">{miTurno.nombre}</p>
+                </div>
+
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Jornada Asignada</h2>
+                  <p className="turno-card-value">
+                    {miTurno.jornada || 'Sin asignar'}
+                  </p>
+                </div>
+
+                <div className="turno-card-section">
+                  <h2 className="turno-card-label">Bicicletero</h2>
+                  <p className="turno-card-value">
+                    {miTurno.bicicletero ? `Número ${miTurno.bicicletero}` : 'Sin asignar'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()
       ) : (
         <div className="tabla-wrapper">
           <table className="tabla-turnos">
@@ -105,7 +218,7 @@ const Turnos = () => {
                         onChange={(e) => handleBicicleteroChange(guardia.id, e.target.value)}
                         className="bicicletero-select"
                       >
-                        <option value="">PREDETERMINADA</option>
+                        <option value="">PREDETERMINADO</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -121,6 +234,14 @@ const Turnos = () => {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+      
+      {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
+        <div className="guardar-button-container">
+          <button className="guardar-button" onClick={handleGuardarCambios}>
+            GUARDAR CAMBIOS
+          </button>
         </div>
       )}
     </div>
