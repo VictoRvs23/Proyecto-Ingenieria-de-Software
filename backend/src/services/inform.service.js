@@ -23,60 +23,33 @@ export async function createInformLog(reserve, note = "") {
     }
 }
 
-// 2. Generar PDF
+
 export async function generateInformPdf(res) {
-    // Buscar datos
+    // 1. Buscar datos
     const logs = await informRepository.find({
         relations: ["user", "bike"],
         order: { fecha_hora: "DESC" }
     });
 
+    // 2. Crear documento
     const doc = new PDFDocument({ margin: 30, layout: 'landscape' });
 
-    // --- EL TRUCO ESTÁ AQUÍ ---
+    // 3. Headers para descarga
     res.setHeader('Content-Type', 'application/pdf');
-    // 'inline' le dice al navegador: "Ábrelo aquí mismo", no lo descargues.
-    res.setHeader('Content-Disposition', 'inline; filename=informe_movimientos.pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=informe_movimientos.pdf');
 
-    // Conectamos el PDF directamente a la respuesta del usuario
+    // 4. Conectar el PDF a la respuesta (Pipe)
     doc.pipe(res);
 
-    // --- TU LÓGICA DE DIBUJO (La misma de siempre) ---
+    // ... (Toda tu lógica de dibujo: Títulos, Cabeceras, etc.) ...
     doc.fontSize(20).text("Informe Histórico de Movimientos", { align: "center" });
-    doc.moveDown();
 
-    let y = doc.y;
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text("Fecha", 30, y);
-    doc.text("Bicicletero", 130, y);
-    doc.text("Estado", 200, y);
-    doc.text("Usuario", 280, y);
-    doc.text("Bici ID", 480, y);
-    doc.text("Nota", 530, y);
-    doc.moveTo(30, y + 15).lineTo(750, y + 15).stroke();
-    y += 25;
-    doc.font('Helvetica').fontSize(9);
-
+    // ... (Tu loop forEach de logs) ...
     logs.forEach((log) => {
-        if (y > 550) { doc.addPage({ layout: 'landscape' }); y = 30; }
-        const fecha = new Date(log.fecha_hora).toLocaleString();
-        
-        if (log.estado_nuevo === 'ingresada') doc.fillColor('green');
-        else if (log.estado_nuevo === 'entregada') doc.fillColor('blue');
-        else doc.fillColor('black');
-
-        doc.text(fecha, 30, y);
-        doc.text(log.bicicletero_number || "-", 130, y);
-        doc.text(log.estado_nuevo, 200, y);
-        doc.fillColor('black');
-        doc.text(log.user_email_snapshot || "N/A", 280, y);
-        doc.text(log.bike ? `${log.bike.brand} ${log.bike.model}` : "Eliminada", 480, y);
-        doc.text(log.nota || "-", 530, y);
-        
-        y += 20;
+       // ... tu lógica de pintar filas ...
+       doc.text(log.estado_nuevo); // Ejemplo
     });
-    // ------------------------------------------------
 
-    // Cerramos el documento y se envía automáticamente
-    doc.end();
+    // 5. ¡¡MUY IMPORTANTE!! FINALIZAR EL DOCUMENTO
+    doc.end(); 
 }
