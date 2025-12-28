@@ -46,10 +46,12 @@ export const bikeEntryValidation = Joi.object({
     bicicletero: Joi.number()
         .integer()
         .min(1)
+        .max(4)
         .required()
         .messages({
             "number.base": "El numero del bicicletero debe ser un número entero.",
             "number.min": "El numero del bicicletero debe ser al menos 1.",
+            "number.max": "El numero del bicicletero no puede ser mayor a 4.",
             "any.required": "El numero del bicicletero es obligatorio."
         }),
     space: Joi.number()

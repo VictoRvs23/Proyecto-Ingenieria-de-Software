@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import { FaPlus, FaMinus } from 'react-icons/fa'; 
 import '../styles/profile.css';
-import { getBikes, deleteBike, updateBikeImage } from '../services/bike.service';
+import { getBikes, deleteBike, updateBikeImage, updateBike } from '../services/bike.service';
 import { getPrivateProfile, updatePrivateProfile } from '../services/profile.service'; 
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom'; 
@@ -58,13 +58,10 @@ const Profile = () => {
 
       if (u) {
         const data = u.userData || u.data || u; 
-        console.log('📸 Datos del usuario recibidos:', data);
-        console.log('📸 userImage del servidor:', data.userImage);
         const hasValidUserImage = data.userImage && data.userImage.trim() !== '' && data.userImage !== 'null';
         const imageUrl = hasValidUserImage
           ? `${SERVER_URL}${data.userImage}?v=${timestamp}&r=${Math.random()}` 
           : defaultUserImg;
-        console.log('📸 URL construida:', imageUrl);
         
         setUserData({
             name: data.nombre || "Usuario",
@@ -94,13 +91,152 @@ const Profile = () => {
           setBikesList(formattedBikes);
       }
     } catch (error) {
-      console.error("Error cargando datos:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddBike = () => navigate('/home/agregar-bicicleta');
+
+  const handleEditUserInfo = async () => {
+    let phoneForEditing = userData.phone ? String(userData.phone).replace(/\D/g, '') : '';
+    
+    if (phoneForEditing.startsWith('9') && phoneForEditing.length === 9) {
+      phoneForEditing = phoneForEditing.substring(1);
+    }
+    
+    const { value: formValues } = await Swal.fire({
+      title: 'Editar Información',
+      html: `
+        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${userData.name || ''}">
+        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (8 dígitos)" value="${phoneForEditing}" maxlength="8">
+        <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">
+          Ingresa 8 dígitos (el 9 inicial se agregará automáticamente)
+        </small>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1565C0',
+      cancelButtonColor: '#d33',
+      preConfirm: () => {
+        const nombre = document.getElementById('swal-nombre').value;
+        const phone = document.getElementById('swal-phone').value;
+
+        if (!nombre || !phone) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+        
+        if (phone.length !== 8 || !/^[0-9]{8}$/.test(phone)) {
+          Swal.showValidationMessage('El número telefónico debe tener exactamente 8 dígitos');
+          return false;
+        }
+
+        return { nombre, numeroTelefonico: phone };
+      }
+    });
+
+    if (formValues) {
+      try {
+        let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace(/\D/g, '') : "";
+        
+        if (phoneClean.length === 8) {
+          phoneClean = '9' + phoneClean;
+        }
+        
+        const dataForBackend = {
+          nombre: formValues.nombre,
+          numeroTelefonico: phoneClean
+        };
+        
+        await updatePrivateProfile(dataForBackend);
+        
+        await Swal.fire({
+          icon: 'success',
+          title: 'Información actualizada',
+          text: 'Tus datos se han actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        await fetchData();
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'No se pudieron actualizar los datos';
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage
+        });
+      }
+    }
+  };
+
+  const handleEditBike = async () => {
+    if (!hasBikes) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin bicicletas',
+        text: 'No tienes bicicletas para editar',
+      });
+      return;
+    }
+
+    const currentBike = bikesList[currentBikeIndex];
+    
+    const { value: formValues } = await Swal.fire({
+      title: 'Editar Bicicleta',
+      html: `
+        <input id="swal-brand" class="swal2-input" placeholder="Marca" value="${currentBike.brand || ''}">
+        <input id="swal-model" class="swal2-input" placeholder="Modelo" value="${currentBike.model || ''}">
+        <input id="swal-color" class="swal2-input" placeholder="Color" value="${currentBike.color || ''}">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1565C0',
+      cancelButtonColor: '#d33',
+      preConfirm: () => {
+        const brand = document.getElementById('swal-brand').value;
+        const model = document.getElementById('swal-model').value;
+        const color = document.getElementById('swal-color').value;
+
+        if (!brand || !model || !color) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+
+        return { brand, model, color };
+      }
+    });
+
+    if (formValues) {
+      try {
+        await updateBike(currentBike.id, formValues);
+        
+        await Swal.fire({
+          icon: 'success',
+          title: 'Bicicleta actualizada',
+          text: 'Los datos de la bicicleta se han actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        await fetchData();
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'No se pudieron actualizar los datos de la bicicleta';
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage
+        });
+      }
+    }
+  };
 
   const handleDeleteBike = async () => {
     const bikeToDelete = bikesList[currentBikeIndex];
@@ -138,7 +274,6 @@ const Profile = () => {
           await fetchData();
         }
       } catch (error) {
-        console.error("Error al eliminar bicicleta:", error);
         Swal.fire({
           title: 'Error',
           text: 'No se pudo eliminar la bicicleta.',
@@ -150,29 +285,15 @@ const Profile = () => {
 
   const handleImageUpdate = async (type, previewUrl, file) => {
     if (!file) {
-      console.log('❌ No se seleccionó archivo');
       return;
     }
 
-    console.log('🔧 Iniciando actualización de imagen:', { 
-      type, 
-      fileName: file.name,
-      fileSize: file.size, 
-      fileType: file.type 
-    });
-
     const formData = new FormData();
     formData.append('image', file);
-
-    console.log('📦 FormData creado correctamente');
     
     try {
         if (type === 'user') {
-            console.log('👤 Actualizando imagen de usuario...');
-            
-            console.log('📤 Enviando al servidor...');
-            const response = await updatePrivateProfile(formData); 
-            console.log('✅ Respuesta del servidor:', response);
+            const response = await updatePrivateProfile(formData);
             
             setImageKey(Date.now());
             
@@ -188,14 +309,11 @@ const Profile = () => {
             
             await fetchData();
         } else if (type === 'bike') {
-            console.log('🚴 Actualizando imagen de bicicleta...');
             const bikeToUpdate = bikesList[currentBikeIndex];
             if (!bikeToUpdate) {
-              console.log('❌ No se encontró la bicicleta');
               return;
             }
             
-            console.log('🚴 Bicicleta a actualizar:', bikeToUpdate.id);
             const currentBikeId = bikeToUpdate.id;
             const currentOrder = bikesList.map(b => b.id);
             
@@ -205,9 +323,7 @@ const Profile = () => {
                     : bike
             ));
             
-            console.log('📤 Enviando al servidor...');
-            const response = await updateBikeImage(currentBikeId, formData); 
-            console.log('✅ Respuesta del servidor:', response);
+            const response = await updateBikeImage(currentBikeId, formData);
             
             await Swal.fire({ 
                 title: '¡Éxito!', 
@@ -247,11 +363,6 @@ const Profile = () => {
             }
         }
     } catch (error) {
-        console.error("❌ Error completo:", error);
-        console.error("❌ Respuesta del servidor:", error.response);
-        console.error("❌ Datos del error:", error.response?.data);
-        console.error("❌ Status:", error.response?.status);
-        
         const serverMessage = error.response?.data?.message || error.response?.data?.error;
         const fallbackMessage = 'Error al actualizar la imagen. Verifica el formato del archivo.';
 
@@ -321,6 +432,17 @@ const Profile = () => {
             onImageChange={(preview, file) => handleImageUpdate('bike', preview, file)}
           />
         </div>
+      </div>
+
+      <div className="profile-actions">
+        <button className="btn-edit-profile" onClick={handleEditUserInfo}>
+          Editar Información
+        </button>
+        {hasBikes && (
+          <button className="btn-edit-profile" onClick={handleEditBike}>
+            Editar Bicicleta
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers } from '../services/user.service';
+import { getAllTurns, updateMultipleTurns, getTurnByUser } from '../services/turn.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
 
@@ -35,23 +36,22 @@ const Turnos = () => {
       const role = localStorage.getItem('role') || sessionStorage.getItem('role');
       
       if (role === 'guard') {
-        const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+        const userId = parseInt(localStorage.getItem('userId') || sessionStorage.getItem('userId'));
         const userName = localStorage.getItem('nombre') || sessionStorage.getItem('nombre') || 'Guardia';
         const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
         
-        const savedData = localStorage.getItem('turnosGuardias');
+        // Obtener el turno del backend
         let turnoGuardia = { bicicletero: '', jornada: '' };
-        
-        if (savedData) {
-          try {
-            const parsedData = JSON.parse(savedData);
-            const miTurno = parsedData.find(t => String(t.id) === String(userId));
-            if (miTurno) {
-              turnoGuardia = { bicicletero: miTurno.bicicletero, jornada: miTurno.jornada };
-            }
-          } catch (error) {
-            console.error('Error al parsear datos guardados:', error);
+        try {
+          const turnoResponse = await getTurnByUser(userId);
+          if (turnoResponse.data) {
+            turnoGuardia = {
+              bicicletero: turnoResponse.data.bicicletero || '',
+              jornada: turnoResponse.data.jornada || ''
+            };
           }
+        } catch (error) {
+          console.error('Error al obtener turno del guardia:', error);
         }
         
         setGuardias([{
@@ -59,28 +59,31 @@ const Turnos = () => {
           nombre: userName,
           email: userEmail,
           telefono: '',
-          bicicletero: turnoGuardia.bicicletero || '',
-          jornada: turnoGuardia.jornada || ''
+          bicicletero: turnoGuardia.bicicletero,
+          jornada: turnoGuardia.jornada
         }]);
         setLoading(false);
         return;
       }
       
+      // Para admin y adminBicicletero
       const response = await getAllUsers();
       const users = response.data || [];
       
-      const savedData = localStorage.getItem('turnosGuardias');
-      let savedGuardias = {};
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          savedGuardias = parsedData.reduce((acc, item) => {
-            acc[item.id] = { bicicletero: item.bicicletero, jornada: item.jornada };
-            return acc;
-          }, {});
-        } catch (error) {
-          console.error('Error al parsear datos guardados:', error);
-        }
+      // Obtener todos los turnos del backend
+      let turnosMap = {};
+      try {
+        const turnosResponse = await getAllTurns();
+        const turnos = turnosResponse.data || [];
+        turnosMap = turnos.reduce((acc, turno) => {
+          acc[turno.user_id] = {
+            bicicletero: turno.bicicletero || '',
+            jornada: turno.jornada || ''
+          };
+          return acc;
+        }, {});
+      } catch (error) {
+        console.error('Error al obtener turnos:', error);
       }
       
       const guardiasConRol = users
@@ -90,19 +93,36 @@ const Turnos = () => {
           nombre: user.nombre || 'Sin nombre',
           email: user.email,
           telefono: user.numeroTelefonico || 'Sin teléfono',
-          bicicletero: savedGuardias[user.id]?.bicicletero || '',
-          jornada: savedGuardias[user.id]?.jornada || ''
+          bicicletero: turnosMap[user.id]?.bicicletero || '',
+          jornada: turnosMap[user.id]?.jornada || ''
         }));
       
       setGuardias(guardiasConRol);
       setLoading(false);
     } catch (error) {
       console.error('Error al cargar guardias:', error);
+      showErrorAlert('Error al cargar los datos de guardias');
       setLoading(false);
     }
   };
 
   const handleBicicleteroChange = (guardiaId, bicicletero) => {
+    const guardia = guardias.find(g => g.id === guardiaId);
+    
+    // Validar si ya existe un guardia con esa combinación de bicicletero + jornada
+    if (bicicletero && guardia.jornada) {
+      const conflicto = guardias.find(g => 
+        g.id !== guardiaId && 
+        g.bicicletero === bicicletero && 
+        g.jornada === guardia.jornada
+      );
+      
+      if (conflicto) {
+        showErrorAlert(`El guardia ${conflicto.nombre} ya tiene asignada la jornada "${guardia.jornada}" en el bicicletero ${bicicletero}. Solo un guardia puede tener ese turno.`);
+        return;
+      }
+    }
+    
     setGuardias(guardias.map(g => 
       g.id === guardiaId ? { ...g, bicicletero } : g
     ));
@@ -110,25 +130,75 @@ const Turnos = () => {
   };
 
   const handleJornadaChange = (guardiaId, jornada) => {
+    const guardia = guardias.find(g => g.id === guardiaId);
+    
+    // Validar si ya existe un guardia con esa combinación de bicicletero + jornada
+    if (jornada && guardia.bicicletero) {
+      const conflicto = guardias.find(g => 
+        g.id !== guardiaId && 
+        g.bicicletero === guardia.bicicletero && 
+        g.jornada === jornada
+      );
+      
+      if (conflicto) {
+        showErrorAlert(`El guardia ${conflicto.nombre} ya tiene asignada la jornada "${jornada}" en el bicicletero ${guardia.bicicletero}. Solo un guardia puede tener ese turno.`);
+        return;
+      }
+    }
+    
     setGuardias(guardias.map(g => 
       g.id === guardiaId ? { ...g, jornada } : g
     ));
     setHayCambiosSinGuardar(true);
   };
 
-  const handleGuardarCambios = () => {
+  const handleGuardarCambios = async () => {
     try {
-      const dataToSave = guardias.map(g => ({
-        id: g.id,
-        bicicletero: g.bicicletero,
-        jornada: g.jornada
+      // Validar conflictos antes de guardar
+      const conflictos = [];
+      guardias.forEach((guardia, index) => {
+        if (guardia.bicicletero && guardia.jornada) {
+          const otroGuardia = guardias.find((g, i) => 
+            i !== index && 
+            g.bicicletero === guardia.bicicletero && 
+            g.jornada === guardia.jornada
+          );
+          
+          if (otroGuardia) {
+            conflictos.push({
+              guardia1: guardia.nombre,
+              guardia2: otroGuardia.nombre,
+              bicicletero: guardia.bicicletero,
+              jornada: guardia.jornada
+            });
+          }
+        }
+      });
+      
+      if (conflictos.length > 0) {
+        const mensajeConflictos = conflictos.map(c => 
+          `• ${c.guardia1} y ${c.guardia2} tienen el mismo turno: ${c.jornada} en bicicletero ${c.bicicletero}`
+        ).join('\n');
+        showErrorAlert(`No se pueden guardar los cambios. Hay turnos duplicados:\n\n${mensajeConflictos}`);
+        return;
+      }
+      
+      // Preparar datos para enviar al backend
+      const turnsToSave = guardias.map(g => ({
+        userId: parseInt(g.id),
+        bicicletero: g.bicicletero || '',
+        jornada: g.jornada || ''
       }));
-      localStorage.setItem('turnosGuardias', JSON.stringify(dataToSave));
+      
+      // Guardar en el backend
+      await updateMultipleTurns(turnsToSave);
+      
       setHayCambiosSinGuardar(false);
       showSuccessAlert('Cambios guardados exitosamente');
     } catch (error) {
       console.error('Error al guardar cambios:', error);
-      showErrorAlert('Error al guardar los cambios');
+      const errorMsg = error.response?.data?.message || error.message || 'Error al guardar los cambios';
+      showErrorAlert(errorMsg);
     }
   };
 

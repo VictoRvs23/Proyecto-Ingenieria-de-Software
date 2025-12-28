@@ -33,6 +33,15 @@ export async function updateBikeImage(id, formData) {
     }
 }
 
+export async function updateBike(id, bikeData) {
+    try {
+        const response = await axios.patch(`/bikes/${id}`, bikeData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export async function deleteBike(id) {
     try {
         const response = await axios.delete(`/bikes/${id}`);

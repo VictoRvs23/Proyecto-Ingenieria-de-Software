@@ -167,3 +167,37 @@
   align-items: center;
   border-radius: 25px;
 }
+
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding: 0 2rem;
+}
+
+.btn-edit-profile {
+  background: #1565C0;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: -20px;
+}
+
+.btn-edit-profile:hover {
+  background: #0d47a1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-edit-profile:active {
+  transform: translateY(0);
+}

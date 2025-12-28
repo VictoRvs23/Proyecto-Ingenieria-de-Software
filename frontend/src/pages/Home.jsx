@@ -7,13 +7,9 @@ const Home = () => {
       
       <div className="home-banner-card">
         <img 
-          src="/inicioB.png" 
+          src="/InicioB.png" 
           alt="Bienvenida al Bicicletero" 
           className="home-image"
-          onError={(e) => {
-            console.error('Error cargando imagen de inicio');
-            e.target.style.display = 'none';
-          }}
         />
       </div>
     </div>
