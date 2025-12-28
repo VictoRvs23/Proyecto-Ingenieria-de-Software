@@ -40,7 +40,6 @@ const Turnos = () => {
         const userName = localStorage.getItem('nombre') || sessionStorage.getItem('nombre') || 'Guardia';
         const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
         
-        // Obtener el turno del backend
         let turnoGuardia = { bicicletero: '', jornada: '' };
         try {
           const turnoResponse = await getTurnByUser(userId);
@@ -66,11 +65,9 @@ const Turnos = () => {
         return;
       }
       
-      // Para admin y adminBicicletero
       const response = await getAllUsers();
       const users = response.data || [];
       
-      // Obtener todos los turnos del backend
       let turnosMap = {};
       try {
         const turnosResponse = await getAllTurns();
@@ -109,7 +106,6 @@ const Turnos = () => {
   const handleBicicleteroChange = (guardiaId, bicicletero) => {
     const guardia = guardias.find(g => g.id === guardiaId);
     
-    // Validar si ya existe un guardia con esa combinación de bicicletero + jornada
     if (bicicletero && guardia.jornada) {
       const conflicto = guardias.find(g => 
         g.id !== guardiaId && 
@@ -132,7 +128,6 @@ const Turnos = () => {
   const handleJornadaChange = (guardiaId, jornada) => {
     const guardia = guardias.find(g => g.id === guardiaId);
     
-    // Validar si ya existe un guardia con esa combinación de bicicletero + jornada
     if (jornada && guardia.bicicletero) {
       const conflicto = guardias.find(g => 
         g.id !== guardiaId && 
@@ -154,7 +149,6 @@ const Turnos = () => {
 
   const handleGuardarCambios = async () => {
     try {
-      // Validar conflictos antes de guardar
       const conflictos = [];
       guardias.forEach((guardia, index) => {
         if (guardia.bicicletero && guardia.jornada) {
@@ -183,14 +177,12 @@ const Turnos = () => {
         return;
       }
       
-      // Preparar datos para enviar al backend
       const turnsToSave = guardias.map(g => ({
         userId: parseInt(g.id),
         bicicletero: g.bicicletero || '',
         jornada: g.jornada || ''
       }));
       
-      // Guardar en el backend
       await updateMultipleTurns(turnsToSave);
       
       setHayCambiosSinGuardar(false);
