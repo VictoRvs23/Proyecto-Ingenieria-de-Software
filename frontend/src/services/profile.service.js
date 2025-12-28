@@ -11,17 +11,9 @@ export async function getPrivateProfile() {
 
 export async function updatePrivateProfile(profileData) {
     try {
-        console.log('📤 Enviando actualización de perfil');
-        console.log('📦 Tipo de datos:', profileData instanceof FormData ? 'FormData' : typeof profileData);
         const response = await axios.patch('/profile/private', profileData);
-        console.log('✅ Respuesta exitosa del servicio:', response.data);
         return response.data;
     } catch (error) {
-        console.error('❌ Error en servicio de perfil:', {
-            status: error.response?.status,
-            data: error.response?.data,
-            message: error.message
-        });
         throw error; 
     }
 }

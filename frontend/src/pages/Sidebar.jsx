@@ -9,7 +9,6 @@ const Sidebar = () => {
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
-    console.log('🔍 Rol del localStorage:', storedRole);
     if (storedRole) {
       setUserRole(storedRole);
     }
@@ -29,7 +28,6 @@ const Sidebar = () => {
 
   const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
   const showUsuariosModule = ['admin', 'adminBicicletero'].includes(userRole);
-  console.log('🔍 userRole:', userRole, '| showAdminModules:', showAdminModules);
   return (
     <div className="sidebar">
       <div className="sidebar-header">

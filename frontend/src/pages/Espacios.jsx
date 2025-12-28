@@ -22,7 +22,6 @@ const Espacios = () => {
   const loadEspacios = async () => {
     try {
       const bicicletero = await getBicicleteroById(id);
-      console.log('📍 Bicicletero cargado:', bicicletero);
       
       const espaciosArray = Array.from({ length: bicicletero.space || 15 }, (_, i) => {
         const numeroEspacio = i + 1;
@@ -35,11 +34,9 @@ const Espacios = () => {
         };
       });
       
-      console.log('📍 Espacios generados:', espaciosArray);
       setEspacios(espaciosArray);
       setLoading(false);
     } catch (error) {
-      console.error('❌ Error al cargar espacios:', error);
       const espaciosDefault = Array.from({ length: 15 }, (_, i) => ({
         numero: i + 1,
         estado: 'disponible',
