@@ -3,6 +3,7 @@ import authRoutes from "./auth.routes.js";
 import profileRoutes from "./profile.routes.js";
 import bikeRoutes from "./bike.routes.js";
 import bicicleteroRoutes from "./bicicletero.routes.js";
+import turnRoutes from "./turn.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -11,6 +12,7 @@ export function routerApi(app) {
   router.use("/profile", profileRoutes);
   router.use("/bikes", bikeRoutes);
   router.use("/bicicletero", bicicleteroRoutes);
+  router.use("/turns", turnRoutes);
 }
 
 
