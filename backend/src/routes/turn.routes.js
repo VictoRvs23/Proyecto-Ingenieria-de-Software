@@ -22,19 +22,14 @@ function allowRoles(...roles) {
   };
 }
 
-// Obtener todos los turnos (solo admin y adminBicicletero)
 router.get("/", authMiddleware, allowRoles("admin", "adminBicicletero"), getTurns);
 
-// Obtener turno de un usuario específico
 router.get("/:userId", authMiddleware, getTurnByUser);
 
-// Actualizar turno de un usuario (solo admin y adminBicicletero)
 router.put("/:userId", authMiddleware, allowRoles("admin", "adminBicicletero"), updateTurn);
 
-// Actualizar múltiples turnos a la vez (solo admin y adminBicicletero)
 router.put("/", authMiddleware, allowRoles("admin", "adminBicicletero"), updateTurnsInBatch);
 
-// Eliminar turno de un usuario (solo admin y adminBicicletero)
 router.delete("/:userId", authMiddleware, allowRoles("admin", "adminBicicletero"), removeTurn);
 
 export default router;

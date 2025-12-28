@@ -30,7 +30,6 @@ export async function getTurnByUserId(userId) {
 
 export async function createOrUpdateTurn(userId, bicicletero, jornada) {
   try {
-    // Verificar que el usuario existe y es un guardia
     const user = await userRepository.findOne({
       where: { id: userId },
     });
@@ -43,7 +42,6 @@ export async function createOrUpdateTurn(userId, bicicletero, jornada) {
       throw new Error("Solo se pueden asignar turnos a guardias");
     }
 
-    // Validar que no exista otro guardia con la misma combinación bicicletero + jornada
     if (bicicletero && jornada) {
       const existingTurn = await turnRepository.findOne({
         where: { 
@@ -62,19 +60,16 @@ export async function createOrUpdateTurn(userId, bicicletero, jornada) {
       }
     }
 
-    // Buscar si ya existe un turno para este usuario
     let turn = await turnRepository.findOne({
       where: { user_id: userId },
     });
 
     if (turn) {
-      // Actualizar turno existente
       turn.bicicletero = bicicletero || null;
       turn.jornada = jornada || null;
       await turnRepository.save(turn);
       return turn;
     } else {
-      // Crear nuevo turno
       const newTurn = turnRepository.create({
         user_id: userId,
         bicicletero: bicicletero || null,
@@ -110,7 +105,6 @@ export async function updateMultipleTurns(turnsData) {
     const results = [];
     const errors = [];
     
-    // Validar conflictos antes de guardar
     const turnosConDatos = turnsData.filter(t => t.bicicletero && t.jornada);
     
     for (let i = 0; i < turnosConDatos.length; i++) {
