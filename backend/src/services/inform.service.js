@@ -37,6 +37,7 @@ export async function listReports() {
     });
 }
 
+
 // C. Generar o Recuperar el de HOY
 export async function generateDailyReport() {
     const hoy = new Date().toISOString().split('T')[0];
