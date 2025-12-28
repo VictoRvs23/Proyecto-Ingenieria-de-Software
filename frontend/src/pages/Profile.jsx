@@ -102,6 +102,83 @@ const Profile = () => {
 
   const handleAddBike = () => navigate('/home/agregar-bicicleta');
 
+  const handleEditUserInfo = async () => {
+    let phoneForEditing = userData.phone ? String(userData.phone).replace(/\D/g, '') : '';
+    
+    if (phoneForEditing.startsWith('9') && phoneForEditing.length === 9) {
+      phoneForEditing = phoneForEditing.substring(1);
+    }
+    
+    const { value: formValues } = await Swal.fire({
+      title: 'Editar Información',
+      html: `
+        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${userData.name || ''}">
+        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (8 dígitos)" value="${phoneForEditing}" maxlength="8">
+        <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">
+          Ingresa 8 dígitos (el 9 inicial se agregará automáticamente)
+        </small>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1565C0',
+      cancelButtonColor: '#d33',
+      preConfirm: () => {
+        const nombre = document.getElementById('swal-nombre').value;
+        const phone = document.getElementById('swal-phone').value;
+
+        if (!nombre || !phone) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+        
+        if (phone.length !== 8 || !/^[0-9]{8}$/.test(phone)) {
+          Swal.showValidationMessage('El número telefónico debe tener exactamente 8 dígitos');
+          return false;
+        }
+
+        return { nombre, numeroTelefonico: phone };
+      }
+    });
+
+    if (formValues) {
+      try {
+        let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace(/\D/g, '') : "";
+        
+        if (phoneClean.length === 8) {
+          phoneClean = '9' + phoneClean;
+        }
+        
+        const dataForBackend = {
+          nombre: formValues.nombre,
+          numeroTelefonico: phoneClean
+        };
+        
+        await updatePrivateProfile(dataForBackend);
+        
+        await Swal.fire({
+          icon: 'success',
+          title: 'Información actualizada',
+          text: 'Tus datos se han actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        await fetchData();
+      } catch (error) {
+        console.error("Error al actualizar información:", error);
+        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'No se pudieron actualizar los datos';
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage
+        });
+      }
+    }
+  };
+
   const handleDeleteBike = async () => {
     const bikeToDelete = bikesList[currentBikeIndex];
     if (!bikeToDelete) return;
@@ -321,6 +398,12 @@ const Profile = () => {
             onImageChange={(preview, file) => handleImageUpdate('bike', preview, file)}
           />
         </div>
+      </div>
+
+      <div className="profile-actions">
+        <button className="btn-edit-profile" onClick={handleEditUserInfo}>
+          Editar Información
+        </button>
       </div>
     </div>
   );
