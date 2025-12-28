@@ -7,14 +7,16 @@ import {
   updateReserve,
   deleteReserve,
 } from "../controllers/reserve.controller.js";
-import { uploadFields } from "../middleware/upload.middleware.js";
+import { upload, processImage } from "../middleware/upload.middleware.js";
+import { allowRoles } from "../middleware/adminbicicletero.middleware.js";
 
 const router = Router();
 
+
 router.get("/:token", getReserve);
 router.get("/", getReserves);
-router.post("/", uploadFields, authMiddleware, createReserve);
-router.patch("/:token", uploadFields, authMiddleware, updateReserve);
+router.post("/", authMiddleware, upload.single("image"), processImage, createReserve);
+router.patch("/:token", authMiddleware, upload.single("image"), processImage, allowRoles("admin","adminBicicletero", "guard"), updateReserve);
 router.delete("/:token", authMiddleware, deleteReserve);
 
 export default router;

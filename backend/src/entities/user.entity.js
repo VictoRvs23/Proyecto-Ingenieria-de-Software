@@ -20,6 +20,27 @@ export const User = new EntitySchema({
       length: 255,
       nullable: false,
     },
+    role: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+      default: "user",
+    },
+    numeroTelefonico: {
+      type: "varchar",
+      length: 10,
+      nullable: true,
+    },
+    nombre: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
+    },
+    userImage: {
+      type: "varchar",
+      length: 255,
+      nullable: true, 
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -29,6 +50,13 @@ export const User = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bikes: {
+      type: "one-to-many", 
+      target: "Bike",
+      inverseSide: "user",
     },
   },
 });

@@ -1,25 +1,17 @@
 "use strict";
 import Joi from "joi";
 
-export const spaceValidation = Joi.object({
-    space: Joi.number()
-        .integer()
-        .min(0)
-        .max(15)
+export const bikeEntryValidation = Joi.object({
+    brand: Joi.string()
+        .min(2)
+        .max(50)
         .required()
         .messages({
-            "number.base": "El espacio disponible debe ser un número entero.",
-            "number.min": "El espacio disponible no puede ser negativo.",
-            "numer.max": "El espacio disponible no puede exceder 15.",
-            "any.required": "El espacio disponible es obligatorio."
+            "string.base": "La marca de la bicicleta debe ser una cadena de texto.",
+            "string.min": "La marca de la bicicleta debe tener al menos 2 caracteres.",
+            "string.max": "La marca de la bicicleta no puede exceder 50 caracteres.",
+            "any.required": "La marca de la bicicleta es obligatoria."
         }),
-    })
-    .unknown(false)
-    .messages({
-        "object.unknown": "No se permiten campos adicionales",
-      });
-
-export const bikeEntryValidation = Joi.object({
     model: Joi.string()
         .min(2)
         .max(50)
@@ -51,8 +43,27 @@ export const bikeEntryValidation = Joi.object({
                 "string.min": "El nombre del propietario debe tener al menos 5 caracteres.",
                 "string.max": "El nombre del propietario debe tener como máximo 100 caracteres.",
             }),
+    bicicletero: Joi.number()
+        .integer()
+        .min(1)
+        .max(4)
+        .required()
+        .messages({
+            "number.base": "El numero del bicicletero debe ser un número entero.",
+            "number.min": "El numero del bicicletero debe ser al menos 1.",
+            "any.required": "El numero del bicicletero es obligatorio."
+        }),
+    space: Joi.number()
+        .integer()
+        .min(0)
+        .required()
+        .messages({
+            "number.base": "El espacio asignado debe ser un número entero.",
+            "number.min": "El espacio asignado no puede ser negativo.",
+            "any.required": "El espacio asignado es obligatorio."
+        })
     })
     .unknown(false)
     .messages({
         "object.unknown": "No se permiten campos adicionales",
-      });
+        });

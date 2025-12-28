@@ -1,10 +1,15 @@
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import { AppDataSource } from "../config/configDb.js";
-import { Reserve } from "../entities/reserve.entity.js";
-import { Bike } from "../entities/bike.entity.js";
+import { 
+    createReserveService, 
+    getReserveService, 
+    getReservesService, 
+    updateReserveService, 
+    deleteReserveService 
+} from "../services/reserve.service.js";
+import { createReserveValidation, updateReserveValidation } from "../validations/reserve.validation.js";
 
-const bikeRepository = AppDataSource.getRepository(Bike);
-const reserveRepository = AppDataSource.getRepository(Reserve);
+// NOTA: Ya no necesitamos importar AppDataSource ni los Repositorios aquí,
+// porque toda la lógica de base de datos se movió al archivo reserve.service.js
 
 export async function getReserve(req, res) {
     try {
@@ -14,75 +19,49 @@ export async function getReserve(req, res) {
             return handleErrorClient(res, 400, "Token de reserva inválido");
         }
 
-        const reserve = await reserveRepository.findOne({
-            where: { token: parseInt(token) },
-            relations: ["user"],
-        });
+        // Usamos el servicio
+        const reserve = await getReserveService(parseInt(token));
         
-        if (!reserve) {
-            return handleErrorClient(res, 404, "Reserva no encontrada");
-        }
-        return handleSuccess(res, 200, reserve);
+        return handleSuccess(res, 200, "Reserva obtenida", reserve);
     } catch (error) {
-        console.error("Error in getReserve:", error);
+        // Si el servicio lanza error (ej: "No encontrada"), lo capturamos aquí
+        if (error.message.includes("no encontrada")) {
+            return handleErrorClient(res, 404, error.message);
+        }
         handleErrorServer(res, 500, error.message);
     }
 }
 
 export async function getReserves(req, res) {
     try {
-        const reserves = await reserveRepository.find({ 
-            relations: ["user"] 
-        });
-        return handleSuccess(res, 200, reserves);
+        const userId = req.user.sub || req.user.id; // Para filtrar por usuario si es necesario
+        // Puedes ajustar getReservesService para aceptar userId si quieres filtrar, o dejarlo vacío para traer todas
+        const reserves = await getReservesService(userId);
+        
+        return handleSuccess(res, 200, "Lista de reservas", reserves);
     } catch (error) {
-        console.error("Error in getReserves:", error);
         handleErrorServer(res, 500, error.message);
     }
 }
 
 export async function createReserve(req, res) {
     try {
-        const { bike_id } = req.body;
-        const userFromToken = req.user;
+        // 1. Validar Body
+        const { error, value } = createReserveValidation.validate(req.body);
 
-        console.log("user_id from body:", user_id, "type:", typeof user_id);
-        console.log("userFromToken.id:", userFromToken.id, "type:", typeof userFromToken.id);
-
-        if (parseInt(user_id) !== userFromToken.id) {
-            return handleErrorClient(res, 403, "No tienes permiso para crear una reserva para otro usuario");
-        }
-        const bike = await bikeRepository.findOneBy({ id: parseInt(bike_id) });
-        if (!bike) {
-            return handleErrorClient(res, 404, "La bicicleta especificada no existe");
+        if (error) {
+            return handleErrorClient(res, 400, error.details[0].message);
         }
 
-        // Multer
-        const files = req.files || {};
-        let foto_url = null;
-        let doc_url = null;
+        // 2. Obtener User ID del token
+        const userId = req.user.sub || req.user.id; 
 
-        if (files.foto && files.foto[0]) {
-            foto_url = `${req.protocol}://${req.get('host')}/uploads/${files.foto[0].filename}`;
-        }
-        if (files.doc && files.doc[0]) {
-            doc_url = `${req.protocol}://${req.get('host')}/uploads/${files.doc[0].filename}`;
-        }
+        // 3. Usar el servicio (Aquí valida bicicletero, bici y crea el registro en Informs si aplica)
+        const newReserve = await createReserveService(value, userId);
 
-        const token = Math.floor(1000 + Math.random() * 9000);
-
-        const newReserve = reserveRepository.create({
-            estado: "ingresada",
-            token,
-            bike: { id: parseInt(bike_id) },
-            foto_url: foto_url,
-            doc_url: doc_url
-        });
-
-        const savedReserve = await reserveRepository.save(newReserve);
-        return handleSuccess(res, 201, "Reserva creada exitosamente", savedReserve);
+        handleSuccess(res, 201, "Reserva creada exitosamente", newReserve);
     } catch (error) {
-        console.error("Error in createReserve:", error);
+        // Errores de validación de negocio (ej: bicicletero lleno)
         handleErrorServer(res, 500, error.message);
     }
 }
@@ -90,26 +69,21 @@ export async function createReserve(req, res) {
 export async function updateReserve(req, res) {
     try {
         const { token } = req.params;
-        const { estado } = req.body;
+        const changes = req.body; // Aquí viene { estado: "...", nota: "..." }
 
         if (!token || isNaN(token)) {
             return handleErrorClient(res, 400, "Token de reserva inválido");
         }
 
-        const reserve = await reserveRepository.findOneBy({ 
-            token: parseInt(token) 
-        });
-        
-        if (!reserve) {
-            return handleErrorClient(res, 404, "Reserva no encontrada");
-        }
-        
-        if (estado) reserve.estado = estado;
+        // Validar datos de entrada (opcional, pero recomendado)
+        const { error, value } = updateReserveValidation.validate(changes);
+        if (error) return handleErrorClient(res, 400, error.details[0].message);
 
-        const updatedReserve = await reserveRepository.save(reserve);
+        // USAMOS EL SERVICIO: Esto es vital para que se dispare el Trigger del PDF
+        const updatedReserve = await updateReserveService(parseInt(token), value);
+
         return handleSuccess(res, 200, "Reserva actualizada exitosamente", updatedReserve);
     } catch (error) {
-        console.error("Error in updateReserve:", error);
         handleErrorServer(res, 500, error.message);
     }
 }
@@ -122,18 +96,11 @@ export async function deleteReserve(req, res) {
             return handleErrorClient(res, 400, "Token de reserva inválido");
         }
 
-        const reserve = await reserveRepository.findOneBy({ 
-            token: parseInt(token) 
-        });  
+        // Usamos el servicio
+        const result = await deleteReserveService(parseInt(token));
         
-        if (!reserve) {
-            return handleErrorClient(res, 404, "Reserva no encontrada");
-        }
-        
-        await reserveRepository.remove(reserve);
-        return handleSuccess(res, 200, "Reserva eliminada exitosamente");
+        return handleSuccess(res, 200, result.message);
     } catch (error) {
-        console.error("Error in deleteReserve:", error);
         handleErrorServer(res, 500, error.message);
     }
 }

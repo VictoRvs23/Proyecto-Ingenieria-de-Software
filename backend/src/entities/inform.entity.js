@@ -4,43 +4,25 @@ export const Inform = new EntitySchema({
   name: "Inform",
   tableName: "informs",
   columns: {
-    id: {
-      primary: true,
-      type: "int",
-      generated: "increment",
+    id: { primary: true, type: "int", generated: "increment" },
+    fecha_hora: { type: "timestamp", createDate: true },
+    bicicletero_number: { type: "int", nullable: false }, // Guardamos el número
+    estado_nuevo: { type: "varchar", length: 50, nullable: false }, // ingresada/entregada
+    user_email_snapshot: { type: "varchar", length: 255, nullable: true },
+    nota: { type: "text", nullable: true },
+  },
+  relations: {
+    user: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: { name: "user_id" },
+      nullable: false,
     },
-    date: {
-        type: "date",
-        nullable: false,
-    },
-    uploadTime: {
-        type: "varchar",
-        length: 50,
-        nullable: false,
-    },
-    bicicleto: {
-        type: "varchar",
-        length: 100,
-        nullable: false,
-    },
-    guard: {
-        type: "varchar",
-        length: 100,
-        nullable: false,
-    },
-    observation: {
-        type: "text",
-        nullable: true,
-    },
-    created_at: {
-      type: "timestamp",
-      createDate: true,
-      default: () => "CURRENT_TIMESTAMP",
-    },
-    updated_at: {
-      type: "timestamp",
-      updateDate: true,
-      default: () => "CURRENT_TIMESTAMP",
-    },
+    bike: {
+      type: "many-to-one",
+      target: "Bike",
+      joinColumn: { name: "bike_id" },
+      nullable: false,
+    }
   },
 });

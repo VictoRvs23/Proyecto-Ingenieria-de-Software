@@ -69,6 +69,17 @@ export const Reserve = new EntitySchema({
       nullable: false,
       onDelete: "CASCADE",
     },
+    bicicletero: {
+      type: "many-to-one",
+      target: "Bicicletero",
+      joinColumn: { 
+        name: "bicicletero_number",
+        referencedColumnName: "number" 
+      },
+      inverseSide: "reserves",
+      nullable: false,
+      onDelete: "CASCADE",
+    }
   },
   indices: [
     {

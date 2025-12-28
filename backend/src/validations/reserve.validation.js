@@ -11,23 +11,40 @@ export const createReserveValidation = Joi.object({
       "number.base": "El ID de la bicicleta debe ser un número",
       "number.positive": "El ID de la bicicleta debe ser positivo",
     }),
-
+  bicicletero_number: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      "any.required": "El número de bicicletero es obligatorio",
+      "number.base": "El bicicletero debe ser un número"
+    }),
   foto_url: Joi.string().uri().optional().messages({
     "string.uri": "La URL de la foto debe ser válida"
   }),
   doc_url: Joi.string().uri().optional().allow('',null).messages({
     "string.uri": "La URL del documento debe ser válida"
   })
+
 });
 
 
 export const updateReserveValidation = Joi.object({
   estado: Joi.string()
-    .valid("ingresada", "entregada", "cancelada")
+    .valid("solicitada","ingresada", "entregada", "cancelada")
     .required()
     .messages({
       "any.only": "El estado debe ser uno de: ingresada, entregada, cancelada",
       "any.required": "El campo 'estado' es obligatorio",
+    }),
+  nota: Joi.string()
+        .min(0)
+        .max(500)
+        .optional()
+        .allow("") // Permite enviar una nota vacía o string vacío
+        .messages({
+            "string.base": "La nota debe ser texto",
+            "string.max": "La nota es muy larga"
     }),
   foto_url: Joi.string().uri().optional().messages({
     "string.uri": "La URL de la foto debe ser válida"

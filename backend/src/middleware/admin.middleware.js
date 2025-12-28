@@ -3,8 +3,8 @@ export function isAdmin(req, res, next) {
     return res.status(401).json({ error: "No autenticado" });
   }
 
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ error: "No autorizado: requiere rol admin" });
+  if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+    return res.status(403).json({ error: "No autorizado: requiere rol admin o adminBicicletero" });
   }
 
   next();

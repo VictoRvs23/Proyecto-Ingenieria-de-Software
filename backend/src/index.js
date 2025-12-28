@@ -2,30 +2,41 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url"; 
 import { AppDataSource, connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { createUsers } from "./config/initDb.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+
 app.use(express.json());
 app.use(morgan("dev"));
-// Configuración de CORS para permitir peticiones desde el frontend
 app.use(cors({
   origin: true,
   credentials: true
 }));
-// Ruta principal de bienvenida
+
+app.use('/uploads', (req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
+  next();
+}, express.static(path.join(__dirname, '..', 'uploads')));
+
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi API REST con TypeORM!");
 });
 
-// Inicializa la conexión a la base de datos
 connectDB()
   .then(() => {
-    // Carga todas las rutas de la aplicación
     routerApi(app);
-
-    // Levanta el servidor Express
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, async () => {
       console.log(`Servidor iniciado en http://localhost:${PORT}`);

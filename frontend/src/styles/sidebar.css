@@ -1,0 +1,97 @@
+.sidebar {
+  width: 220px;
+  height: calc(75vh - 40px); 
+  background-color: #1e5fa0;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  position: fixed;
+  top: 120px; 
+  left: 0px; 
+  z-index: 1000;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  border-radius: 0px;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  background-color: #8cbce6;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-logo {
+  width: 120px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-logo:hover {
+  transform: scale(1.05);
+}
+
+.sidebar-menu {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.05rem;
+  transition: all 0.3s;
+  border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+  background-color: #164a82;
+  border-left: 4px solid #fff;
+  padding-left: 30px;
+}
+
+.icon {
+  margin-right: 15px;
+  font-size: 1.3rem;
+}
+
+.menu-item .icon {
+  margin-right: 15px;
+  font-size: 1.3rem;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  background-color: #1e5fa0;
+}
+
+.logout-button {
+  background-color: #ff5e57;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.logout-button:hover {
+  background-color: #e04b44;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}

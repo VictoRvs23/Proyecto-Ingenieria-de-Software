@@ -1,12 +1,17 @@
+import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { AuthProvider } from '@context/AuthContext';
+import Sidebar from './Sidebar';
+import '../styles/styles.css'; 
 
-function Root() {
+const Root = () => {
   return (
-    <AuthProvider>
-      <Outlet />
-    </AuthProvider>
+    <div className="app-layout">
+      <Sidebar />
+      <main className="content-area">
+        <Outlet /> 
+      </main>
+    </div>
   );
-}
+};
 
 export default Root;

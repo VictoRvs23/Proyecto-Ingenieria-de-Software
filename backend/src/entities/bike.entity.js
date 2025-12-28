@@ -9,20 +9,30 @@ export const Bike = new EntitySchema({
       type: "int",
       generated: "increment",
     },
-    model:{
-        type: "varchar",
-        length: 100,
-        nullable: false,
+    brand: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
     },
-    color:{
+    model: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+    },
+    color: {
       type: "varchar",
       length: 50,
       nullable: false,
     },
-    owner: {
+    bikeImage: {
       type: "varchar",
       length: 255,
-      nullable: false,
+      nullable: true, 
+      default: "/default-bike.png" 
+    },
+    bicicletero_number: {
+      type: "int",
+      nullable: true,
     },
     created_at: {
       type: "timestamp",
@@ -33,6 +43,25 @@ export const Bike = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    bicicletero: {
+      type: "many-to-one",
+      target: "Bicicletero",
+      joinColumn: {
+        name: "bicicletero_number",
+        referencedColumnName: "number",
+      },
+      inverseSide: "bikes",
+    },
+    user: { 
+      type: "many-to-one", 
+      target: "User",
+      joinColumn: { name: "user_id" }, 
+      nullable: true,
+      inverseSide: "bikes", 
+      onDelete: "CASCADE"   
     },
   },
 });

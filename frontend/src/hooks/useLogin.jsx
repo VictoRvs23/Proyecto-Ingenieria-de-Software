@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { login } from '../services/auth.service.js';
 
-const useLogin = () => {
+export const useLogin = () => {
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
 
@@ -19,11 +20,26 @@ const useLogin = () => {
         setErrorPassword('');
     };
 
+    const handleLogin = async (credentials) => {
+        try {
+            const response = await login(credentials);
+            
+            if (response.data?.token) {
+                localStorage.setItem('token', response.data.token);
+            }
+            
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    };
+
     return {
         errorEmail,
         errorPassword,
         errorData,
-        handleInputChange
+        handleInputChange,
+        handleLogin
     };
 };
 

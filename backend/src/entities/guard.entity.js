@@ -41,4 +41,11 @@ export const Guard = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
+  relations: {
+    informs: {
+      type: "one-to-many",
+      target: "Inform",
+      inverseSide: "guard",
+    },
+  },
 });
