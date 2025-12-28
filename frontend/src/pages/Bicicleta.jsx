@@ -51,26 +51,20 @@ const AgregarBicicleta = () => {
 
     try {
       const response = await createBike(formData); 
-      console.log('🚴 Respuesta al crear bicicleta:', response);
 
       if (response && response.data) {
         const newBikeId = response.data.id;
-        console.log('🚴 ID de la nueva bicicleta:', newBikeId);
-        console.log('🚴 ¿Hay imagen seleccionada?', !!selectedFile);
         
         if (selectedFile && newBikeId) {
           const imageFormData = new FormData();
           imageFormData.append('image', selectedFile);
           
           try {
-            const imgResponse = await updateBikeImage(newBikeId, imageFormData);
-            console.log('🚴 Respuesta al actualizar imagen:', imgResponse);
+            await updateBikeImage(newBikeId, imageFormData);
           } catch (imageError) {
-            console.error("🚴 Error subiendo imagen:", imageError);
           }
         }
       } else {
-        console.error('🚴 Respuesta no tiene el formato esperado:', response);
       }
         
       await Swal.fire({
