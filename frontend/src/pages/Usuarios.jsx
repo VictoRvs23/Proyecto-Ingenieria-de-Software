@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getAllUsers, updateUserRole } from '../services/user.service';
+import { getAllUsers, updateUserRole, createUser, updateUser, deleteUser } from '../services/user.service';
 import Swal from 'sweetalert2';
+import { deleteDataAlert } from '../helpers/sweetAlert';
 import '../styles/usuarios.css';
 
 const Usuarios = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   const roles = ['user', 'guard', 'adminBicicletero', 'admin'];
 
@@ -95,6 +97,167 @@ const Usuarios = () => {
     return labels[role] || role;
   };
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return 'N/A';
+    const phoneStr = String(phone);
+    
+    if (phoneStr.startsWith('9') && phoneStr.length === 9) {
+      return `9 ${phoneStr.slice(1)}`;
+    } else if (phoneStr.length === 8) {
+      return `9 ${phoneStr}`;
+    }
+    return phoneStr;
+  };
+
+  const handleCreateUser = async (initialValues = {}) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Crear Nuevo Usuario',
+      html: `
+        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${initialValues.nombre || ''}">
+        <input id="swal-email" class="swal2-input" placeholder="Email (debe terminar en @gmail.com)" type="email" value="${initialValues.email || ''}">
+        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (máx. 8 caracteres)" value="${initialValues.numeroTelefonico || ''}">
+        <input id="swal-password" class="swal2-input" placeholder="Contraseña (mín. 8 caracteres)" type="password" value="${initialValues.password || ''}">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Crear',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1565C0',
+      cancelButtonColor: '#d33',
+      preConfirm: () => {
+        const nombre = document.getElementById('swal-nombre').value;
+        const email = document.getElementById('swal-email').value;
+        const phone = document.getElementById('swal-phone').value;
+        const password = document.getElementById('swal-password').value;
+
+        if (!nombre || !email || !phone || !password) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+
+        return { nombre, email, numeroTelefonico: phone, password };
+      }
+    });
+
+    if (formValues) {
+      try {
+        let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace(/\D/g, '') : "";
+        
+        if (phoneClean.length === 8) {
+          phoneClean = '9' + phoneClean;
+        }
+        
+        const dataForBackend = {
+          nombre: formValues.nombre,
+          email: formValues.email,
+          password: formValues.password,
+          numeroTelefonico: phoneClean
+        };
+        
+        await createUser(dataForBackend);
+        await fetchUsers();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario creado',
+          text: 'El usuario se ha creado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'No se pudo crear el usuario';
+        
+        const result = await Swal.fire({
+          icon: 'error',
+          title: 'Error de validación',
+          text: errorMessage,
+          showCancelButton: true,
+          confirmButtonText: 'Reintentar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#1565C0',
+          cancelButtonColor: '#d33',
+        });
+        
+        if (result.isConfirmed) {
+          handleCreateUser(formValues);
+        }
+      }
+    }
+  };
+
+  const handleEditUser = async (user) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Editar Usuario',
+      html: `
+        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${user.nombre || ''}">
+        <input id="swal-email" class="swal2-input" placeholder="Email" type="email" value="${user.email}">
+        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico" value="${user.numeroTelefonico || ''}">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1565C0',
+      cancelButtonColor: '#d33',
+      preConfirm: () => {
+        const nombre = document.getElementById('swal-nombre').value;
+        const email = document.getElementById('swal-email').value;
+        const phone = document.getElementById('swal-phone').value;
+
+        if (!nombre || !email || !phone) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+
+        return { nombre, email, numeroTelefonico: phone };
+      }
+    });
+
+    if (formValues) {
+      try {
+        await updateUser(user.id, formValues);
+        await fetchUsers();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario actualizado',
+          text: 'Los datos del usuario se han actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron actualizar los datos del usuario',
+        });
+      }
+    }
+  };
+
+  const handleDeleteUser = (userId) => {
+    deleteDataAlert(async () => {
+      try {
+        await deleteUser(userId);
+        await fetchUsers();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario eliminado',
+          text: 'El usuario se ha eliminado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar el usuario',
+        });
+      }
+    });
+  };
+
   if (userRole !== 'admin' && userRole !== 'adminBicicletero') {
     return null;
   }
@@ -131,11 +294,15 @@ const Usuarios = () => {
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id}>
+                <tr 
+                  key={user.id}
+                  className={selectedUserId === user.id ? 'selected-row' : ''}
+                  onClick={() => setSelectedUserId(user.id)}
+                >
                   <td>{user.id}</td>
                   <td>{user.nombre || 'N/A'}</td>
                   <td>{user.email}</td>
-                  <td>{user.numeroTelefonico || 'N/A'}</td>
+                  <td>{formatPhoneNumber(user.numeroTelefonico)}</td>
                   <td>
                     <select
                       className="role-select"
@@ -154,6 +321,51 @@ const Usuarios = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="usuarios-actions">
+        <button className="btn-action btn-crear" onClick={handleCreateUser}>
+          Crear Usuario
+        </button>
+        <button className={`btn-action btn-editar ${selectedUserId ? 'btn-editar-active' : ''}`} onClick={() => {
+          if (users.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Sin usuarios',
+              text: 'No hay usuarios para editar',
+            });
+          } else if (!selectedUserId) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Selecciona un usuario',
+              text: 'Por favor, selecciona un usuario de la tabla para editarlo',
+            });
+          } else {
+            const user = users.find(u => u.id === selectedUserId);
+            handleEditUser(user);
+          }
+        }}>
+          Editar Datos
+        </button>
+        <button className={`btn-action btn-eliminar ${selectedUserId ? 'btn-eliminar-active' : ''}`} onClick={() => {
+          if (users.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Sin usuarios',
+              text: 'No hay usuarios para eliminar',
+            });
+          } else if (!selectedUserId) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Selecciona un usuario',
+              text: 'Por favor, selecciona un usuario de la tabla para eliminarlo',
+            });
+          } else {
+            handleDeleteUser(selectedUserId);
+          }
+        }}>
+          Eliminar Usuario
+        </button>
       </div>
     </div>
   );

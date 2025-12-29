@@ -33,17 +33,11 @@ export async function getPrivateProfile(req, res) {
 
 export async function updatePrivateProfile(req, res) {
   try {
-    console.log('========== UPDATE PROFILE START ==========');
-    console.log('🔐 Usuario del token:', req.user);
-    console.log('📦 Body recibido:', req.body);
-    console.log('📷 Archivo recibido:', req.file);
-    
     const userFromToken = req.user;
     const { email, password, nombre, numeroTelefonico } = req.body;
     const imageFile = req.file; 
 
     if (!email && !password && !nombre && !numeroTelefonico && !imageFile) {
-      console.log('❌ No hay datos para actualizar');
       return handleErrorClient(res, 400, "Debes proporcionar datos para actualizar.");
     }
 
@@ -51,32 +45,30 @@ export async function updatePrivateProfile(req, res) {
     const user = await userRepository.findOneBy({ id: userFromToken.id }); 
 
     if (!user) {
-      console.log('❌ Usuario no encontrado en BD');
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }
-    
-    console.log('✅ Usuario encontrado:', { id: user.id, email: user.email, role: user.role });
 
     if (email) user.email = email;
     if (nombre) user.nombre = nombre;
-    if (numeroTelefonico) user.numeroTelefonico = numeroTelefonico;
+    if (numeroTelefonico) {
+      const existingPhone = await userRepository.findOneBy({ numeroTelefonico });
+      if (existingPhone && existingPhone.id !== user.id) {
+        return handleErrorClient(res, 409, "Este número telefónico ya está registrado");
+      }
+      user.numeroTelefonico = numeroTelefonico;
+    }
     
     if (password) {
         user.password = await bcrypt.hash(password, 10);
     }
 
     if (imageFile) {
-        console.log('📷 Guardando imagen:', imageFile.filename);
         user.userImage = `/uploads/${imageFile.filename}`;
     }
 
     await userRepository.save(user);
-    console.log('✅ Usuario guardado en BD');
     
     const { password: _, ...userWithoutPass } = user;
-
-    console.log('✅ Respuesta a enviar:', userWithoutPass);
-    console.log('========== UPDATE PROFILE END ==========');
     
     handleSuccess(res, 200, "Perfil actualizado exitosamente", {
       message: `¡Datos actualizados!`,
@@ -84,7 +76,6 @@ export async function updatePrivateProfile(req, res) {
     });
 
   } catch (error) {
-    console.error('❌❌ ERROR EN updatePrivateProfile:', error);
     handleErrorServer(res, 500, "Error al actualizar perfil", error.message);
   }
 }
@@ -131,6 +122,10 @@ export async function updateUserRole(req, res) {
     const user = await repo.findOneBy({ id: targetId });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede modificar el rol de un administrador" });
+    }
+
     user.role = role;
     await repo.save(user);
     return res.json({ message: "Rol actualizado", user: { id: user.id, email: user.email, role: user.role } });
@@ -150,5 +145,89 @@ export async function getUsers(req, res) {
     handleSuccess(res, 200, "Usuarios obtenidos exitosamente", users);
   } catch (error) {
     handleErrorServer(res, 500, "Error al obtener usuarios", error.message);
+  }
+}
+
+export async function deleteUserByAdmin(req, res) {
+  try {
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const paramId = req.params?.id;
+    const targetId = Number(paramId);
+    if (!paramId || Number.isNaN(targetId)) {
+      return res.status(400).json({ error: "Id inválido en la ruta" });
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ id: targetId });
+    
+    if (!user) {
+      return handleErrorClient(res, 404, "Usuario no encontrado");
+    }
+
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede eliminar un usuario administrador" });
+    }
+
+    await userRepository.remove(user);
+    handleSuccess(res, 200, "Usuario eliminado exitosamente", {
+      message: `El usuario ${user.email} ha sido eliminado`,
+      id: targetId
+    });
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al eliminar usuario", error.message);
+  }
+}
+
+export async function updateUserByAdmin(req, res) {
+  try {
+    if (!req.user) return res.status(401).json({ error: "No autenticado" });
+    if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const paramId = req.params?.id;
+    const targetId = Number(paramId);
+    if (!paramId || Number.isNaN(targetId)) {
+      return res.status(400).json({ error: "Id inválido en la ruta" });
+    }
+
+    const { nombre, email, numeroTelefonico } = req.body;
+    
+    if (!nombre && !email && !numeroTelefonico) {
+      return res.status(400).json({ error: "Debes proporcionar al menos un campo para actualizar" });
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ id: targetId });
+    
+    if (!user) {
+      return handleErrorClient(res, 404, "Usuario no encontrado");
+    }
+
+    if (user.role === 'admin' || user.role === 'adminBicicletero') {
+      return res.status(403).json({ error: "No se puede modificar un usuario administrador" });
+    }
+
+    if (nombre) user.nombre = nombre;
+    if (email) user.email = email;
+    if (numeroTelefonico) {
+      const existingPhone = await userRepository.findOneBy({ numeroTelefonico });
+      if (existingPhone && existingPhone.id !== user.id) {
+        return res.status(409).json({ error: "Este número telefónico ya está registrado" });
+      }
+      user.numeroTelefonico = numeroTelefonico;
+    }
+
+    await userRepository.save(user);
+    
+    const { password, ...userWithoutPass } = user;
+    
+    handleSuccess(res, 200, "Usuario actualizado exitosamente", userWithoutPass);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al actualizar usuario", error.message);
   }
 }

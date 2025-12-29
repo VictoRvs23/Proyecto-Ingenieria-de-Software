@@ -9,15 +9,12 @@ const Sidebar = () => {
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
-    console.log('🔍 Rol del localStorage:', storedRole);
     if (storedRole) {
       setUserRole(storedRole);
     }
   }, []);
 
   const handleLogout = () => {
-    console.log("Cerrando sesión...");
-    // Limpiar TODOS los datos del usuario
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
@@ -27,11 +24,9 @@ const Sidebar = () => {
     sessionStorage.removeItem("usuario");
     navigate('/login');
   };
-  
-  // Roles que pueden ver Informes y Turnos (sin .toLowerCase())
+
   const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
   const showUsuariosModule = ['admin', 'adminBicicletero'].includes(userRole);
-  console.log('🔍 userRole:', userRole, '| showAdminModules:', showAdminModules);
   return (
     <div className="sidebar">
       <div className="sidebar-header">

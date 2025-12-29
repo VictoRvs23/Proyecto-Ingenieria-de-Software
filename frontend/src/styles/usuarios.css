@@ -101,6 +101,12 @@
 
 .usuarios-table tbody tr:hover {
   background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+.usuarios-table tbody tr.selected-row {
+  background-color: #e3f2fd !important;
+  border-left: 4px solid #1565C0;
 }
 
 .usuarios-table tbody tr:last-child {
@@ -113,6 +119,10 @@
   color: #333;
   font-size: 0.95rem;
   border-right: 1px solid #e0e0e0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .usuarios-table tbody td:last-child {
@@ -163,7 +173,98 @@
   font-weight: 500;
 }
 
-/* Responsive */
+.usuarios-actions {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding: 0 2rem;
+}
+
+.btn-action {
+  background: #1565C0;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: -20px;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+.btn-crear {
+  background: #2b79c2;
+}
+
+.btn-crear:hover {
+  background: #1565C0;
+}
+
+.btn-editar {
+  background: #7fa8d4;
+  transition: all 0.3s ease;
+}
+
+.btn-editar:hover {
+  background: #5a8cc4;
+}
+
+.btn-editar-active {
+  background: #2b79c2 !important;
+}
+
+.btn-editar-active:hover {
+  background: #1565C0 !important;
+}
+
+.btn-eliminar {
+  background: #f99090;
+  transition: all 0.3s ease;
+}
+
+.btn-eliminar:hover {
+  background: #f46464;
+}
+
+.btn-eliminar-active {
+  background: #ff5e57 !important;
+}
+
+.btn-eliminar-active:hover {
+  background: #df554e !important;
+}
+
+.swal2-input,
+.swal2-select {
+  width: 85% !important;
+  padding: 0.8rem !important;
+  margin: 0.5rem 0 !important;
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 0.5rem !important;
+  font-size: 1rem !important;
+  transition: border-color 0.3s !important;
+}
+
+.swal2-input:focus,
+.swal2-select:focus {
+  border-color: #1565C0 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1) !important;
+}
+
 @media (max-width: 1024px) {
   .usuarios-container {
     padding: 1.5rem;
@@ -205,6 +306,17 @@
     min-width: 100px;
     padding: 0.5rem 1rem;
   }
+
+  .usuarios-actions {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .btn-action {
+    width: 100%;
+    padding: 0.9rem 2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -222,5 +334,10 @@
     min-width: 100px;
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .btn-action {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
   }
 }

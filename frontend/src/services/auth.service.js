@@ -24,9 +24,6 @@ export const login = async (userData) => {
     if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        console.log("✅ Login exitoso: Token guardado.");
-    } else {
-        console.error("⚠️ No se encontró el token. Estructura recibida:", response.data);
     }
 
     return response.data;

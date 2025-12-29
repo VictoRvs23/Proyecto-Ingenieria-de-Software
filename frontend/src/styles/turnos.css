@@ -23,8 +23,61 @@
   margin-top: 2rem;
 }
 
+.turno-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 2rem;
+}
+
+.turno-card {
+  background: #f0f0f0;
+  border-radius: 1.5rem;
+  padding: 3rem 4rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.no-turno-message-card {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+}
+
+.turno-card-section {
+  text-align: center;
+}
+
+.turno-card-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1565C0;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.turno-card-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 400;
+  margin: 0;
+  padding: 0.5rem;
+}
+
 .tabla-wrapper {
   max-width: 1200px;
+  max-height: 800px;
   margin: 0 auto;
   background: #f0f0f0;
   border-radius: 1.5rem;
@@ -38,16 +91,20 @@
   background: white;
   border-radius: 1rem;
   overflow: hidden;
+  display: block;
 }
 
 .tabla-turnos thead {
   background: #2b79c2;
   color: white;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .tabla-turnos thead th {
-  padding: 1.5rem;
-  font-size: 1.2rem;
+  padding: 1rem;
+  font-size: 1rem;
   font-weight: bold;
   text-align: center;
   letter-spacing: 0.5px;
@@ -58,7 +115,35 @@
   border-right: none;
 }
 
+.tabla-turnos tbody {
+  display: block;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tabla-turnos tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tabla-turnos tbody::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.tabla-turnos tbody::-webkit-scrollbar-thumb {
+  background: #7fa8d4;
+  border-radius: 10px;
+}
+
+.tabla-turnos tbody::-webkit-scrollbar-thumb:hover {
+  background: #5a8cc4;
+}
+
 .tabla-turnos tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -67,7 +152,7 @@
 }
 
 .tabla-turnos tbody td {
-  padding: 1.5rem;
+  padding: 1rem;
   text-align: center;
   font-size: 1rem;
   color: #333;
@@ -89,6 +174,7 @@
   align-items: center;
 }
 
+.jornada-select,
 .bicicletero-select {
   background: #7fa8d4;
   color: white;
@@ -104,17 +190,52 @@
   transition: background-color 0.3s;
 }
 
+.jornada-select option,
 .bicicletero-select option {
   text-align: center;
 }
 
+.jornada-select:hover,
 .bicicletero-select:hover {
   background: #5a8cc4;
 }
 
+.jornada-select:focus,
 .bicicletero-select:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(43, 121, 194, 0.3);
+}
+
+.guardar-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  padding: 0 2rem;
+}
+
+.guardar-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: -20px;
+}
+
+.guardar-button:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.guardar-button:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {
@@ -132,6 +253,7 @@
     font-size: 0.9rem;
   }
   
+  .jornada-select,
   .bicicletero-select {
     min-width: 100px;
     padding: 0.5rem 1rem;

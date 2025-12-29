@@ -5,6 +5,18 @@ import bcrypt from "bcrypt";
 const userRepository = AppDataSource.getRepository(User);
 
 export async function createUser(data) {
+  const existingUser = await userRepository.findOneBy({ email: data.email });
+  
+  if (existingUser) {
+    throw new Error("Este correo ya está registrado");
+  }
+
+  const existingPhone = await userRepository.findOneBy({ numeroTelefonico: data.numeroTelefonico });
+  
+  if (existingPhone) {
+    throw new Error("Este número telefónico ya está registrado");
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   const newUser = userRepository.create({

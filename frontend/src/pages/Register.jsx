@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/auth.service"; 
 import Form from "../components/Form"; 
+import Swal from "sweetalert2";
 import "@styles/form.css"; 
 
 const Register = () => {
@@ -20,7 +21,7 @@ const Register = () => {
       name: "numeroTelefonico",
       label: "Número Telefónico",
       type: "text",
-      placeholder: "+56 9 ...",
+      placeholder: "12345678 (máx. 8 caracteres)",
       required: true 
     },
     {
@@ -43,10 +44,10 @@ const Register = () => {
     setLoading(true);
 
     try {
-        let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace('+', '').replace(/\s/g, '') : "";
+        let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";
 
-        if (phoneClean.startsWith('56') && phoneClean.length > 10) {
-            phoneClean = phoneClean.slice(2);
+        if (phoneClean.length === 8) {
+            phoneClean = '9' + phoneClean;
         }
         
         const dataForBackend = {
@@ -56,12 +57,16 @@ const Register = () => {
             numeroTelefonico: phoneClean 
         };
 
-        console.log("Enviando al backend:", dataForBackend);
         const response = await register(dataForBackend);
         setLoading(false);
 
         if (response.status === "error") {
-            alert("Error del servidor: " + response.message);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error en el registro',
+                text: response.message || 'No se pudo completar el registro',
+                confirmButtonColor: '#d33'
+            });
             return;
         }
         const existingUsers = JSON.parse(localStorage.getItem("usersDB")) || [];
@@ -82,13 +87,25 @@ const Register = () => {
         localStorage.removeItem("name");
         localStorage.removeItem("email");
 
-        alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Registro exitoso!',
+            text: 'Ahora puedes iniciar sesión',
+            confirmButtonColor: '#1565C0',
+            timer: 2000
+        });
         navigate("/login");
 
     } catch (error) {
         setLoading(false);
         console.error("Error inesperado:", error);
-        alert("Ocurrió un error inesperado.");
+        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'Ocurrió un error inesperado';
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+            confirmButtonColor: '#d33'
+        });
     }
   };
 

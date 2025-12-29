@@ -5,6 +5,7 @@ import reserveRoutes from "./reserve.routes.js";
 import bikeRoutes from "./bike.routes.js";
 import bicicleteroRoutes from "./bicicletero.routes.js";
 import informRoutes from "./inform.routes.js";
+import turnRoutes from "./turn.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -15,6 +16,7 @@ export function routerApi(app) {
   router.use("/bikes", bikeRoutes);
   router.use("/bicicletero", bicicleteroRoutes);
   router.use("/informs", informRoutes);
+  router.use("/turnos", turnRoutes);
 }
 
 

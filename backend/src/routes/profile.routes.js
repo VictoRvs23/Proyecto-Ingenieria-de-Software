@@ -9,6 +9,8 @@ import {
   deletePrivateProfile,
   updateUserRole,
   getUsers,
+  deleteUserByAdmin,
+  updateUserByAdmin,
 } from "../controllers/profile.controller.js";
 
 const router = Router();
@@ -24,5 +26,9 @@ router.delete("/private", authMiddleware, deletePrivateProfile);
 router.put("/role/:id", authMiddleware, isAdmin, updateUserRole);
 
 router.get("/users", authMiddleware, getUsers);
+
+router.patch("/:id", authMiddleware, isAdmin, updateUserByAdmin);
+
+router.delete("/:id", authMiddleware, isAdmin, deleteUserByAdmin);
 
 export default router;
