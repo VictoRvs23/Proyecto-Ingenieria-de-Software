@@ -15,10 +15,10 @@ const Informes = () => {
   const loadBicicleteros = async () => {
     try {
       const data = await getAllBicicleteros();
+      data.sort((a, b) => a.numero - b.numero);
       setBicicleteros(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error al cargar bicicleteros:', error);
       setLoading(false);
     }
   };

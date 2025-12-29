@@ -89,6 +89,32 @@
   margin-top: 2rem;
 }
 
+.solicitar-token-btn {
+  display: block;
+  margin: 40px auto 20px;
+  background: #2b79c2;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.solicitar-token-btn:hover {
+  background: #1565C0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.solicitar-token-btn:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 768px) {
   .bicicleteros-grid {
     grid-template-columns: 1fr;

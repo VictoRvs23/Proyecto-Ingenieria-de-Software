@@ -191,7 +191,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
   letter-spacing: 0.8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: -20px;
@@ -207,11 +206,11 @@
 }
 
 .btn-crear {
-  background: #1565C0;
+  background: #2b79c2;
 }
 
 .btn-crear:hover {
-  background: #0d47a1;
+  background: #1565C0;
 }
 
 .btn-editar {
@@ -224,11 +223,11 @@
 }
 
 .btn-editar-active {
-  background: #1565C0 !important;
+  background: #2b79c2 !important;
 }
 
 .btn-editar-active:hover {
-  background: #0d47a1 !important;
+  background: #1565C0 !important;
 }
 
 .btn-eliminar {
@@ -237,15 +236,15 @@
 }
 
 .btn-eliminar:hover {
-  background: #e94e4e;
+  background: #f46464;
 }
 
 .btn-eliminar-active {
-  background: #df2a2a !important;
+  background: #ff5e57 !important;
 }
 
 .btn-eliminar-active:hover {
-  background: #c91212 !important;
+  background: #df554e !important;
 }
 
 .swal2-input,
