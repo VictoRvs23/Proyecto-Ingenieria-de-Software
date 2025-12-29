@@ -2,7 +2,7 @@ import axios from './root.service.js';
 
 export const getAllTurns = async () => {
   try {
-    const response = await axios.get('/turns');
+    const response = await axios.get('/turnos');
     return response.data;
   } catch (error) {
     console.error("Error al obtener turnos:", error);
@@ -12,7 +12,7 @@ export const getAllTurns = async () => {
 
 export const getTurnByUser = async (userId) => {
   try {
-    const response = await axios.get(`/turns/${userId}`);
+    const response = await axios.get(`/turnos/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Error al obtener turno del usuario:", error);
@@ -22,7 +22,7 @@ export const getTurnByUser = async (userId) => {
 
 export const updateTurn = async (userId, turnData) => {
   try {
-    const response = await axios.put(`/turns/${userId}`, turnData);
+    const response = await axios.put(`/turnos/${userId}`, turnData);
     return response.data;
   } catch (error) {
     console.error("Error al actualizar turno:", error);
@@ -32,7 +32,7 @@ export const updateTurn = async (userId, turnData) => {
 
 export const updateMultipleTurns = async (turnsData) => {
   try {
-    const response = await axios.put('/turns', { turns: turnsData });
+    const response = await axios.put('/turnos', { turns: turnsData });
     return response.data;
   } catch (error) {
     console.error("Error al actualizar turnos:", error);
@@ -42,7 +42,7 @@ export const updateMultipleTurns = async (turnsData) => {
 
 export const deleteTurn = async (userId) => {
   try {
-    const response = await axios.delete(`/turns/${userId}`);
+    const response = await axios.delete(`/turnos/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Error al eliminar turno:", error);

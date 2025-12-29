@@ -24,7 +24,6 @@ const Informes = () => {
   };
 
   const handleGenerarInforme = (numero) => {
-    console.log(`Navegando al informe del Bicicletero ${numero}`);
     navigate(`/home/informes/${numero}`);
   };
 

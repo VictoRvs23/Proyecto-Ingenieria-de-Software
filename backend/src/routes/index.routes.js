@@ -12,7 +12,7 @@ export function routerApi(app) {
   router.use("/profile", profileRoutes);
   router.use("/bikes", bikeRoutes);
   router.use("/bicicletero", bicicleteroRoutes);
-  router.use("/turns", turnRoutes);
+  router.use("/turnos", turnRoutes);
 }
 
 
