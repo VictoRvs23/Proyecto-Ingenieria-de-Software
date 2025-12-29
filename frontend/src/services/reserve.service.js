@@ -1,11 +1,28 @@
 import axios from './root.service.js';
 
-// Obtener el historial de informes (Lista de URLs)
-export const getInformHistory = async () => {
-    try {
-        const response = await axios.get('/informs/history');
-        return response.data; // Retorna { data: [ ...lista... ] }
-    } catch (error) {
-        throw error.response?.data || { message: "Error obteniendo informes" };
-    }
+export const createReserve = async (data) => {
+  try {
+    const response = await axios.post('/reserve', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error de conexión" };
+  }
+};
+
+export const getReserves = async () => {
+  try {
+    const response = await axios.get('/reserve');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const updateReserve = async (token, updateData) => {
+  try {
+    const response = await axios.patch(`/reserve/${token}`, updateData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error al actualizar reserva" };
+  }
 };

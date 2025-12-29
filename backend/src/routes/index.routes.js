@@ -1,3 +1,4 @@
+import express from 'express';
 import { Router } from "express";
 import authRoutes from "./auth.routes.js";
 import profileRoutes from "./profile.routes.js";
@@ -8,7 +9,10 @@ import informRoutes from "./inform.routes.js";
 import turnRoutes from "./turn.routes.js";
 
 export function routerApi(app) {
+
   const router = Router();
+
+  app.use(express.json());
   app.use("/api", router);
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);

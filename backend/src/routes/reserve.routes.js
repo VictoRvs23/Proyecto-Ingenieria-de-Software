@@ -7,7 +7,8 @@ import {
   updateReserve,
   deleteReserve,
 } from "../controllers/reserve.controller.js";
-import { upload, processImage } from "../middleware/upload.middleware.js";
+// Asegúrate de importar esto:
+import { upload, processImage } from "../middleware/upload.middleware.js"; 
 import { allowRoles } from "../middleware/adminbicicletero.middleware.js";
 
 const router = Router();
