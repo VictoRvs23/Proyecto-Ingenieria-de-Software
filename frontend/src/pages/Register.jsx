@@ -57,7 +57,6 @@ const Register = () => {
             numeroTelefonico: phoneClean 
         };
 
-        console.log("Enviando al backend:", dataForBackend);
         const response = await register(dataForBackend);
         setLoading(false);
 

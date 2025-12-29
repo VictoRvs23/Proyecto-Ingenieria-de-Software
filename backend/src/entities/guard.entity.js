@@ -20,9 +20,9 @@ export const Guard = new EntitySchema({
       length: 255,
       nullable: false,
     },
-    zone: {
+    bicicletero: {
         type: "varchar",
-        length: 100,
+        length: 10,
         nullable: false,
     },
     turn: {
