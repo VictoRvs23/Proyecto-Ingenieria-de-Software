@@ -181,6 +181,15 @@
   box-shadow: 0 4px 8px rgba(117, 117, 117, 0.3);
 }
 
+/* Botón de retirar bicicleta - estilo usuarios */
+.btn-retirar {
+  background: #2b79c2 !important;
+}
+
+.btn-retirar:hover {
+  background: #1565C0 !important;
+}
+
 .loading-message {
   text-align: center;
   font-size: 1.2rem;
