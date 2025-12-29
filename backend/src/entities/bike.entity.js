@@ -34,6 +34,10 @@ export const Bike = new EntitySchema({
       type: "int",
       nullable: true,
     },
+    space: {
+      type: "int",
+      nullable: true,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
