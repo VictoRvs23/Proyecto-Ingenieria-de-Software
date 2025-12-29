@@ -21,7 +21,8 @@ export const Guard = new EntitySchema({
       nullable: false,
     },
     bicicletero: {
-        type: "int",
+        type: "varchar",
+        length: 10,
         nullable: false,
     },
     turn: {

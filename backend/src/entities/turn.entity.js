@@ -14,7 +14,8 @@ export const Turn = new EntitySchema({
       nullable: false,
     },
     bicicletero: {
-      type: "int",
+      type: "varchar",
+      length: 10,
       nullable: true,
     },
     jornada: {
