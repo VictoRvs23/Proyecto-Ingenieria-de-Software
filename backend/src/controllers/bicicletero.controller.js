@@ -67,5 +67,18 @@ export const exitBike = async (req, res) => {
     }
 };
 
-
-
+export const toggleSpaceStatus = async (req, res) => {
+  try {
+    const { number, spaceNumber } = req.params;
+    const { disable } = req.body;
+    
+    if (!number || !spaceNumber) {
+      return res.status(400).json({ error: "Faltan parámetros" });
+    }
+    
+    const result = await service.toggleSpaceStatus(number, spaceNumber, disable);
+    return res.json({ message: "Estado del espacio actualizado", data: result });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};

@@ -179,7 +179,7 @@ const Turnos = () => {
       
       const turnsToSave = guardias.map(g => ({
         userId: parseInt(g.id),
-        bicicletero: g.bicicletero || '',
+        bicicletero: g.bicicletero ? String(g.bicicletero) : '',
         jornada: g.jornada || ''
       }));
       
@@ -302,7 +302,7 @@ const Turnos = () => {
       {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
         <div className="guardar-button-container">
           <button className="guardar-button" onClick={handleGuardarCambios}>
-            GUARDAR CAMBIOS
+            Guardar cambios
           </button>
         </div>
       )}
