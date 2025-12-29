@@ -28,7 +28,7 @@ export const User = new EntitySchema({
     },
     numeroTelefonico: {
       type: "varchar",
-      length: 10,
+      length: 9,
       nullable: false,
     },
     nombre: {
