@@ -26,3 +26,21 @@ export const updateReserve = async (token, updateData) => {
     throw error.response?.data || { message: "Error al actualizar reserva" };
   }
 };
+
+export const getReserveByToken = async (token) => {
+  try {
+    const response = await axios.get(`/reserve/${token}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error al obtener reserva" };
+  }
+};
+
+export const deleteReserve = async (token) => {
+  try {
+    const response = await axios.delete(`/reserve/${token}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error al eliminar reserva" };
+  }
+};

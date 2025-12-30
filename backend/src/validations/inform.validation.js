@@ -1,7 +1,6 @@
 "use strict";
 import Joi from "joi";
 
-// Validación para crear un reporte
 export const createReportValidation = Joi.object({
     description: Joi.string()
         .min(5)
@@ -23,7 +22,6 @@ export const createReportValidation = Joi.object({
 })
     .unknown(false);
 
-// Validación para actualizar estado (solo admins/bicicleteros)
 export const updateReportStatusValidation = Joi.object({
     status: Joi.string()
     .valid("pending", "in_progress", "resolved", "discarded")

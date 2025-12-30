@@ -20,8 +20,6 @@ export const Reserve = new EntitySchema({
       nullable: false,
       default: "ingresada"
     },
-    // --- AQUÍ YA NO ESTÁN user_id NI bike_id (CORRECTO) ---
-
     foto_url: {
       type: "varchar",
       length: 500,

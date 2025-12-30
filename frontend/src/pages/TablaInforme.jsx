@@ -1,41 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaFilePdf, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { InformService } from '../services/inform.service';
 import '../styles/tablaInforme.css';
 
 const TablaInforme = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); 
   const [informes, setInformes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadInformes();
-  }, [id]);
+  }, []);
 
   const loadInformes = async () => {
+    setLoading(true);
     try {
-      const informesEjemplo = [
-        { id: 1, fecha: '2025-12-20', link: 'https://ejemplo.com/informe1', observacion: 'Todo en orden' },
-        { id: 2, fecha: '2025-12-21', link: 'https://ejemplo.com/informe2', observacion: 'Mantenimiento realizado' },
-        { id: 3, fecha: '2025-12-22', link: 'https://ejemplo.com/informe3', observacion: 'Sin novedades' },
-      ];
-      
-      setInformes(informesEjemplo);
+      const data = await InformService.getHistory();
+      setInformes(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error al cargar informes:', err);
+      setError('No se pudo cargar el historial de informes.');
+    } finally {
       setLoading(false);
-    } catch (error) {
-      console.error('Error al cargar informes:', error);
-      setLoading(false);
+    }
+  };
+
+  const handleGenerateToday = async () => {
+    const confirmacion = window.confirm(
+      "ADVERTENCIA IMPORTANTE:\n\n" +
+      "Al generar el informe de hoy, se cerrará el registro de movimientos.\n" +
+      "Las reservas de la fecha actual dejarán de ser editables.\n\n" +
+      "¿Estás seguro de que deseas generar el informe ahora?"
+    );
+
+    if (!confirmacion) return;
+
+    setGenerating(true);
+    try {
+      const response = await InformService.generateToday();
+      alert(response.message || "Informe generado con éxito");
+      loadInformes(); 
+    } catch (err) {
+      console.error('Error generando informe:', err);
+      alert('Error al generar el informe: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setGenerating(false);
     }
   };
 
   return (
     <div className="tabla-informe-container">
-      <button className="back-button" onClick={() => navigate('/home/informes')}>
-        <FaArrowLeft />
-      </button>
+      <div className="header-actions">
+        <button className="back-button" onClick={() => navigate('/home/informes')}>
+            <FaArrowLeft /> Volver
+        </button>
+      </div>
       
-      <h1 className="tabla-informe-title">INFORME (BICICLETERO {id})</h1>
+      <h1 className="tabla-informe-title">HISTORIAL DE INFORMES</h1>
+
+      {/* Botón de Generar Informe Hoy */}
+      <div className="actions-container" style={{ marginBottom: '20px', textAlign: 'center' }}>
+        <button 
+          className="generate-btn" 
+          onClick={handleGenerateToday}
+          disabled={generating}
+          style={{
+            backgroundColor: '#d9534f', 
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: generating ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            margin: '0 auto'
+          }}
+        >
+          {generating ? 'Generando...' : (
+            <>
+              <FaFilePdf /> Generar Informe de Hoy
+            </>
+          )}
+        </button>
+        {/* Pequeño texto de ayuda debajo del botón */}
+        <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+          <FaExclamationTriangle style={{ color: '#f0ad4e' }} /> Nota: Bloquea edición de reservas de hoy.
+        </p>
+      </div>
+
+      {error && <div className="error-message" style={{color: 'red', textAlign: 'center'}}>{error}</div>}
 
       {loading ? (
         <div className="loading-message">Cargando informes...</div>
@@ -45,26 +105,31 @@ const TablaInforme = () => {
             <thead>
               <tr>
                 <th>FECHA</th>
-                <th>LINK</th>
-                <th>OBSERVACIÓN</th>
+                <th>ENLACE DE DESCARGA</th>
               </tr>
             </thead>
             <tbody>
               {informes.length > 0 ? (
-                informes.map((informe) => (
-                  <tr key={informe.id}>
+                informes.map((informe, index) => (
+                  <tr key={index}>
+                    {/* El backend devuelve 'fecha' (YYYY-MM-DD) */}
                     <td>{informe.fecha}</td>
                     <td>
-                      <a href={informe.link} target="_blank" rel="noopener noreferrer">
-                        {informe.link}
+                      {/* El backend devuelve 'url_descarga' y 'archivo' */}
+                      <a 
+                        href={informe.url_descarga} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="download-link"
+                      >
+                        <FaFilePdf /> Descargar {informe.archivo}
                       </a>
                     </td>
-                    <td>{informe.observacion}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center' }}>No hay informes disponibles</td>
+                  <td colSpan="2" style={{ textAlign: 'center' }}>No hay informes generados aún.</td>
                 </tr>
               )}
             </tbody>

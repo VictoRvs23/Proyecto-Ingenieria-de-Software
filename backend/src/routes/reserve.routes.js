@@ -7,7 +7,6 @@ import {
   updateReserve,
   deleteReserve,
 } from "../controllers/reserve.controller.js";
-// Asegúrate de importar esto:
 import { upload, processImage } from "../middleware/upload.middleware.js"; 
 import { allowRoles } from "../middleware/adminbicicletero.middleware.js";
 
@@ -15,9 +14,9 @@ const router = Router();
 
 
 router.get("/:token", getReserve);
-router.get("/", getReserves);
+router.get("/",authMiddleware, getReserves);
 router.post("/", authMiddleware, upload.single("image"), processImage, createReserve);
 router.patch("/:token", authMiddleware, upload.single("image"), processImage, allowRoles("admin","adminBicicletero", "guard"), updateReserve);
-router.delete("/:token", authMiddleware, deleteReserve);
+router.delete("/:token", authMiddleware, deleteReserve); 
 
 export default router;

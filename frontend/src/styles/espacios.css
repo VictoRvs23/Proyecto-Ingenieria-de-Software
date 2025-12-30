@@ -181,7 +181,6 @@
   box-shadow: 0 4px 8px rgba(117, 117, 117, 0.3);
 }
 
-/* Botón de retirar bicicleta - estilo usuarios */
 .btn-retirar {
   background: #2b79c2 !important;
 }
@@ -226,4 +225,143 @@
     height: 110px;
     font-size: 1.5rem;
   }
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  color: #2b74ad;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.bike-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn-confirm, .btn-cancel {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-confirm {
+  background: #2b74ad;
+  color: white;
+}
+
+.btn-confirm:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #dc3545;
+  color: white;
+}
+
+.user-actions-header {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.btn-action {
+  padding: 10px 20px;
+  background: #2b74ad;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s;
+}
+
+.btn-action:hover {
+  background: #1d5a8a;
+}
+
+.available-for-reserve {
+  cursor: pointer;
+  border: 2px dashed #2b74ad;
+}
+
+.available-for-reserve:hover {
+  background: #f0f8ff;
+}
+
+.reserve-indicator {
+  position: absolute;
+  bottom: 5px;
+  font-size: 10px;
+  color: #2b74ad;
+  font-weight: bold;
+}
+
+.instructions {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #2b74ad;
+}
+
+.user-instruction, .staff-instruction {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.espacio-item.selected {
+  box-shadow: 0 0 0 3px #ffcc00;
 }

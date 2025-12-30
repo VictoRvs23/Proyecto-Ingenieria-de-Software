@@ -41,7 +41,7 @@ export const updateReserveValidation = Joi.object({
         .min(0)
         .max(500)
         .optional()
-        .allow("") // Permite enviar una nota vacía o string vacío
+        .allow("") 
         .messages({
             "string.base": "La nota debe ser texto",
             "string.max": "La nota es muy larga"
