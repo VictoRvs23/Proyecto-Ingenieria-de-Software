@@ -50,14 +50,16 @@ export async function updateTurn(req, res) {
       return handleErrorClient(res, 400, error.details[0].message);
     }
 
-    const { bicicletero, jornada } = req.body;
-    const turn = await createOrUpdateTurn(userId, bicicletero, jornada);
+    const { bicicletero, hora_inicio, hora_salida } = req.body;
+    const turn = await createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_salida);
     handleSuccess(res, 200, "Turno actualizado exitosamente", turn);
   } catch (error) {
     if (
       error.message.includes("ya tiene asignado el turno") ||
       error.message.includes("Solo se pueden asignar turnos") ||
-      error.message.includes("Usuario no encontrado")
+      error.message.includes("Usuario no encontrado") ||
+      error.message.includes("Debe ingresar tanto hora") ||
+      error.message.includes("Esto ya fue asignado") 
     ) {
       handleErrorClient(res, 400, error.message);
     } else {
@@ -99,7 +101,9 @@ export async function updateTurnsInBatch(req, res) {
   } catch (error) {
     if (
       error.message.includes("Conflicto") ||
-      error.message.includes("ya tiene asignado el turno")
+      error.message.includes("ya tiene asignado el turno") ||
+      error.message.includes("Esto ya fue asignado") ||
+      error.message.includes("Debe ingresar tanto hora")
     ) {
       handleErrorClient(res, 400, error.message);
     } else {

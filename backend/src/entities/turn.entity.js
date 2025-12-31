@@ -18,9 +18,12 @@ export const Turn = new EntitySchema({
       length: 10,
       nullable: true,
     },
-    jornada: {
-      type: "varchar",
-      length: 50,
+    hora_inicio: {
+      type: "time",
+      nullable: true,
+    },
+    hora_salida: {
+      type: "time",
       nullable: true,
     },
     created_at: {
@@ -46,9 +49,9 @@ export const Turn = new EntitySchema({
   indices: [
     {
       name: "IDX_TURN_UNIQUE",
-      columns: ["bicicletero", "jornada"],
+      columns: ["bicicletero", "hora_inicio", "hora_salida"],
       unique: true,
-      where: "bicicletero IS NOT NULL AND jornada IS NOT NULL",
+      where: "bicicletero IS NOT NULL AND hora_inicio IS NOT NULL AND hora_salida IS NOT NULL",
     },
   ],
 });
