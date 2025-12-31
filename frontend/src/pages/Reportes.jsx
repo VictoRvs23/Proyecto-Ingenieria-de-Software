@@ -343,7 +343,7 @@ const Reportes = () => {
   return (
     <div className="reportes-container">
       <div className="reportes-header">
-        <h1>REPORTES E INCIDENTES</h1>
+        <h1>REPORTES</h1>
         
         {isAdminOrGuard && (
             <div className="header-filter-actions">
