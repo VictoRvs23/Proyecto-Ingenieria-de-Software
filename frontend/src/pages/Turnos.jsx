@@ -302,7 +302,7 @@ const Turnos = () => {
       {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
         <div className="guardar-button-container">
           <button className="guardar-button" onClick={handleGuardarCambios}>
-            GUARDAR CAMBIOS
+            💾 Guardar Cambios
           </button>
         </div>
       )}

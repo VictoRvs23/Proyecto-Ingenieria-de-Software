@@ -1,6 +1,4 @@
 import { deleteUserAndTurn } from "../services/user.service.js";
-
-// Elimina un usuario y su turno asociado
 export async function deleteUser(req, res) {
   try {
     const { id } = req.params;

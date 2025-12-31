@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowLeft, FaBicycle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-<<<<<<< HEAD
 import Swal from 'sweetalert2';
 import { getBicicleteroById, toggleSpaceStatus } from '../services/bicicletero.service';
 import { getBikes } from '../services/bike.service';
 import { createReserve, getReserves } from '../services/reserve.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
-=======
-import { getBicicleteroById } from '../services/bicicletero.service';
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
 import '../styles/espacios.css';
 
 const Espacios = () => {
@@ -17,54 +13,43 @@ const Espacios = () => {
   const { id } = useParams();
   const [espacios, setEspacios] = useState([]);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
   const [selectedSpace, setSelectedSpace] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [hasActiveReserve, setHasActiveReserve] = useState(false);
-=======
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
 
   useEffect(() => {
+    const role = (localStorage.getItem('role') || sessionStorage.getItem('role') || '').toLowerCase();
+    setUserRole(role);
     loadEspacios();
     const interval = setInterval(() => {
       loadEspacios();
     }, 5000);
-    
     return () => clearInterval(interval);
   }, [id]);
 
   const loadEspacios = async () => {
     try {
       const bicicletero = await getBicicleteroById(id);
-      
+      const disabledSpaces = bicicletero.disabledSpaces || [];
       const espaciosArray = Array.from({ length: bicicletero.space || 15 }, (_, i) => {
         const numeroEspacio = i + 1;
         const bikeEnEspacio = bicicletero.bikes?.find(bike => bike.space === numeroEspacio);
-        
+        const isMarkedOccupied = disabledSpaces.includes(numeroEspacio) || disabledSpaces.includes(String(numeroEspacio));
         let estado = 'disponible';
         const hasReserve = bikeEnEspacio ? true : false;
-        
         if (bikeEnEspacio || isMarkedOccupied) {
           estado = 'ocupado';
         }
-        
         return {
           numero: numeroEspacio,
-<<<<<<< HEAD
           estado,
           bike: bikeEnEspacio,
           markedOccupied: isMarkedOccupied,
           hasReserve
-=======
-          estado: bikeEnEspacio ? 'ocupado' : 'disponible',
-          bike: bikeEnEspacio
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
         };
       });
-      
       setEspacios(espaciosArray);
       setLoading(false);
-      
       if (userRole === 'user') {
         try {
           const misReservas = await getReserves();
@@ -81,24 +66,17 @@ const Espacios = () => {
       const espaciosDefault = Array.from({ length: 15 }, (_, i) => ({
         numero: i + 1,
         estado: 'disponible',
-<<<<<<< HEAD
         bike: null,
         markedOccupied: false,
         hasReserve: false
-=======
-        bike: null
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
       }));
-      
       setEspacios(espaciosDefault);
       setLoading(false);
     }
   };
 
-<<<<<<< HEAD
   const handleSpaceClick = async (espacio) => {
     const canModify = ['guard', 'admin', 'adminbicicletero'].includes(userRole);
-    
     if (canModify) {
       setSelectedSpace(espacio);
     } else if (userRole === 'user' && espacio.estado === 'disponible') {
@@ -110,16 +88,13 @@ const Espacios = () => {
     try {
       const response = await getBikes();
       const misBicis = response.data || [];
-
       if (misBicis.length === 0) {
         showErrorAlert('No tienes bicicletas registradas. Regístralas en tu perfil primero.');
         return;
       }
-
       const bikeOptions = misBicis.map(bike => 
         `<option value="${bike.id}">${bike.brand} - ${bike.model} (${bike.color})</option>`
       ).join('');
-
       const { value: bikeId } = await Swal.fire({
         title: `Reservar Espacio ${espacio.numero}`,
         html: `
@@ -146,14 +121,12 @@ const Espacios = () => {
           return select.value;
         }
       });
-
       if (bikeId) {
         const misReservas = await getReserves();
         const reservaExistente = misReservas.data?.find(r => 
           r.bicicletero_number === parseInt(id) && 
           (r.estado === 'solicitada' || r.estado === 'ingresada')
         );
-
         if (reservaExistente) {
           await Swal.fire({
             title: 'Ya tienes una reserva activa',
@@ -173,18 +146,14 @@ const Espacios = () => {
           });
           return;
         }
-
         const reservaData = {
           bike_id: parseInt(bikeId),
           bicicletero_number: parseInt(id)
         };
-        
         const result = await createReserve(reservaData);
-        
         setTimeout(() => {
           loadEspacios();
         }, 300);
-        
         showSuccessAlert(`Reserva creada exitosamente. Tu token es: ${result.data?.token || result.token}`);
       }
     } catch (error) {
@@ -194,7 +163,6 @@ const Espacios = () => {
 
   const handleToggleSpace = async (markOccupied) => {
     if (!selectedSpace) return;
-    
     try {
       await toggleSpaceStatus(id, selectedSpace.numero, markOccupied);
       await loadEspacios();
@@ -216,7 +184,6 @@ const Espacios = () => {
           (r.estado === 'solicitada' || r.estado === 'ingresada')
         );
         if (reserva) {
-          // Eliminar la reserva
           await fetch(`/api/reserve/${reserva.token}`, {
             method: 'DELETE',
             headers: {
@@ -242,7 +209,6 @@ const Espacios = () => {
         r.bicicletero_number === parseInt(id) && 
         (r.estado === 'solicitada' || r.estado === 'ingresada')
       );
-      
       if (reservaActiva) {
         await Swal.fire({
           title: 'Tu Token de Retiro',
@@ -273,37 +239,35 @@ const Espacios = () => {
     }
   };
 
-=======
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
   return (
     <div className="espacios-container">
       <button className="back-button" onClick={() => navigate('/home/bicicletero')}>
         <FaArrowLeft />
       </button>
-      
       <div className="espacios-header">
         <h1 className="espacios-title">BICICLETERO ({id})</h1>
       </div>
-
       {loading ? (
         <div className="loading-message">Cargando espacios...</div>
       ) : (
-        <div className="espacios-card">
-          <div className="espacios-grid">
-            {espacios.map((espacio) => (
-              <div
-                key={espacio.numero}
-                className={`espacio-item ${espacio.estado}`}
-              >
-                <span className="espacio-numero">{espacio.numero}</span>
-                {espacio.estado === 'ocupado' && (
-                  <FaBicycle className="espacio-bike-icon" />
-                )}
-              </div>
-            ))}
+        <>
+          <div className="espacios-card">
+            <div className="espacios-grid">
+              {espacios.map((espacio) => (
+                <div
+                  key={espacio.numero}
+                  className={`espacio-item ${espacio.estado} ${selectedSpace?.numero === espacio.numero ? 'selected' : ''}`}
+                  onClick={() => handleSpaceClick(espacio)}
+                >
+                  <span className="espacio-numero">{espacio.numero}</span>
+                  {espacio.estado === 'ocupado' && (
+                    <FaBicycle className="espacio-bike-icon" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-<<<<<<< HEAD
-                    {['guard', 'admin', 'adminBicicletero'].includes(userRole) && selectedSpace && (
+          {['guard', 'admin', 'adminBicicletero'].includes(userRole) && selectedSpace && (
             <div className="space-actions">
               {selectedSpace.estado === 'ocupado' ? (
                 <button className="action-button enable-button" onClick={handleLiberarEspacio}>
@@ -319,8 +283,6 @@ const Espacios = () => {
               </button>
             </div>
           )}
-
-
           {userRole === 'user' && hasActiveReserve && (
             <div className="usuarios-actions">
               <button className="btn-action btn-retirar" onClick={handleMostrarToken}>
@@ -329,9 +291,6 @@ const Espacios = () => {
             </div>
           )}
         </>
-=======
-        </div>
->>>>>>> parent of a293cad (Agregado de Botones en modulo Bicicletero)
       )}
     </div>
   );

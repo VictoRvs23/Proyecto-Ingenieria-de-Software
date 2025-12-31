@@ -1,14 +1,10 @@
 import { deleteTurn } from "./turn.service.js";
-// Elimina un usuario y su turno asociado (si existe)
 export async function deleteUserAndTurn(userId) {
   try {
-    // Eliminar turno si existe
     try {
       await deleteTurn(userId);
     } catch (e) {
-      // Si no tiene turno, ignorar error
     }
-    // Eliminar usuario
     const user = await userRepository.findOneBy({ id: userId });
     if (!user) throw new Error("Usuario no encontrado");
     await userRepository.remove(user);

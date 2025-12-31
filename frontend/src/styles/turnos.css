@@ -62,7 +62,6 @@
   font-weight: 700;
   color: #1565C0;
   margin-bottom: 0.8rem;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
@@ -132,12 +131,12 @@
 }
 
 .tabla-turnos tbody::-webkit-scrollbar-thumb {
-  background: #7fa8d4;
+  background: #2b79c2;
   border-radius: 10px;
 }
 
 .tabla-turnos tbody::-webkit-scrollbar-thumb:hover {
-  background: #5a8cc4;
+  background: #2b79c2;
 }
 
 .tabla-turnos tbody tr {
@@ -176,7 +175,7 @@
 
 .jornada-select,
 .bicicletero-select {
-  background: #7fa8d4;
+  background: #2b79c2;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -223,7 +222,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
   letter-spacing: 0.8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: -20px;
