@@ -34,7 +34,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;   
+  position: relative;  
   box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
@@ -90,22 +90,41 @@
 
 .float-icon {
   position: absolute;
-  top: 15px;
   width: 32px;
   height: 32px;
-  background-color: #1565C0;
+  background-color: #2b79c2;
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 1rem;
   border: none;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  z-index: 20; 
 }
 
-.float-icon.left { left: 15px; }
-.float-icon.right { right: 15px; }
+.float-icon:hover {
+  background-color: #1565C0;
+  transform: scale(1.1);
+}
+
+.pos-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.pos-bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.pos-bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
 
 .pagination-dots {
   display: flex;
@@ -118,9 +137,14 @@
   height: 10px;
   background-color: #ccc;
   border-radius: 50%;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 .dot.active {
-  background-color: #1565C0;
+  background-color: #2b79c2;
+}
+.dot.active:hover {
+  background-color: #2b79c2;
+  transform: scale(1.2);
 }
 
 .save-changes-container {
@@ -132,15 +156,24 @@
 }
 
 .save-changes-btn {
-  background-color: #1b7e3c;
+  background-color: #20ad4f;
   color: white;
   border: none;
   padding: 15px 30px;
   border-radius: 30px;
   font-size: 1rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: background-color 0.3s, transform 0.2s;
+}
+
+.save-changes-btn:hover {
+  background-color: #1b8e43;
+  transform: translateY(-2px);
 }
 
 .bike-card-wrapper {
@@ -166,37 +199,4 @@
   justify-content: center;
   align-items: center;
   border-radius: 25px;
-}
-
-.profile-actions {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 3rem;
-  padding: 0 2rem;
-}
-
-.btn-edit-profile {
-  background: #2b79c2;
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.9rem 1.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 0.8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: -20px;
-}
-
-.btn-edit-profile:hover {
-  background: #1565C0;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-edit-profile:active {
-  transform: translateY(0);
 }

@@ -154,24 +154,19 @@ export async function deleteUserByAdmin(req, res) {
     if (req.user.role !== "admin" && req.user.role !== "adminBicicletero") {
       return res.status(403).json({ error: "No autorizado" });
     }
-
     const paramId = req.params?.id;
     const targetId = Number(paramId);
     if (!paramId || Number.isNaN(targetId)) {
       return res.status(400).json({ error: "Id inválido en la ruta" });
     }
-
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ id: targetId });
-    
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado");
     }
-
     if (user.role === 'admin' || user.role === 'adminBicicletero') {
       return res.status(403).json({ error: "No se puede eliminar un usuario administrador" });
     }
-
     await userRepository.remove(user);
     handleSuccess(res, 200, "Usuario eliminado exitosamente", {
       message: `El usuario ${user.email} ha sido eliminado`,

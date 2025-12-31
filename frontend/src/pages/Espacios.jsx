@@ -24,7 +24,6 @@ const Espacios = () => {
     const interval = setInterval(() => {
       loadEspacios();
     }, 5000);
-    
     return () => clearInterval(interval);
   }, [id]);
 
@@ -32,19 +31,15 @@ const Espacios = () => {
     try {
       const bicicletero = await getBicicleteroById(id);
       const disabledSpaces = bicicletero.disabledSpaces || [];
-      
       const espaciosArray = Array.from({ length: bicicletero.space || 15 }, (_, i) => {
         const numeroEspacio = i + 1;
         const bikeEnEspacio = bicicletero.bikes?.find(bike => bike.space === numeroEspacio);
         const isMarkedOccupied = disabledSpaces.includes(numeroEspacio) || disabledSpaces.includes(String(numeroEspacio));
-        
         let estado = 'disponible';
         const hasReserve = bikeEnEspacio ? true : false;
-        
         if (bikeEnEspacio || isMarkedOccupied) {
           estado = 'ocupado';
         }
-        
         return {
           numero: numeroEspacio,
           estado,
@@ -53,10 +48,8 @@ const Espacios = () => {
           hasReserve
         };
       });
-      
       setEspacios(espaciosArray);
       setLoading(false);
-      
       if (userRole === 'user') {
         try {
           const misReservas = await getReserves();
@@ -77,7 +70,6 @@ const Espacios = () => {
         markedOccupied: false,
         hasReserve: false
       }));
-      
       setEspacios(espaciosDefault);
       setLoading(false);
     }
@@ -85,7 +77,6 @@ const Espacios = () => {
 
   const handleSpaceClick = async (espacio) => {
     const canModify = ['guard', 'admin', 'adminbicicletero'].includes(userRole);
-    
     if (canModify) {
       setSelectedSpace(espacio);
     } else if (userRole === 'user' && espacio.estado === 'disponible') {
@@ -97,16 +88,13 @@ const Espacios = () => {
     try {
       const response = await getBikes();
       const misBicis = response.data || [];
-
       if (misBicis.length === 0) {
         showErrorAlert('No tienes bicicletas registradas. Regístralas en tu perfil primero.');
         return;
       }
-
       const bikeOptions = misBicis.map(bike => 
         `<option value="${bike.id}">${bike.brand} - ${bike.model} (${bike.color})</option>`
       ).join('');
-
       const { value: bikeId } = await Swal.fire({
         title: `Reservar Espacio ${espacio.numero}`,
         html: `
@@ -133,14 +121,12 @@ const Espacios = () => {
           return select.value;
         }
       });
-
       if (bikeId) {
         const misReservas = await getReserves();
         const reservaExistente = misReservas.data?.find(r => 
           r.bicicletero_number === parseInt(id) && 
           (r.estado === 'solicitada' || r.estado === 'ingresada')
         );
-
         if (reservaExistente) {
           await Swal.fire({
             title: 'Ya tienes una reserva activa',
@@ -160,18 +146,14 @@ const Espacios = () => {
           });
           return;
         }
-
         const reservaData = {
           bike_id: parseInt(bikeId),
           bicicletero_number: parseInt(id)
         };
-        
         const result = await createReserve(reservaData);
-        
         setTimeout(() => {
           loadEspacios();
         }, 300);
-        
         showSuccessAlert(`Reserva creada exitosamente. Tu token es: ${result.data?.token || result.token}`);
       }
     } catch (error) {
@@ -181,7 +163,6 @@ const Espacios = () => {
 
   const handleToggleSpace = async (markOccupied) => {
     if (!selectedSpace) return;
-    
     try {
       await toggleSpaceStatus(id, selectedSpace.numero, markOccupied);
       await loadEspacios();
@@ -203,7 +184,6 @@ const Espacios = () => {
           (r.estado === 'solicitada' || r.estado === 'ingresada')
         );
         if (reserva) {
-          // Eliminar la reserva
           await fetch(`/api/reserve/${reserva.token}`, {
             method: 'DELETE',
             headers: {
@@ -229,7 +209,6 @@ const Espacios = () => {
         r.bicicletero_number === parseInt(id) && 
         (r.estado === 'solicitada' || r.estado === 'ingresada')
       );
-      
       if (reservaActiva) {
         await Swal.fire({
           title: 'Tu Token de Retiro',
@@ -265,11 +244,9 @@ const Espacios = () => {
       <button className="back-button" onClick={() => navigate('/home/bicicletero')}>
         <FaArrowLeft />
       </button>
-      
       <div className="espacios-header">
         <h1 className="espacios-title">BICICLETERO ({id})</h1>
       </div>
-
       {loading ? (
         <div className="loading-message">Cargando espacios...</div>
       ) : (
@@ -290,7 +267,7 @@ const Espacios = () => {
               ))}
             </div>
           </div>
-                    {['guard', 'admin', 'adminBicicletero'].includes(userRole) && selectedSpace && (
+          {['guard', 'admin', 'adminBicicletero'].includes(userRole) && selectedSpace && (
             <div className="space-actions">
               {selectedSpace.estado === 'ocupado' ? (
                 <button className="action-button enable-button" onClick={handleLiberarEspacio}>
@@ -306,8 +283,6 @@ const Espacios = () => {
               </button>
             </div>
           )}
-
-
           {userRole === 'user' && hasActiveReserve && (
             <div className="usuarios-actions">
               <button className="btn-action btn-retirar" onClick={handleMostrarToken}>

@@ -1,3 +1,18 @@
+import { deleteTurn } from "./turn.service.js";
+export async function deleteUserAndTurn(userId) {
+  try {
+    try {
+      await deleteTurn(userId);
+    } catch (e) {
+    }
+    const user = await userRepository.findOneBy({ id: userId });
+    if (!user) throw new Error("Usuario no encontrado");
+    await userRepository.remove(user);
+    return { message: "Usuario y turno eliminados correctamente" };
+  } catch (error) {
+    throw new Error(`Error al eliminar usuario: ${error.message}`);
+  }
+}
 import { AppDataSource } from "../config/configDb.js";
 import { User } from "../entities/user.entity.js";
 import bcrypt from "bcrypt";

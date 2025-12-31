@@ -1,4 +1,4 @@
-.usuarios-container {
+.reportes-container {
   width: 100%;
   padding: 2rem;
   padding-top: 60px;
@@ -6,8 +6,9 @@
   background-color: #ffffff;
 }
 
-.usuarios-header {
-  margin-bottom: 30px;
+.reportes-header {
+  margin-bottom: 40px;
+  text-align: center;
   position: relative;
   display: flex;
   justify-content: center;
@@ -18,12 +19,13 @@
   margin-right: auto;
 }
 
-.usuarios-header h1 {
+.reportes-header h1 {
   font-family: 'Roboto', sans-serif;
   color: #1565C0;
   font-size: 3rem;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .header-filter-actions {
@@ -59,7 +61,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   border: 1px solid #bbdefb;
-  display: flex;      
+  display: flex;       
   align-items: center;
   gap: 8px;           
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -82,70 +84,61 @@
 
 .filter-close-icon:hover {
   opacity: 1;
-  color: #d33; 
+  color: #d33;
   transform: scale(1.2);
 }
 
-.usuarios-wrapper-table {
+.reportes-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   background: #f0f0f0;
   border-radius: 1.5rem;
-  padding: 1.5rem;
+  padding: 2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  min-height: 500px; 
+  height: 500px;       
+  overflow-y: auto;    
   position: relative;
 }
 
-.table-scroll-container {
-  max-height: 450px; 
-  overflow-y: auto;
-  border-radius: 1rem;
-}
-
-.usuarios-table {
+.reportes-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
+  border-radius: 1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.usuarios-table thead {
-  background: #2b79c2;
+.reportes-table thead {
+  background: #2b79c2; 
   color: white;
 }
 
-.usuarios-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #2b79c2;
+.reportes-table th {
   padding: 1rem;
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
   border-right: 2px solid rgba(255,255,255,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #2b79c2; 
 }
 
-.usuarios-table th:last-child {
+.reportes-table th:last-child {
   border-right: none;
 }
 
-.usuarios-table tbody tr {
+.reportes-table tbody tr {
   border-bottom: 1px solid #e0e0e0;
-  cursor: pointer;
   transition: background 0.2s;
 }
 
-.usuarios-table tbody tr:hover {
+.reportes-table tbody tr:hover {
   background-color: #f5f5f5;
 }
 
-.usuarios-table tbody tr.selected-row {
-  background-color: #e3f2fd;
-}
-
-.usuarios-table td {
+.reportes-table td {
   padding: 1rem;
   text-align: center;
   color: #333;
@@ -153,26 +146,59 @@
   border-right: 1px solid #f0f0f0;
 }
 
-.usuarios-table td:last-child {
+.reportes-table td:last-child {
   border-right: none;
 }
 
-.col-id {
-  color: #1565C0;
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.reporte-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  border: 1px solid #eee;
+}
+
+.reporte-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.card-header-status {
+  padding: 10px;
+  text-align: center;
+  color: white;
   font-weight: bold;
-}
-
-.role-select {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f9f9f9;
   font-size: 0.9rem;
-  color: #333;
-  cursor: pointer;
+  text-transform: uppercase;
 }
 
-.usuarios-actions {
+.card-body {
+  padding: 20px;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.reportes-actions {
   display: flex;
   justify-content: center;
   gap: 2rem;
@@ -180,7 +206,8 @@
   padding: 0 2rem;
 }
 
-.usuarios-container .btn-action {
+.reportes-container .btn-action {
+  background: #2b79c2; 
   color: white;
   border: none;
   border-radius: 0.75rem;
@@ -189,67 +216,43 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, background 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s, box-shadow 0.2s;
 }
 
-.usuarios-container .btn-crear {
-  background: #2b79c2 !important; 
+.reportes-container .btn-action:hover {
+  background: #2468a8;
+  transform: translateY(-2px);
 }
 
-.usuarios-container .btn-crear:hover {
-  background: #2468a8 !important; 
-  transform: translateY(-4px); 
-  box-shadow: 0 8px 15px rgba(43, 121, 194, 0.3);
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
 }
 
-.usuarios-container .btn-editar {
-  background: #90caf9 !important; 
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-  transform: none !important; 
-}
-
-.usuarios-container .btn-editar-active {
-  background: #2b79c2 !important; 
+.btn-icon-small {
+  background: none;
+  border: none;
   cursor: pointer;
-  opacity: 1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #2b79c2;
+  font-size: 1.1rem;
+  margin: 0 5px;
+  transition: color 0.2s;
 }
 
-.usuarios-container .btn-editar-active:hover {
-  background: #2468a8 !important;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 15px rgba(43, 121, 194, 0.3);
+.btn-icon-small:hover { 
+  color: #2468a8; 
 }
 
-.usuarios-container .btn-eliminar {
-  background: #ef9a9a !important; 
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-  transform: none !important;
-}
-
-.usuarios-container .btn-eliminar-active {
-  background: #ef5350 !important; 
-  cursor: pointer;
-  opacity: 1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.usuarios-container .btn-eliminar-active:hover {
-  background: #d32f2f !important;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 15px rgba(239, 83, 80, 0.3);
-}
-
-.loading, .no-data {
+.loading-text, .no-data-text {
   text-align: center;
-  font-size: 1.2rem;
+  padding: 3rem;
   color: #888;
-  padding: 20px;
+  font-style: italic;
 }

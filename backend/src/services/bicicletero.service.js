@@ -9,16 +9,11 @@ export class BicicleteroService {
       relations: ["bikes"]
     });
     
-    return bicicleteros.map(b => {
-      const bikesCount = b.bikes ? b.bikes.length : 0;
-      const markedOccupiedCount = b.disabledSpaces ? b.disabledSpaces.length : 0;
-      
-      return {
-        numero: b.number,
-        espaciosOcupados: bikesCount + markedOccupiedCount,
-        espaciosTotales: b.space
-      };
-    });
+    return bicicleteros.map(b => ({
+      numero: b.number,
+      espaciosOcupados: b.bikes ? b.bikes.length : 0,
+      espaciosTotales: b.space
+    }));
   }
 
   async getStatus() {
@@ -72,30 +67,4 @@ export class BicicleteroService {
     }
     return bicicletero;
   }
-
-  async toggleSpaceStatus(bicicleteroNumber, spaceNumber, disable) {
-    const repo = AppDataSource.getRepository(Bicicletero);
-    const bicicletero = await repo.findOne({
-      where: { number: Number(bicicleteroNumber) }
-    });
-    
-    if (!bicicletero) {
-      throw new Error(`Bicicletero con número ${bicicleteroNumber} no encontrado`);
-    }
-
-    let disabledSpaces = bicicletero.disabledSpaces || [];
-    const spaceNum = Number(spaceNumber);
-
-    if (disable) {
-      if (!disabledSpaces.includes(spaceNum)) {
-        disabledSpaces.push(spaceNum);
-      }
-    } else {
-      disabledSpaces = disabledSpaces.filter(s => Number(s) !== spaceNum);
-    }
-
-    bicicletero.disabledSpaces = disabledSpaces;
-    await repo.save(bicicletero);
-    
-    return bicicletero;
-  }}
+}

@@ -13,6 +13,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%; 
+}
+
+.bici-header {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
 .main-title-bici {
@@ -20,9 +31,32 @@
     color: #1565C0;
     font-size: 3rem;
     font-weight: 600;
-    margin-bottom: 25px;
     text-transform: uppercase;
     text-align: center;
+    margin: 0;
+}
+
+.btn-back {
+    position: absolute;
+    left: 0;
+    background: transparent;
+    border: 2px solid #1565C0;
+    color: #1565C0;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+  
+.btn-back:hover {
+    background-color: #1565C0;
+    color: white;
+    transform: scale(1.1);
 }
 
 .panels-container-bici {
@@ -73,7 +107,7 @@
 }
 
 .btn-verde-bici {
-    background-color: #1b7e3c; 
+    background-color: #15a948; 
     color: white;
     border: none;
     padding: 15px 50px;
@@ -83,11 +117,20 @@
     cursor: pointer;
     margin-top: 50px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .btn-verde-bici:hover {
-    background-color: #146c33;
+    background-color: #209a4a;
+    transform: translateY(-2px);
+}
+
+.btn-verde-bici svg path {
+    stroke: white;
 }
 
 .btn-azul-bici {
@@ -100,7 +143,16 @@
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-azul-bici:hover {
+    background-color: #0d47a1;
+    transform: translateY(-2px);
 }
 
 .image-circle-bici {
@@ -114,7 +166,6 @@
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-
 }
 
 .bicycle-img-bici {

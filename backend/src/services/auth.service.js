@@ -13,7 +13,7 @@ export async function loginUser(email, password) {
   if (!isMatch) {
     throw new Error("Credenciales incorrectas");
   }
-
+  
   const payload = {
     sub: user.id,
     email: user.email,

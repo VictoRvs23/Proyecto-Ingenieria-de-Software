@@ -17,6 +17,7 @@ export const getBicicleteroById = async (id) => {
     throw error.response?.data || error;
   }
 };
+
 export const toggleSpaceStatus = async (bicicleteroNumber, spaceNumber, disable) => {
   try {
     const response = await axios.patch(`/bicicletero/${bicicleteroNumber}/space/${spaceNumber}/toggle`, { disable });
