@@ -26,9 +26,11 @@
 .turno-card-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  gap: 2rem;
   margin-top: 2rem;
   padding: 2rem;
+  flex-wrap: wrap;
 }
 
 .turno-card {
@@ -41,6 +43,17 @@
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+}
+
+.turno-card-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1565C0;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #2b79c2;
+  text-align: center;
 }
 
 .no-turno-message-card {

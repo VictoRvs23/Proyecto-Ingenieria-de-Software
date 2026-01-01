@@ -4,6 +4,7 @@ import {
   createOrUpdateTurn,
   deleteTurn,
   updateMultipleTurns,
+  getGuardTurnWithReplacement,
 } from "../services/turn.service.js";
 import { turnValidation, batchTurnsValidation } from "../validations/turn.validation.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
@@ -22,7 +23,7 @@ export async function getTurnByUser(req, res) {
     const userId = parseInt(req.params.userId);
     
     if (isNaN(userId)) {
-      return handleErrorClient(res, 400, "ID de usuario inválido");
+      return handleErrorClient(res, 400, "ID de usuario invalido");
     }
     
     const turn = await getTurnByUserId(userId);
@@ -42,7 +43,7 @@ export async function updateTurn(req, res) {
     const userId = parseInt(req.params.userId);
     
     if (isNaN(userId)) {
-      return handleErrorClient(res, 400, "ID de usuario inválido");
+      return handleErrorClient(res, 400, "ID de usuario invalido");
     }
 
     const { error } = turnValidation.validate(req.body);
@@ -73,7 +74,7 @@ export async function removeTurn(req, res) {
     const userId = parseInt(req.params.userId);
     
     if (isNaN(userId)) {
-      return handleErrorClient(res, 400, "ID de usuario inválido");
+      return handleErrorClient(res, 400, "ID de usuario invalido");
     }
     
     const result = await deleteTurn(userId);
@@ -100,7 +101,7 @@ export async function updateTurnsInBatch(req, res) {
     handleSuccess(res, 200, "Turnos actualizados exitosamente", results);
   } catch (error) {
     if (
-      error.message.includes("Conflicto") ||
+      error.message.includes("Error") ||
       error.message.includes("ya tiene asignado el turno") ||
       error.message.includes("Esto ya fue asignado") ||
       error.message.includes("Debe ingresar tanto hora")
@@ -109,5 +110,20 @@ export async function updateTurnsInBatch(req, res) {
     } else {
       handleErrorServer(res, 500, "Error al actualizar turnos", error.message);
     }
+  }
+}
+
+export async function getGuardTurnWithReplacementInfo(req, res) {
+  try {
+    const userId = req.user.id;
+    
+    if (!userId) {
+      return handleErrorClient(res, 400, "ID de usuario no encontrado");
+    }
+
+    const turnData = await getGuardTurnWithReplacement(userId);
+    handleSuccess(res, 200, "Turno y reemplazo obtenidos exitosamente", turnData);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener turno con reemplazo", error.message);
   }
 }

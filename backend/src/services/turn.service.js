@@ -161,3 +161,70 @@ export async function updateMultipleTurns(turnsData) {
     throw error;
   }
 }
+
+export async function getGuardTurnWithReplacement(userId) {
+  try {
+    // Obtener el turno del guardia actual
+    const currentGuardTurn = await turnRepository.findOne({
+      where: { user_id: userId },
+      relations: ['user'],
+    });
+
+    if (!currentGuardTurn) {
+      return {
+        currentTurn: null,
+        replacementTurn: null,
+      };
+    }
+
+    // Si no tiene bicicletero o horarios asignados, no hay reemplazo
+    if (!currentGuardTurn.bicicletero || !currentGuardTurn.hora_inicio || !currentGuardTurn.hora_salida) {
+      return {
+        currentTurn: currentGuardTurn,
+        replacementTurn: null,
+      };
+    }
+
+    // Obtener todos los turnos en el mismo bicicletero
+    const allTurnsInBicicletero = await turnRepository.find({
+      where: { bicicletero: currentGuardTurn.bicicletero },
+      relations: ['user'],
+    });
+
+    // Filtrar turnos válidos (que tengan hora_inicio y hora_salida)
+    const validTurns = allTurnsInBicicletero.filter(
+      turn => turn.hora_inicio && turn.hora_salida && turn.user_id !== userId
+    );
+
+    // Convertir tiempo a minutos para comparación
+    const toMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const currentEndMinutes = toMinutes(currentGuardTurn.hora_salida);
+
+    // Buscar el turno que comienza más tarde después del turno actual
+    let replacementTurn = null;
+    let earliestReplacementTime = Infinity;
+
+    for (const turn of validTurns) {
+      const turnStartMinutes = toMinutes(turn.hora_inicio);
+      
+      // El turno de reemplazo debe comenzar después o en el mismo momento que termina el turno actual
+      if (turnStartMinutes >= currentEndMinutes) {
+        if (turnStartMinutes < earliestReplacementTime) {
+          earliestReplacementTime = turnStartMinutes;
+          replacementTurn = turn;
+        }
+      }
+    }
+
+    return {
+      currentTurn: currentGuardTurn,
+      replacementTurn: replacementTurn,
+    };
+  } catch (error) {
+    throw new Error(`Error al obtener turno del guardia con reemplazo: ${error.message}`);
+  }
+}

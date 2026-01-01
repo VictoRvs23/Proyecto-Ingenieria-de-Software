@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers } from '../services/user.service';
-import { getAllTurns, updateMultipleTurns, getTurnByUser } from '../services/turn.service';
+import { getAllTurns, updateMultipleTurns, getTurnByUser, getGuardCurrentTurnWithReplacement } from '../services/turn.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
 
@@ -10,6 +10,7 @@ const Turnos = () => {
   const [hayCambiosSinGuardar, setHayCambiosSinGuardar] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [replacementTurn, setReplacementTurn] = useState(null);
 
   useEffect(() => {
     const role = localStorage.getItem('role') || sessionStorage.getItem('role');
@@ -41,19 +42,49 @@ const Turnos = () => {
         const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
         
         let turnoGuardia = { bicicletero: '', hora_inicio: '', hora_salida: '' };
+        let reemplazante = null;
+        
         try {
-          const turnoResponse = await getTurnByUser(userId);
-          if (turnoResponse.data) {
-            turnoGuardia = {
-              bicicletero: turnoResponse.data.bicicletero || '',
-              hora_inicio: turnoResponse.data.hora_inicio || '',
-              hora_salida: turnoResponse.data.hora_salida || ''
-            };
+          const response = await getGuardCurrentTurnWithReplacement();
+          if (response.data) {
+            const { currentTurn, replacementTurn } = response.data;
+            
+            if (currentTurn) {
+              turnoGuardia = {
+                bicicletero: currentTurn.bicicletero || '',
+                hora_inicio: currentTurn.hora_inicio || '',
+                hora_salida: currentTurn.hora_salida || ''
+              };
+            }
+            
+            if (replacementTurn) {
+              reemplazante = {
+                nombre: replacementTurn.user?.nombre || 'Guardia reemplazante',
+                email: replacementTurn.user?.email || '',
+                hora_inicio: replacementTurn.hora_inicio || '',
+                hora_salida: replacementTurn.hora_salida || '',
+                bicicletero: replacementTurn.bicicletero || ''
+              };
+            }
           }
         } catch (error) {
-          console.error('Error al obtener turno del guardia:', error);
+          console.error('Error al obtener turno del guardia con reemplazo:', error);
+          
+          try {
+            const turnoResponse = await getTurnByUser(userId);
+            if (turnoResponse.data) {
+              turnoGuardia = {
+                bicicletero: turnoResponse.data.bicicletero || '',
+                hora_inicio: turnoResponse.data.hora_inicio || '',
+                hora_salida: turnoResponse.data.hora_salida || ''
+              };
+            }
+          } catch (innerError) {
+            console.error('Error al obtener turno del guardia:', innerError);
+          }
         }
         
+        setReplacementTurn(reemplazante);
         setGuardias([{
           id: userId,
           nombre: userName,
@@ -159,19 +190,19 @@ const Turnos = () => {
           return;
         }
 
-        // Validar formato HH:MM
+        
         const regexHora = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
         if (!regexHora.test(guardia.hora_inicio)) {
-          showErrorAlert(`${guardia.nombre}: Hora de inicio con formato inválido. Use HH:MM (ej: 08:00)`);
+          showErrorAlert(`${guardia.nombre}: Hora de inicio con formato invalido. Use HH:MM (ej: 08:00)`);
           return;
         }
         if (!regexHora.test(guardia.hora_salida)) {
-          showErrorAlert(`${guardia.nombre}: Hora de salida con formato inválido. Use HH:MM (ej: 13:00)`);
+          showErrorAlert(`${guardia.nombre}: Hora de salida con formato invalido. Use HH:MM (ej: 13:00)`);
           return;
         }
       }
       
-      // Validar solapamiento local (vista previa)
+      
       const turnosValidos = guardias.filter(g => g.bicicletero && g.hora_inicio && g.hora_salida);
       for (let i = 0; i < turnosValidos.length; i++) {
         for (let j = i + 1; j < turnosValidos.length; j++) {
@@ -235,6 +266,8 @@ const Turnos = () => {
           return (
             <div className="turno-card-container">
               <div className="turno-card">
+                <h2 className="turno-card-title">Mi Turno Actual</h2>
+                
                 <div className="turno-card-section">
                   <h2 className="turno-card-label">Guardia</h2>
                   <p className="turno-card-value">{miTurno.nombre}</p>
@@ -256,6 +289,33 @@ const Turnos = () => {
                   </p>
                 </div>
               </div>
+
+              {replacementTurn && (
+                <div className="turno-card">
+                  <h2 className="turno-card-title">Guardia Reemplazante</h2>
+                  
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Guardia</h2>
+                    <p className="turno-card-value">{replacementTurn.nombre}</p>
+                  </div>
+
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Horario de Trabajo</h2>
+                    <p className="turno-card-value">
+                      {replacementTurn.hora_inicio && replacementTurn.hora_salida 
+                        ? `${replacementTurn.hora_inicio} - ${replacementTurn.hora_salida}`
+                        : 'Sin asignar'}
+                    </p>
+                  </div>
+
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Bicicletero</h2>
+                    <p className="turno-card-value">
+                      {replacementTurn.bicicletero ? `Número ${replacementTurn.bicicletero}` : 'Sin asignar'}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })()

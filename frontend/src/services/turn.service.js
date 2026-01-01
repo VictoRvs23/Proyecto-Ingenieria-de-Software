@@ -49,3 +49,13 @@ export const deleteTurn = async (userId) => {
     throw error;
   }
 };
+
+export const getGuardCurrentTurnWithReplacement = async () => {
+  try {
+    const response = await axios.get('/turnos/guard/current-with-replacement');
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener turno actual con reemplazo:", error);
+    throw error;
+  }
+};
