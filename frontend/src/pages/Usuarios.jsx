@@ -3,12 +3,16 @@ import { getAllUsers, updateUserRole, createUser, updateUser, deleteUser } from 
 import Swal from 'sweetalert2';
 import { deleteDataAlert } from '../helpers/sweetAlert';
 import '../styles/usuarios.css';
+import { FaUser, FaPencilAlt } from 'react-icons/fa'; 
+import { MdDelete } from 'react-icons/md';
+import { IoFilterCircle, IoCloseCircle } from "react-icons/io5";
 
 const Usuarios = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [filterRole, setFilterRole] = useState('all');
 
   const roles = ['user', 'guard', 'adminBicicletero', 'admin'];
 
@@ -34,16 +38,60 @@ const Usuarios = () => {
       const response = await getAllUsers();
       setUsers(response.data || []);
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudieron cargar los usuarios',
-      });
       console.error('Error al cargar usuarios:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleFilterClick = async () => {
+    const options = {
+        'all': 'Todos',
+        'user': 'Usuarios',
+        'guard': 'Guardias',
+        'adminBicicletero': 'Admin Bicicletero',
+        'admin': 'Administradores'
+    };
+    
+    const optionsHtml = Object.keys(options).map(key => 
+        `<option value="${key}" ${filterRole === key ? 'selected' : ''}>${options[key]}</option>`
+    ).join('');
+
+    const { value: selectedRole } = await Swal.fire({
+      title: 'Filtrar por Rol',
+      html: `
+        <div style="text-align: left; margin-bottom: 5px; color: #545454; font-weight: 600; font-size: 1.1em;">
+            Selecciona el rol:
+        </div>
+        <select id="swal-role-select" class="swal2-select" style="width: 100%; margin: 0; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);">
+            ${optionsHtml}
+        </select>
+      `,
+      showCancelButton: true,
+      confirmButtonColor: '#1565C0', 
+      cancelButtonColor: '#d33', 
+      confirmButtonText: 'Filtrar',
+      cancelButtonText: 'Cancelar',
+      focusConfirm: false,
+      preConfirm: () => {
+        return document.getElementById('swal-role-select').value;
+      }
+    });
+
+    if (selectedRole) {
+      setFilterRole(selectedRole);
+      setSelectedUserId(null); 
+    }
+  };
+
+  const clearFilter = () => {
+    setFilterRole('all');
+    setSelectedUserId(null);
+  };
+
+  const filteredUsers = filterRole === 'all' 
+    ? users 
+    : users.filter(user => user.role === filterRole);
 
   const handleRoleChange = async (userId, currentRole, newRole) => {
     if (currentRole === newRole) return;
@@ -54,7 +102,7 @@ const Usuarios = () => {
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#d33', 
       confirmButtonText: 'Sí, cambiar',
       cancelButtonText: 'Cancelar'
     });
@@ -82,7 +130,6 @@ const Usuarios = () => {
           title: 'Error',
           text: 'No se pudo actualizar el rol del usuario',
         });
-        console.error('Error al actualizar rol:', error);
       }
     }
   };
@@ -100,7 +147,6 @@ const Usuarios = () => {
   const formatPhoneNumber = (phone) => {
     if (!phone) return 'N/A';
     const phoneStr = String(phone);
-    
     if (phoneStr.startsWith('9') && phoneStr.length === 9) {
       return `9 ${phoneStr.slice(1)}`;
     } else if (phoneStr.length === 8) {
@@ -111,19 +157,28 @@ const Usuarios = () => {
 
   const handleCreateUser = async (initialValues = {}) => {
     const { value: formValues } = await Swal.fire({
-      title: 'Crear Nuevo Usuario',
+      title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Crear Nuevo Usuario</h2>',
       html: `
-        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${initialValues.nombre || ''}">
-        <input id="swal-email" class="swal2-input" placeholder="Email (debe terminar en @gmail.com)" type="email" value="${initialValues.email || ''}">
-        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (máx. 8 caracteres)" value="${initialValues.numeroTelefonico || ''}">
-        <input id="swal-password" class="swal2-input" placeholder="Contraseña (mín. 8 caracteres)" type="password" value="${initialValues.password || ''}">
+        <div style="text-align: left; margin-top: 10px;">
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
+            <input id="swal-nombre" class="swal2-input" placeholder="Ej: Juan Pérez" value="${initialValues.nombre || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email (@ubiobio.cl)</label>
+            <input id="swal-email" class="swal2-input" placeholder="ejemplo@ubiobio.cl" type="email" value="${initialValues.email || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Teléfono</label>
+            <input id="swal-phone" class="swal2-input" placeholder="9 1234 5678" value="${initialValues.numeroTelefonico || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
+            <input id="swal-password" class="swal2-input" placeholder="Mínimo 8 caracteres" type="password" value="${initialValues.password || ''}" style="margin: 0 0 15px 0; width: 100%;">
+        </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Crear',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#1565C0',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#d33', 
       preConfirm: () => {
         const nombre = document.getElementById('swal-nombre').value;
         const email = document.getElementById('swal-email').value;
@@ -135,6 +190,11 @@ const Usuarios = () => {
           return false;
         }
 
+        if (!email.toLowerCase().endsWith('@ubiobio.cl')) {
+          Swal.showValidationMessage('El correo debe ser del dominio @ubiobio.cl');
+          return false;
+        }
+
         return { nombre, email, numeroTelefonico: phone, password };
       }
     });
@@ -142,19 +202,14 @@ const Usuarios = () => {
     if (formValues) {
       try {
         let phoneClean = formValues.numeroTelefonico ? formValues.numeroTelefonico.replace(/\D/g, '') : "";
+        if (phoneClean.length === 8) phoneClean = '9' + phoneClean;
         
-        if (phoneClean.length === 8) {
-          phoneClean = '9' + phoneClean;
-        }
-        
-        const dataForBackend = {
+        await createUser({
           nombre: formValues.nombre,
           email: formValues.email,
           password: formValues.password,
           numeroTelefonico: phoneClean
-        };
-        
-        await createUser(dataForBackend);
+        });
         await fetchUsers();
         
         Swal.fire({
@@ -162,43 +217,41 @@ const Usuarios = () => {
           title: 'Usuario creado',
           text: 'El usuario se ha creado correctamente',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: '#1565C0'
         });
       } catch (error) {
-        const errorMessage = error.response?.data?.message || error.response?.data?.errorDetails || 'No se pudo crear el usuario';
-        
-        const result = await Swal.fire({
+        Swal.fire({
           icon: 'error',
-          title: 'Error de validación',
-          text: errorMessage,
-          showCancelButton: true,
-          confirmButtonText: 'Reintentar',
-          cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#1565C0',
-          cancelButtonColor: '#d33',
+          title: 'Error',
+          text: error.response?.data?.message || 'No se pudo crear el usuario',
+          confirmButtonColor: '#1565C0'
         });
-        
-        if (result.isConfirmed) {
-          handleCreateUser(formValues);
-        }
       }
     }
   };
 
   const handleEditUser = async (user) => {
     const { value: formValues } = await Swal.fire({
-      title: 'Editar Usuario',
+      title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Editar Usuario</h2>',
       html: `
-        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${user.nombre || ''}">
-        <input id="swal-email" class="swal2-input" placeholder="Email" type="email" value="${user.email}">
-        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico" value="${user.numeroTelefonico || ''}">
+        <div style="text-align: left; margin-top: 10px;">
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
+            <input id="swal-nombre" class="swal2-input" value="${user.nombre || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email (@ubiobio.cl)</label>
+            <input id="swal-email" class="swal2-input" type="email" value="${user.email}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Teléfono</label>
+            <input id="swal-phone" class="swal2-input" value="${user.numeroTelefonico || ''}" style="margin: 0 0 15px 0; width: 100%;">
+        </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#1565C0',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#d33', // ROJO
       preConfirm: () => {
         const nombre = document.getElementById('swal-nombre').value;
         const email = document.getElementById('swal-email').value;
@@ -206,6 +259,11 @@ const Usuarios = () => {
 
         if (!nombre || !email || !phone) {
           Swal.showValidationMessage('Por favor completa todos los campos');
+          return false;
+        }
+
+        if (!email.toLowerCase().endsWith('@ubiobio.cl')) {
+          Swal.showValidationMessage('El correo debe ser del dominio @ubiobio.cl');
           return false;
         }
 
@@ -223,13 +281,15 @@ const Usuarios = () => {
           title: 'Usuario actualizado',
           text: 'Los datos del usuario se han actualizado correctamente',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: '#1565C0'
         });
       } catch (error) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: 'No se pudieron actualizar los datos del usuario',
+          confirmButtonColor: '#1565C0'
         });
       }
     }
@@ -240,131 +300,136 @@ const Usuarios = () => {
       try {
         await deleteUser(userId);
         await fetchUsers();
-        
         Swal.fire({
           icon: 'success',
           title: 'Usuario eliminado',
           text: 'El usuario se ha eliminado correctamente',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: '#1565C0'
         });
       } catch (error) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: 'No se pudo eliminar el usuario',
+          confirmButtonColor: '#1565C0'
         });
       }
     });
   };
 
-  if (userRole !== 'admin' && userRole !== 'adminBicicletero') {
-    return null;
-  }
+  if (userRole !== 'admin' && userRole !== 'adminBicicletero') return null;
 
   if (loading) {
-    return (
-      <div className="usuarios-container">
-        <div className="loading">Cargando usuarios...</div>
-      </div>
-    );
+    return <div className="usuarios-container"><div className="loading">Cargando usuarios...</div></div>;
   }
 
   return (
     <div className="usuarios-container">
       <div className="usuarios-header">
         <h1>USUARIOS</h1>
+        <div className="header-filter-actions">
+           {filterRole !== 'all' && (
+              <span className="filter-badge">
+                 {getRoleLabel(filterRole)}
+                 <IoCloseCircle 
+                    size={18} 
+                    className="filter-close-icon"
+                    onClick={clearFilter}
+                    title="Quitar filtro"
+                 />
+              </span>
+           )}
+           <button 
+             className="btn-filter-icon" 
+             onClick={handleFilterClick} 
+             title="Filtrar Usuarios"
+           >
+             <IoFilterCircle size={45} />
+           </button>
+        </div>
       </div>
 
-      <div className="usuarios-table-wrapper">
-        <table className="usuarios-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Numero Telefonico</th>
-              <th>Rol</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
+      <div className="usuarios-wrapper-table">
+        <div className="table-scroll-container">
+          <table className="usuarios-table">
+            <thead>
               <tr>
-                <td colSpan="5" className="no-data">No hay usuarios registrados</td>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Numero Telefonico</th>
+                <th>Rol</th>
               </tr>
-            ) : (
-              users.map((user) => (
-                <tr 
-                  key={user.id}
-                  className={selectedUserId === user.id ? 'selected-row' : ''}
-                  onClick={() => setSelectedUserId(user.id)}
-                >
-                  <td>{user.id}</td>
-                  <td>{user.nombre || 'N/A'}</td>
-                  <td>{user.email}</td>
-                  <td>{formatPhoneNumber(user.numeroTelefonico)}</td>
-                  <td>
-                    <select
-                      className="role-select"
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, user.role, e.target.value)}
-                    >
-                      {roles.map((role) => (
-                        <option key={role} value={role}>
-                          {getRoleLabel(role)}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="no-data">No hay usuarios encontrados</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr 
+                    key={user.id}
+                    className={selectedUserId === user.id ? 'selected-row' : ''}
+                    onClick={() => setSelectedUserId(user.id)}
+                  >
+                    <td>{user.nombre || 'N/A'}</td>
+                    <td>{user.email}</td>
+                    <td>{formatPhoneNumber(user.numeroTelefonico)}</td>
+                    <td>
+                      <select
+                        className="role-select"
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.id, user.role, e.target.value)}
+                        onClick={(e) => e.stopPropagation()} 
+                      >
+                        {roles.map((role) => (
+                          <option key={role} value={role}>
+                            {getRoleLabel(role)}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="usuarios-actions">
-        <button className="btn-action btn-crear" onClick={handleCreateUser}>
-          Crear Usuario
+        <button className="btn-action btn-crear" onClick={() => handleCreateUser()}>
+          <FaUser size={16} />
+          <span>Crear Usuario</span>
         </button>
+
         <button className={`btn-action btn-editar ${selectedUserId ? 'btn-editar-active' : ''}`} onClick={() => {
-          if (users.length === 0) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Sin usuarios',
-              text: 'No hay usuarios para editar',
-            });
+          if (filteredUsers.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Sin usuarios', text: 'No hay usuarios para editar' });
           } else if (!selectedUserId) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Selecciona un usuario',
-              text: 'Por favor, selecciona un usuario de la tabla para editarlo',
-            });
+            Swal.fire({ icon: 'info', title: 'Selecciona un usuario', text: 'Selecciona un usuario de la tabla' });
           } else {
             const user = users.find(u => u.id === selectedUserId);
             handleEditUser(user);
           }
         }}>
-          Editar Datos
+          <FaPencilAlt size={16} />
+          <span>Editar Datos</span>
         </button>
+
         <button className={`btn-action btn-eliminar ${selectedUserId ? 'btn-eliminar-active' : ''}`} onClick={() => {
-          if (users.length === 0) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Sin usuarios',
-              text: 'No hay usuarios para eliminar',
-            });
+          if (filteredUsers.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Sin usuarios', text: 'No hay usuarios para eliminar' });
           } else if (!selectedUserId) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Selecciona un usuario',
-              text: 'Por favor, selecciona un usuario de la tabla para eliminarlo',
-            });
+            Swal.fire({ icon: 'info', title: 'Selecciona un usuario', text: 'Selecciona un usuario de la tabla' });
           } else {
             handleDeleteUser(selectedUserId);
           }
         }}>
-          Eliminar Usuario
+          <MdDelete size={18} />
+          <span>Eliminar Usuario</span>
         </button>
       </div>
     </div>

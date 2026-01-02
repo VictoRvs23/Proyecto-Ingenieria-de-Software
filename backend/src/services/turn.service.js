@@ -28,7 +28,7 @@ export async function getTurnByUserId(userId) {
   }
 }
 
-export async function createOrUpdateTurn(userId, bicicletero, jornada) {
+export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_salida) {
   try {
     const user = await userRepository.findOne({
       where: { id: userId },
@@ -42,21 +42,32 @@ export async function createOrUpdateTurn(userId, bicicletero, jornada) {
       throw new Error("Solo se pueden asignar turnos a guardias");
     }
 
-    if (bicicletero && jornada) {
-      const existingTurn = await turnRepository.findOne({
-        where: { 
-          bicicletero, 
-          jornada 
-        },
+    
+    if ((hora_inicio || hora_salida) && (!hora_inicio || !hora_salida)) {
+      throw new Error("Debe ingresar tanto hora de inicio como hora de salida");
+    }
+
+    if (bicicletero && hora_inicio && hora_salida) {
+      
+      const existingTurns = await turnRepository.find({
+        where: { bicicletero },
       });
       
-      if (existingTurn && existingTurn.user_id !== userId) {
-        const conflictUser = await userRepository.findOne({
-          where: { id: existingTurn.user_id },
-        });
-        throw new Error(
-          `El guardia ${conflictUser.nombre} ya tiene asignado el turno de ${jornada} en el bicicletero ${bicicletero}. Solo un guardia puede tener ese turno.`
-        );
+      for (const existingTurn of existingTurns) {
+        if (existingTurn.user_id !== userId && existingTurn.hora_inicio && existingTurn.hora_salida) {
+          const existingStart = existingTurn.hora_inicio;
+          const existingEnd = existingTurn.hora_salida;
+          
+          
+          if (horariosSeSuperponen(hora_inicio, hora_salida, existingStart, existingEnd)) {
+            const conflictUser = await userRepository.findOne({
+              where: { id: existingTurn.user_id },
+            });
+            throw new Error(
+              `El guardia ${conflictUser.nombre} tiene el mismo turno ${hora_inicio} - ${hora_salida} en el bicicletero ${bicicletero}. Los horarios no pueden ser iguales.`
+            );
+          }
+        }
       }
     }
 
@@ -66,14 +77,16 @@ export async function createOrUpdateTurn(userId, bicicletero, jornada) {
 
     if (turn) {
       turn.bicicletero = bicicletero || null;
-      turn.jornada = jornada || null;
+      turn.hora_inicio = hora_inicio || null;
+      turn.hora_salida = hora_salida || null;
       await turnRepository.save(turn);
       return turn;
     } else {
       const newTurn = turnRepository.create({
         user_id: userId,
         bicicletero: bicicletero || null,
-        jornada: jornada || null,
+        hora_inicio: hora_inicio || null,
+        hora_salida: hora_salida || null,
       });
       await turnRepository.save(newTurn);
       return newTurn;
@@ -81,6 +94,23 @@ export async function createOrUpdateTurn(userId, bicicletero, jornada) {
   } catch (error) {
     throw error;
   }
+}
+
+
+function horariosSeSuperponen(inicio1, fin1, inicio2, fin2) {
+  
+  const toMinutes = (timeStr) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  
+  const start1 = toMinutes(inicio1);
+  const end1 = toMinutes(fin1);
+  const start2 = toMinutes(inicio2);
+  const end2 = toMinutes(fin2);
+  
+  
+  return start1 < end2 && start2 < end1;
 }
 
 export async function deleteTurn(userId) {
@@ -105,29 +135,13 @@ export async function updateMultipleTurns(turnsData) {
     const results = [];
     const errors = [];
     
-    const turnosConDatos = turnsData.filter(t => t.bicicletero && t.jornada);
-    
-    for (let i = 0; i < turnosConDatos.length; i++) {
-      for (let j = i + 1; j < turnosConDatos.length; j++) {
-        if (
-          turnosConDatos[i].bicicletero === turnosConDatos[j].bicicletero &&
-          turnosConDatos[i].jornada === turnosConDatos[j].jornada
-        ) {
-          const user1 = await userRepository.findOne({ where: { id: turnosConDatos[i].userId } });
-          const user2 = await userRepository.findOne({ where: { id: turnosConDatos[j].userId } });
-          throw new Error(
-            `Conflicto: ${user1?.nombre || 'Usuario'} y ${user2?.nombre || 'Usuario'} tienen el mismo turno asignado: ${turnosConDatos[i].jornada} en bicicletero ${turnosConDatos[i].bicicletero}`
-          );
-        }
-      }
-    }
-    
     for (const turnData of turnsData) {
       try {
         const turn = await createOrUpdateTurn(
           turnData.userId,
           turnData.bicicletero,
-          turnData.jornada
+          turnData.hora_inicio,
+          turnData.hora_salida
         );
         results.push(turn);
       } catch (error) {
@@ -145,5 +159,72 @@ export async function updateMultipleTurns(turnsData) {
     return results;
   } catch (error) {
     throw error;
+  }
+}
+
+export async function getGuardTurnWithReplacement(userId) {
+  try {
+    // Obtener el turno del guardia actual
+    const currentGuardTurn = await turnRepository.findOne({
+      where: { user_id: userId },
+      relations: ['user'],
+    });
+
+    if (!currentGuardTurn) {
+      return {
+        currentTurn: null,
+        replacementTurn: null,
+      };
+    }
+
+    // Si no tiene bicicletero o horarios asignados, no hay reemplazo
+    if (!currentGuardTurn.bicicletero || !currentGuardTurn.hora_inicio || !currentGuardTurn.hora_salida) {
+      return {
+        currentTurn: currentGuardTurn,
+        replacementTurn: null,
+      };
+    }
+
+    // Obtener todos los turnos en el mismo bicicletero
+    const allTurnsInBicicletero = await turnRepository.find({
+      where: { bicicletero: currentGuardTurn.bicicletero },
+      relations: ['user'],
+    });
+
+    // Filtrar turnos válidos (que tengan hora_inicio y hora_salida)
+    const validTurns = allTurnsInBicicletero.filter(
+      turn => turn.hora_inicio && turn.hora_salida && turn.user_id !== userId
+    );
+
+    // Convertir tiempo a minutos para comparación
+    const toMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const currentEndMinutes = toMinutes(currentGuardTurn.hora_salida);
+
+    // Buscar el turno que comienza más tarde después del turno actual
+    let replacementTurn = null;
+    let earliestReplacementTime = Infinity;
+
+    for (const turn of validTurns) {
+      const turnStartMinutes = toMinutes(turn.hora_inicio);
+      
+      // El turno de reemplazo debe comenzar después o en el mismo momento que termina el turno actual
+      if (turnStartMinutes >= currentEndMinutes) {
+        if (turnStartMinutes < earliestReplacementTime) {
+          earliestReplacementTime = turnStartMinutes;
+          replacementTurn = turn;
+        }
+      }
+    }
+
+    return {
+      currentTurn: currentGuardTurn,
+      replacementTurn: replacementTurn,
+    };
+  } catch (error) {
+    throw new Error(`Error al obtener turno del guardia con reemplazo: ${error.message}`);
   }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/sidebar.css'; 
-import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt, FaUsers } from 'react-icons/fa';
+import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt, FaUsers, FaClipboardList, FaQuestionCircle } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -45,13 +45,17 @@ const Sidebar = () => {
         <Link to="/home/bicicletero" className="menu-item">
           <FaBicycle className="icon" /> Bicicletero
         </Link>
+
+        <Link to="/home/reportes" className="menu-item">
+          <FaClipboardList className="icon" /> Reportes
+        </Link>
+
+        <Link to="/home/consultas" className="menu-item">
+          <FaQuestionCircle className="icon" /> Consultas
+        </Link>
         {showAdminModules && (
           <>
             <div style={{ margin: '10px 20px', borderTop: '1px solid rgba(255,255,255,0.3)' }}></div>
-            
-            <Link to="/home/informes" className="menu-item">
-              <FaFileAlt className="icon" /> Informes
-            </Link>
             
             <Link to="/home/turnos" className="menu-item">
               <FaClock className="icon" /> Turnos

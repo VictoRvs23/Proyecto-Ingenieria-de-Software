@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import { FaPlus, FaMinus } from 'react-icons/fa'; 
+import { MdEditSquare } from "react-icons/md"; 
 import '../styles/profile.css';
 import { getBikes, deleteBike, updateBikeImage, updateBike } from '../services/bike.service';
 import { getPrivateProfile, updatePrivateProfile } from '../services/profile.service'; 
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import { IoCameraReverseSharp } from "react-icons/io5";
+import { GrBike } from "react-icons/gr";
 
 const SERVER_URL = "http://localhost:3000"; 
 
@@ -91,6 +94,20 @@ const Profile = () => {
           setBikesList(formattedBikes);
       }
     } catch (error) {
+      console.error(error);
+      if (error.response && error.response.status === 401) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sesión Caducada',
+          text: 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.',
+          confirmButtonText: 'Ir al Login',
+          confirmButtonColor: '#1565C0',
+          allowOutsideClick: false
+        }).then(() => {
+          localStorage.clear(); 
+          navigate('/login');
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -106,20 +123,25 @@ const Profile = () => {
     }
     
     const { value: formValues } = await Swal.fire({
-      title: 'Editar Información',
+      title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Editar Información</h2>',
       html: `
-        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${userData.name || ''}">
-        <input id="swal-phone" class="swal2-input" placeholder="Número Telefónico (8 dígitos)" value="${phoneForEditing}" maxlength="8">
-        <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">
-          Ingresa 8 dígitos (el 9 inicial se agregará automáticamente)
-        </small>
+        <div style="text-align: left; margin-top: 10px;">
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
+            <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${userData.name || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Teléfono (8 dígitos)</label>
+            <input id="swal-phone" class="swal2-input" placeholder="12345678" value="${phoneForEditing}" maxlength="8" style="margin: 0 0 5px 0; width: 100%;">
+            <small style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">
+              * El prefijo 9 se agrega automáticamente.
+            </small>
+        </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#1565C0',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#1565C0', 
+      cancelButtonColor: '#d33', 
       preConfirm: () => {
         const nombre = document.getElementById('swal-nombre').value;
         const phone = document.getElementById('swal-phone').value;
@@ -158,7 +180,8 @@ const Profile = () => {
           title: 'Información actualizada',
           text: 'Tus datos se han actualizado correctamente',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: '#1565C0'
         });
         
         await fetchData();
@@ -168,7 +191,8 @@ const Profile = () => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: errorMessage
+          text: errorMessage,
+          confirmButtonColor: '#1565C0'
         });
       }
     }
@@ -176,29 +200,31 @@ const Profile = () => {
 
   const handleEditBike = async () => {
     if (!hasBikes) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Sin bicicletas',
-        text: 'No tienes bicicletas para editar',
-      });
       return;
     }
 
     const currentBike = bikesList[currentBikeIndex];
     
     const { value: formValues } = await Swal.fire({
-      title: 'Editar Bicicleta',
+      title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Editar Bicicleta</h2>',
       html: `
-        <input id="swal-brand" class="swal2-input" placeholder="Marca" value="${currentBike.brand || ''}">
-        <input id="swal-model" class="swal2-input" placeholder="Modelo" value="${currentBike.model || ''}">
-        <input id="swal-color" class="swal2-input" placeholder="Color" value="${currentBike.color || ''}">
+        <div style="text-align: left; margin-top: 10px;">
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Marca</label>
+            <input id="swal-brand" class="swal2-input" placeholder="Ej: Trek" value="${currentBike.brand || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Modelo</label>
+            <input id="swal-model" class="swal2-input" placeholder="Ej: Marlin 5" value="${currentBike.model || ''}" style="margin: 0 0 15px 0; width: 100%;">
+            
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Color</label>
+            <input id="swal-color" class="swal2-input" placeholder="Ej: Rojo" value="${currentBike.color || ''}" style="margin: 0 0 15px 0; width: 100%;">
+        </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#1565C0',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#1565C0', 
+      cancelButtonColor: '#d33', 
       preConfirm: () => {
         const brand = document.getElementById('swal-brand').value;
         const model = document.getElementById('swal-model').value;
@@ -222,7 +248,8 @@ const Profile = () => {
           title: 'Bicicleta actualizada',
           text: 'Los datos de la bicicleta se han actualizado correctamente',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: '#1565C0'
         });
         
         await fetchData();
@@ -232,7 +259,8 @@ const Profile = () => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: errorMessage
+          text: errorMessage,
+          confirmButtonColor: '#1565C0'
         });
       }
     }
@@ -247,8 +275,8 @@ const Profile = () => {
       text: `¿Deseas eliminar la bicicleta ${bikeToDelete.brand} ${bikeToDelete.model}?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#d33', 
+      cancelButtonColor: '#6c757d', 
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     });
@@ -263,9 +291,9 @@ const Profile = () => {
             text: 'La bicicleta ha sido eliminada.',
             icon: 'success',
             timer: 1500,
-            showConfirmButton: false
+            showConfirmButton: false,
+            confirmButtonColor: '#1565C0'
           });
-
 
           if (currentBikeIndex >= bikesList.length - 1) {
             setCurrentBikeIndex(Math.max(0, bikesList.length - 2));
@@ -277,7 +305,8 @@ const Profile = () => {
         Swal.fire({
           title: 'Error',
           text: 'No se pudo eliminar la bicicleta.',
-          icon: 'error'
+          icon: 'error',
+          confirmButtonColor: '#1565C0'
         });
       }
     }
@@ -294,7 +323,6 @@ const Profile = () => {
     try {
         if (type === 'user') {
             const response = await updatePrivateProfile(formData);
-            
             setImageKey(Date.now());
             
             await Swal.fire({ 
@@ -306,13 +334,10 @@ const Profile = () => {
             });
 
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
             await fetchData();
         } else if (type === 'bike') {
             const bikeToUpdate = bikesList[currentBikeIndex];
-            if (!bikeToUpdate) {
-              return;
-            }
+            if (!bikeToUpdate) return;
             
             const currentBikeId = bikeToUpdate.id;
             const currentOrder = bikesList.map(b => b.id);
@@ -369,7 +394,8 @@ const Profile = () => {
         await Swal.fire({ 
             title: 'Error de actualización', 
             text: serverMessage || fallbackMessage, 
-            icon: 'error' 
+            icon: 'error',
+            confirmButtonColor: '#1565C0'
         });
         
         await fetchData();
@@ -392,13 +418,23 @@ const Profile = () => {
         <ProfileCard 
           key={`user-profile-${imageKey}`}
           image={userData.image}
-          btnText="Cambiar Foto de Perfil"
+          btnText={
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <IoCameraReverseSharp size={18} /> 
+              Cambiar Foto de Perfil
+            </span>
+          }
           infoList={[
             `Rol: ${userData.role.toUpperCase()}`, 
             `Nombre: ${userData.name}`, 
             `Email: ${userData.email}`, 
             `Tel: ${formatPhoneNumber(userData.phone)}`
           ]}
+          topIcons={
+            <button className="float-icon pos-top-right" onClick={handleEditUserInfo} title="Editar Información">
+                <MdEditSquare />
+            </button>
+          }
           onImageChange={(preview, file) => handleImageUpdate('user', preview, file)}
         />
 
@@ -406,25 +442,36 @@ const Profile = () => {
           {!hasBikes && (
             <div className="bike-overlay">
               <button className="save-changes-btn" onClick={handleAddBike}>
-                Agregar bicicleta
+                <GrBike size={20} />
+                <span>Agregar bicicleta</span>
               </button>
             </div>
           )}
 
           <ProfileCard 
             image={hasBikes ? bikesList[currentBikeIndex].image : defaultBikeImg}
-            btnText={hasBikes ? "Cambiar Foto de Bicicleta" : ""} 
+            btnText={hasBikes ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <IoCameraReverseSharp size={18} />
+                Cambiar Foto de Bicicleta
+              </span>
+              ): ""
+            }
             infoList={bikeInfoList} 
             topIcons={hasBikes ? (
               <>
-                <button className="float-icon left" onClick={handleAddBike} title="Agregar otra">
+                <button className="float-icon pos-bottom-left" onClick={handleAddBike} title="Agregar otra">
                     <FaPlus />
                 </button>
-                <button className="float-icon right" onClick={handleDeleteBike} title="Eliminar actual">
+                <button className="float-icon pos-top-right" onClick={handleEditBike} title="Editar Bicicleta">
+                    <MdEditSquare />
+                </button>
+                <button className="float-icon pos-bottom-right" onClick={handleDeleteBike} title="Eliminar actual">
                     <FaMinus />
                 </button>
               </>
             ) : null}
+            
             showDots={bikesList.length > 1}
             totalItems={bikesList.length}
             currentIndex={currentBikeIndex}
@@ -432,17 +479,6 @@ const Profile = () => {
             onImageChange={(preview, file) => handleImageUpdate('bike', preview, file)}
           />
         </div>
-      </div>
-
-      <div className="profile-actions">
-        <button className="btn-edit-profile" onClick={handleEditUserInfo}>
-          Editar Información
-        </button>
-        {hasBikes && (
-          <button className="btn-edit-profile" onClick={handleEditBike}>
-            Editar Bicicleta
-          </button>
-        )}
       </div>
     </div>
   );

@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/bicicleta.css';
 import { createBike, updateBikeImage } from '../services/bike.service';
 import Swal from 'sweetalert2';
+import { FaArrowLeft } from 'react-icons/fa'; 
+import { IoCameraSharp } from "react-icons/io5"; 
+import { GrBike } from "react-icons/gr";         
 
 const AgregarBicicleta = () => {
   const navigate = useNavigate();
@@ -62,9 +65,9 @@ const AgregarBicicleta = () => {
           try {
             await updateBikeImage(newBikeId, imageFormData);
           } catch (imageError) {
+            console.error("Error subiendo imagen", imageError);
           }
         }
-      } else {
       }
         
       await Swal.fire({
@@ -88,7 +91,14 @@ const AgregarBicicleta = () => {
   return (
     <div id="seccion-agregar-bici">
       <div className="main-content-bici">
-        <h1 className="main-title-bici">AGREGAR BICICLETA</h1>
+        
+        
+        <div className="bici-header">
+            <button className="btn-back" onClick={() => navigate('/home/profile')}>
+                <FaArrowLeft />
+            </button>
+            <h1 className="main-title-bici">AGREGAR BICICLETA</h1>
+        </div>
 
         <div className="panels-container-bici">
             <div className="panel-box-bici">
@@ -109,7 +119,8 @@ const AgregarBicicleta = () => {
                 />
 
                 <button className="btn-azul-bici" onClick={handleImageClick}>
-                    Agregar Imagen <br /> de Bicicleta
+                    <IoCameraSharp size={24} />
+                    <span style={{textAlign: 'center'}}>Agregar Imagen <br /> de Bicicleta</span>
                 </button>
             </div>
 
@@ -161,7 +172,8 @@ const AgregarBicicleta = () => {
                     </select>
                 </div>
                 <button className="btn-verde-bici" onClick={handleSubmit}>
-                    Agregar Bicicleta
+                    <GrBike size={24} style={{ color: 'white' }} />
+                    <span>Agregar Bicicleta</span>
                 </button>
             </div>
         </div>

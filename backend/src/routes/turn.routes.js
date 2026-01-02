@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { isGuard } from "../middleware/guard.middleware.js";
 import {
   getTurns,
   getTurnByUser,
   updateTurn,
   removeTurn,
   updateTurnsInBatch,
+  getGuardTurnWithReplacementInfo,
 } from "../controllers/turn.controller.js";
 
 const router = Router();
@@ -23,6 +25,8 @@ function allowRoles(...roles) {
 }
 
 router.get("/", authMiddleware, allowRoles("admin", "adminBicicletero"), getTurns);
+
+router.get("/guard/current-with-replacement", authMiddleware, isGuard, getGuardTurnWithReplacementInfo);
 
 router.get("/:userId", authMiddleware, getTurnByUser);
 

@@ -14,10 +14,6 @@ export const Bicicletero = new EntitySchema({
       nullable: false,
       default: 15,
     },
-    disabledSpaces: {
-      type: "simple-array",
-      nullable: true,
-    },
     created_at: {
       type: "timestamp",
       createDate: true,

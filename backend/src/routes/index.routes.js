@@ -7,6 +7,9 @@ import bikeRoutes from "./bike.routes.js";
 import bicicleteroRoutes from "./bicicletero.routes.js";
 import informRoutes from "./inform.routes.js";
 import turnRoutes from "./turn.routes.js";
+import userRoutes from "./user.routes.js";
+import reporteRoutes from "./reporte.routes.js";
+import consultaRoutes from "./consulta.routes.js";
 
 export function routerApi(app) {
 
@@ -21,6 +24,9 @@ export function routerApi(app) {
   router.use("/bicicletero", bicicleteroRoutes);
   router.use("/informs", informRoutes);
   router.use("/turnos", turnRoutes);
+  router.use("/reportes", reporteRoutes);
+  router.use("/consultas", consultaRoutes);
+  router.use("/users", userRoutes);
 }
 
 

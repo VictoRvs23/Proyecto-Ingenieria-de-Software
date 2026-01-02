@@ -28,7 +28,7 @@ const Register = () => {
       name: "email",
       label: "Email",
       type: "email",
-      placeholder: "correo@ejemplo.com",
+      placeholder: "ejemplo@ubiobio.cl",
       required: true
     },
     {
@@ -42,6 +42,17 @@ const Register = () => {
 
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
+
+    if (!data.email.toLowerCase().endsWith('@ubiobio.cl')) {
+        await Swal.fire({
+            icon: 'error',
+            title: 'Correo Inválido',
+            text: 'Debes utilizar un correo institucional @ubiobio.cl',
+            confirmButtonColor: '#d33'
+        });
+        setLoading(false);
+        return;
+    }
 
     try {
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";

@@ -59,4 +59,9 @@ export const User = new EntitySchema({
       inverseSide: "user",
     },
   },
+  reportes: {
+      type: "one-to-many",
+      target: "Reporte",
+      inverseSide: "user",
+    },
 });

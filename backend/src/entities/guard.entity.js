@@ -21,7 +21,8 @@ export const Guard = new EntitySchema({
       nullable: false,
     },
     bicicletero: {
-        type: "int",
+        type: "varchar",
+        length: 10,
         nullable: false,
     },
     turn: {
@@ -38,13 +39,6 @@ export const Guard = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
-    },
-  },
-  relations: {
-    informs: {
-      type: "one-to-many",
-      target: "Inform",
-      inverseSide: "guard",
     },
   },
 });

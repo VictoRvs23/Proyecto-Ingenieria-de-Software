@@ -33,8 +33,12 @@ const Espacios = () => {
     
     const interval = setInterval(() => {
       loadEspacios();
+<<<<<<< HEAD
     }, 10000);
     
+=======
+    }, 5000);
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
     return () => clearInterval(interval);
   }, [id]);
 
@@ -86,12 +90,14 @@ const Espacios = () => {
         const numeroEspacio = i + 1;
         const bikeEnEspacio = bicicletero.bikes?.find(bike => bike.space === numeroEspacio);
         const isMarkedOccupied = disabledSpaces.includes(numeroEspacio) || disabledSpaces.includes(String(numeroEspacio));
-        
         let estado = 'disponible';
+<<<<<<< HEAD
+=======
+        const hasReserve = bikeEnEspacio ? true : false;
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
         if (bikeEnEspacio || isMarkedOccupied) {
           estado = 'ocupado';
         }
-        
         return {
           numero: numeroEspacio,
           estado,
@@ -102,6 +108,21 @@ const Espacios = () => {
       });
       setEspacios(espaciosArray);
       setLoading(false);
+<<<<<<< HEAD
+=======
+      if (userRole === 'user') {
+        try {
+          const misReservas = await getReserves();
+          const tieneReserva = misReservas.data?.some(r => 
+            r.bicicletero_number === parseInt(id) && 
+            (r.estado === 'solicitada' || r.estado === 'ingresada')
+          );
+          setHasActiveReserve(tieneReserva || false);
+        } catch {
+          setHasActiveReserve(false);
+        }
+      }
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
     } catch (error) {
       console.error('Error cargando espacios:', error);
       const espaciosDefault = Array.from({ length: 15 }, (_, i) => ({
@@ -117,10 +138,16 @@ const Espacios = () => {
   };
 
   const handleSpaceClick = async (espacio) => {
+<<<<<<< HEAD
     const isStaff = ["admin","adminBicicletero", "guard"].includes(userRole);
     
     if (isStaff) {
       await handleStaffSpaceAction(espacio);
+=======
+    const canModify = ['guard', 'admin', 'adminbicicletero'].includes(userRole);
+    if (canModify) {
+      setSelectedSpace(espacio);
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
     } else if (userRole === 'user' && espacio.estado === 'disponible') {
       if (userBikes.length === 0) {
         showErrorAlert('No tienes bicicletas registradas. Regístra una bicicleta en tu perfil primero.');
@@ -131,6 +158,7 @@ const Espacios = () => {
     }
   };
 
+<<<<<<< HEAD
   const handleStaffSpaceAction = async (espacio) => {
     setSelectedSpace(espacio);
     
@@ -270,6 +298,21 @@ const Espacios = () => {
       
       await Swal.fire({
         title: '¡Reserva Creada!',
+=======
+  const handleUserReserve = async (espacio) => {
+    try {
+      const response = await getBikes();
+      const misBicis = response.data || [];
+      if (misBicis.length === 0) {
+        showErrorAlert('No tienes bicicletas registradas. Regístralas en tu perfil primero.');
+        return;
+      }
+      const bikeOptions = misBicis.map(bike => 
+        `<option value="${bike.id}">${bike.brand} - ${bike.model} (${bike.color})</option>`
+      ).join('');
+      const { value: bikeId } = await Swal.fire({
+        title: `Reservar Espacio ${espacio.numero}`,
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
         html: `
           <div style="text-align: center; padding: 20px;">
             <p style="font-size: 18px; margin-bottom: 20px;">Tu reserva ha sido creada exitosamente.</p>
@@ -289,6 +332,7 @@ const Espacios = () => {
         confirmButtonColor: '#2b74ad',
         width: 600
       });
+<<<<<<< HEAD
 
       setShowReserveModal(false);
       setSelectedBike('');
@@ -296,11 +340,49 @@ const Espacios = () => {
       await loadEspacios();
       await loadUserReserves();
 
+=======
+      if (bikeId) {
+        const misReservas = await getReserves();
+        const reservaExistente = misReservas.data?.find(r => 
+          r.bicicletero_number === parseInt(id) && 
+          (r.estado === 'solicitada' || r.estado === 'ingresada')
+        );
+        if (reservaExistente) {
+          await Swal.fire({
+            title: 'Ya tienes una reserva activa',
+            html: `
+              <div style="text-align: center; padding: 20px;">
+                <p style="font-size: 16px; margin-bottom: 20px;">Tu token es:</p>
+                <div style="background: #2b74ad; color: white; padding: 30px; border-radius: 10px; font-size: 48px; font-weight: bold; letter-spacing: 10px;">
+                  ${reservaExistente.token}
+                </div>
+                <p style="margin-top: 20px; color: #666;">
+                  Estado: <strong>${reservaExistente.estado}</strong>
+                </p>
+              </div>
+            `,
+            icon: 'info',
+            confirmButtonColor: '#2b74ad'
+          });
+          return;
+        }
+        const reservaData = {
+          bike_id: parseInt(bikeId),
+          bicicletero_number: parseInt(id)
+        };
+        const result = await createReserve(reservaData);
+        setTimeout(() => {
+          loadEspacios();
+        }, 300);
+        showSuccessAlert(`Reserva creada exitosamente. Tu token es: ${result.data?.token || result.token}`);
+      }
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
     } catch (error) {
       showErrorAlert(error.message || 'Error al crear la reserva');
     }
   };
 
+<<<<<<< HEAD
   const handleShowUserTokens = async () => {
     try {
       await loadUserReserves();
@@ -308,6 +390,39 @@ const Espacios = () => {
       if (userReserves.length === 0) {
         showErrorAlert('No tienes reservas activas');
         return;
+=======
+  const handleToggleSpace = async (markOccupied) => {
+    if (!selectedSpace) return;
+    try {
+      await toggleSpaceStatus(id, selectedSpace.numero, markOccupied);
+      await loadEspacios();
+      setSelectedSpace(null);
+      showSuccessAlert(markOccupied ? 'Espacio marcado como ocupado' : 'Espacio liberado');
+    } catch (error) {
+      showErrorAlert(error.message || 'Error al cambiar estado del espacio');
+    }
+  };
+
+  const handleLiberarEspacio = async () => {
+    if (!selectedSpace) return;
+    try {
+      if (selectedSpace.hasReserve && selectedSpace.bike && selectedSpace.bike.id) {
+        const reservas = await getReserves();
+        const reserva = reservas.data?.find(r =>
+          r.bicicletero_number === parseInt(id) &&
+          r.bike_id === selectedSpace.bike.id &&
+          (r.estado === 'solicitada' || r.estado === 'ingresada')
+        );
+        if (reserva) {
+          await fetch(`/api/reserve/${reserva.token}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
+            }
+          });
+        }
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
       }
 
       const reservesHtml = userReserves.map(reserve => `
@@ -355,7 +470,6 @@ const Espacios = () => {
         r.bicicletero_number === parseInt(id) && 
         (r.estado === 'solicitada' || r.estado === 'ingresada')
       );
-      
       if (reservaActiva) {
         await Swal.fire({
           title: 'Tu Token de Retiro',
@@ -395,7 +509,6 @@ const Espacios = () => {
       <button className="back-button" onClick={() => navigate('/home/bicicletero')}>
         <FaArrowLeft />
       </button>
-      
       <div className="espacios-header">
         <h1 className="espacios-title">BICICLETERO #{id}</h1>
         
@@ -420,7 +533,6 @@ const Espacios = () => {
           </div>
         )}
       </div>
-
       {loading ? (
         <div className="loading-message">
           <FaSpinner className="spinner" /> Cargando espacios...
@@ -452,6 +564,7 @@ const Espacios = () => {
               ))}
             </div>
           </div>
+<<<<<<< HEAD
 
           {/* Modal para crear reserva (usuarios) */}
           {showReserveModal && userRole === 'user' && (
@@ -528,6 +641,31 @@ const Espacios = () => {
               </p>
             ) : null}
           </div>
+=======
+          {['guard', 'admin', 'adminBicicletero'].includes(userRole) && selectedSpace && (
+            <div className="space-actions">
+              {selectedSpace.estado === 'ocupado' ? (
+                <button className="action-button enable-button" onClick={handleLiberarEspacio}>
+                  Liberar Espacio {selectedSpace.numero}
+                </button>
+              ) : selectedSpace.estado === 'disponible' ? (
+                <button className="action-button disable-button" onClick={() => handleToggleSpace(true)}>
+                  Marcar como Ocupado {selectedSpace.numero}
+                </button>
+              ) : null}
+              <button className="action-button cancel-button" onClick={() => setSelectedSpace(null)}>
+                Cancelar
+              </button>
+            </div>
+          )}
+          {userRole === 'user' && hasActiveReserve && (
+            <div className="usuarios-actions">
+              <button className="btn-action btn-retirar" onClick={handleMostrarToken}>
+                Obtener Token
+              </button>
+            </div>
+          )}
+>>>>>>> 58d2288d0cc955db2856187afc9c34d829e4f623
         </>
       )}
     </div>
