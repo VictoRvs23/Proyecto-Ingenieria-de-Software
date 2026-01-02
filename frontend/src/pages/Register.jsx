@@ -43,11 +43,8 @@ const Register = () => {
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
 
-    // --- NUEVA VALIDACIÓN DE DOMINIOS ---
     const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
     const emailLower = data.email.toLowerCase();
-    
-    // Verificamos si el correo termina con alguno de los dominios permitidos
     const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
 
     if (!isValidDomain) {
@@ -60,7 +57,6 @@ const Register = () => {
         setLoading(false);
         return;
     }
-    // ------------------------------------
 
     try {
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";
@@ -89,7 +85,6 @@ const Register = () => {
             return;
         }
         
-        // Limpieza de datos antiguos por seguridad
         localStorage.clear();
 
         await Swal.fire({
