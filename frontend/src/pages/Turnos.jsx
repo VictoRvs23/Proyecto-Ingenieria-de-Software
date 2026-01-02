@@ -277,7 +277,7 @@ const Turnos = () => {
                   <h2 className="turno-card-label">Horario de Trabajo</h2>
                   <p className="turno-card-value">
                     {miTurno.hora_inicio && miTurno.hora_salida 
-                      ? `${miTurno.hora_inicio} - ${miTurno.hora_salida}`
+                      ? `${miTurno.hora_inicio.substring(0, 5)} Hrs - ${miTurno.hora_salida.substring(0, 5)} Hrs`
                       : 'Sin asignar'}
                   </p>
                 </div>
@@ -303,7 +303,7 @@ const Turnos = () => {
                     <h2 className="turno-card-label">Horario de Trabajo</h2>
                     <p className="turno-card-value">
                       {replacementTurn.hora_inicio && replacementTurn.hora_salida 
-                        ? `${replacementTurn.hora_inicio} - ${replacementTurn.hora_salida}`
+                        ? `${replacementTurn.hora_inicio.substring(0, 5)} Hrs - ${replacementTurn.hora_salida.substring(0, 5)} Hrs`
                         : 'Sin asignar'}
                     </p>
                   </div>
