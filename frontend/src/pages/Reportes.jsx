@@ -181,52 +181,21 @@ const Reportes = () => {
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Título del Incidente</label>
             <input id="swal-titulo" class="swal2-input" placeholder="Ej: Robo de casco" style="margin: 0 0 15px 0; width: 100%; box-sizing: border-box;">
 
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 8px;">Tipo de problema</label>
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Tipo de problema</label>
             
-            <div class="swal-type-grid">
-                <div class="swal-type-option">
-                    <input type="radio" name="swal-tipo" value="Robo" checked>
-                    <div class="swal-type-label">
-                        <span class="swal-type-icon">🚨</span>
-                        <span>Robo</span>
-                    </div>
-                </div>
-                <div class="swal-type-option">
-                    <input type="radio" name="swal-tipo" value="Daño">
-                    <div class="swal-type-label">
-                        <span class="swal-type-icon">🚲</span>
-                        <span>Daño</span>
-                    </div>
-                </div>
-                <div class="swal-type-option">
-                    <input type="radio" name="swal-tipo" value="Objeto Perdido">
-                    <div class="swal-type-label">
-                        <span class="swal-type-icon">🔍</span>
-                        <span>Perdido</span>
-                    </div>
-                </div>
-                <div class="swal-type-option">
-                    <input type="radio" name="swal-tipo" value="Reclamo/Sugerencia">
-                    <div class="swal-type-label">
-                        <span class="swal-type-icon">🗣️</span>
-                        <span>Reclamo</span>
-                    </div>
-                </div>
-                <div class="swal-type-option">
-                    <input type="radio" name="swal-tipo" value="Otro">
-                    <div class="swal-type-label">
-                        <span class="swal-type-icon">📝</span>
-                        <span>Otro</span>
-                    </div>
-                </div>
-            </div>
+            <select id="swal-tipo" class="swal2-select" style="width: 100%; margin: 0 0 15px 0; display: block; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                <option value="" disabled selected>Selecciona una opción...</option>
+                <option value="Robo">🚨 Robo</option>
+                <option value="Daño">🚲 Daño</option>
+                <option value="Objeto Perdido">🔍 Objeto Perdido</option>
+                <option value="Reclamo/Sugerencia">🗣️ Reclamo/Sugerencia</option>
+                <option value="Otro">📝 Otro</option>
+            </select>
 
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Descripción</label>
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Detalla qué sucedió..." style="margin: 0 0 15px 0; width: 100%; height: 80px; resize: none; border: 1px solid #d9d9d9; box-sizing: border-box;"></textarea>
             
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Evidencia (Opcional)</label>
-            <input type="file" id="swal-img" class="swal2-file" style="font-size: 0.9rem; border: 1px solid #d9d9d9; width: 100%; box-sizing: border-box;">
-        </div>
+            </div>
       `,
       showCancelButton: true,
       confirmButtonText: 'Enviar Reporte',
@@ -238,25 +207,15 @@ const Reportes = () => {
       focusConfirm: false,
       preConfirm: () => {
         const titulo = document.getElementById('swal-titulo').value;
-        const tipoEl = document.querySelector('input[name="swal-tipo"]:checked');
-        const tipo = tipoEl ? tipoEl.value : null;
+        const tipo = document.getElementById('swal-tipo').value; 
         const descripcion = document.getElementById('swal-desc').value;
-        const imagenInput = document.getElementById('swal-img');
 
         if (!titulo || !descripcion || !tipo) {
           Swal.showValidationMessage('Por favor completa todos los campos');
           return false;
         }
 
-        const file = imagenInput.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                Swal.showValidationMessage('El archivo no es una imagen. Por favor sube solo imágenes.');
-                return false;
-            }
-        }
-
-        return { titulo, tipo, descripcion, file: file };
+        return { titulo, tipo, descripcion };
       }
     });
 
@@ -266,7 +225,7 @@ const Reportes = () => {
         formData.append('titulo', formValues.titulo);
         formData.append('tipo', formValues.tipo);
         formData.append('descripcion', formValues.descripcion);
-        if (formValues.file) formData.append('image', formValues.file);
+        // Ya no adjuntamos imagen
 
         await createReport(formData);
         

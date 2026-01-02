@@ -96,7 +96,7 @@
   padding: 2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   position: relative;
-  /* Sin overflow aquí para evitar el bug visual */
+  /* Sin overflow aquí */
 }
 
 .reportes-table {
@@ -314,8 +314,8 @@
 }
 
 .reportes-scroll-area {
-  max-height: 450px;
-  min-height: 450px;
+  max-height: 450px; 
+  min-height: 300px;
   overflow-y: auto;  
   border-radius: 1rem; 
   width: 100%;
