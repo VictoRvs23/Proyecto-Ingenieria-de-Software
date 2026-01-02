@@ -8,6 +8,7 @@ import reserveRoutes from "./reserve.routes.js";
 import userRoutes from "./user.routes.js";
 import reporteRoutes from "./reporte.routes.js";
 import consultaRoutes from "./consulta.routes.js";
+import notificacionRoutes from "./notificacion.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -21,6 +22,7 @@ export function routerApi(app) {
   router.use("/turnos", turnRoutes);
   router.use("/reserve", reserveRoutes);
   router.use("/users", userRoutes);
+  router.use("/notificaciones", notificacionRoutes);
 }
 
 

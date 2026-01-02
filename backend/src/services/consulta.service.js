@@ -1,5 +1,6 @@
 import { AppDataSource } from "../config/configDb.js";
 import { Consulta } from "../entities/consulta.entity.js";
+import { crearNotificacionService, crearNotificacionPorRol } from "./notificacion.service.js";
 
 export const createConsultaService = async (data, userId) => {
   const consultaRepository = AppDataSource.getRepository(Consulta);
@@ -7,7 +8,17 @@ export const createConsultaService = async (data, userId) => {
     ...data,
     user: { id: userId },
   });
-  return await consultaRepository.save(nuevaConsulta);
+  
+  const consultaGuardada = await consultaRepository.save(nuevaConsulta);
+
+  await crearNotificacionPorRol({
+    roles: ['admin', 'adminBicicletero', 'guard'],
+    mensaje: `💬 Nueva consulta recibida: "${data.asunto || 'Sin asunto'}"`,
+    tipo: 'CONSULTA',
+    referenciaId: consultaGuardada.id
+  });
+
+  return consultaGuardada;
 };
 
 export const getAllConsultasService = async () => {
@@ -29,7 +40,10 @@ export const getConsultasByUserService = async (userId) => {
 
 export const updateConsultaStatusService = async (id, estado, respuesta) => {
   const consultaRepository = AppDataSource.getRepository(Consulta);
-  const consulta = await consultaRepository.findOneBy({ id: Number(id) });
+  const consulta = await consultaRepository.findOne({
+    where: { id: Number(id) },
+    relations: ["user"]
+  });
 
   if (!consulta) return null;
 
@@ -39,7 +53,21 @@ export const updateConsultaStatusService = async (id, estado, respuesta) => {
     consulta.respuesta = respuesta;
   }
 
-  return await consultaRepository.save(consulta);
+  const consultaActualizada = await consultaRepository.save(consulta);
+
+  if (consulta.user) {
+    let mensaje = `Tu consulta sobre "${consulta.asunto}" ha cambiado a estado: ${estado}.`;
+    if (respuesta) mensaje += " Te han respondido.";
+
+    await crearNotificacionService({
+      userId: consulta.user.id,
+      mensaje: mensaje,
+      tipo: 'CONSULTA',
+      referenciaId: consulta.id
+    });
+  }
+
+  return consultaActualizada;
 };
 
 export const deleteConsultaService = async (id) => {

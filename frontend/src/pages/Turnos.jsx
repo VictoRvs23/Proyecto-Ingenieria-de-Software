@@ -3,6 +3,7 @@ import { getAllUsers } from '../services/user.service';
 import { getAllTurns, updateMultipleTurns, getTurnByUser, getGuardCurrentTurnWithReplacement } from '../services/turn.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
+import { IoIosSave } from 'react-icons/io';
 
 const Turnos = () => {
   const [guardias, setGuardias] = useState([]);
@@ -386,7 +387,7 @@ const Turnos = () => {
       {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
         <div className="guardar-button-container">
           <button className="guardar-button" onClick={handleGuardarCambios}>
-            💾 Guardar Cambios
+            <IoIosSave /> Guardar Cambios
           </button>
         </div>
       )}
