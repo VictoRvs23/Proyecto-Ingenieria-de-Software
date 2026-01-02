@@ -42,21 +42,25 @@ const Register = () => {
 
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
+
+    // --- NUEVA VALIDACIÓN DE DOMINIOS ---
     const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
     const emailLower = data.email.toLowerCase();
     
+    // Verificamos si el correo termina con alguno de los dominios permitidos
     const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
 
     if (!isValidDomain) {
         await Swal.fire({
             icon: 'error',
             title: 'Correo Inválido',
-            html: 'El correo debe pertenecer a uno de los siguientes dominios:<br><b>@ubiobio.cl, @alumnos.ubiobio.cl, @gmail.com o @gmail.cl</b>',
+            html: 'El correo debe pertenecer a uno de los siguientes dominios:<br><br><b>@ubiobio.cl<br>@alumnos.ubiobio.cl<br>@gmail.com<br>@gmail.cl</b>',
             confirmButtonColor: '#d33'
         });
         setLoading(false);
         return;
     }
+    // ------------------------------------
 
     try {
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";
@@ -85,13 +89,8 @@ const Register = () => {
             return;
         }
         
-        // Limpiamos datos previos
-        localStorage.removeItem("bikeData");
-        localStorage.removeItem("bikeImage");
-        localStorage.removeItem("userImage");
-        localStorage.removeItem("role");
-        localStorage.removeItem("name");
-        localStorage.removeItem("email");
+        // Limpieza de datos antiguos por seguridad
+        localStorage.clear();
 
         await Swal.fire({
             icon: 'success',

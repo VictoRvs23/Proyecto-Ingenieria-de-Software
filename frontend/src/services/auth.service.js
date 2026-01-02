@@ -1,43 +1,31 @@
-import axiosOriginal from 'axios';
+import axios from './root.service.js';
 
-const API_URL = 'http://localhost:3000/api/auth';
-
-export const register = async (userData) => {
+export const login = async (credentials) => {
   try {
-    const response = await axiosOriginal.post(`${API_URL}/register`, userData);
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('user');
+    const response = await axios.post('/auth/login', credentials);
+    
+    if (response.data.data && response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+    }
     return response.data;
   } catch (error) {
-    return {
-      status: "error",
-      message: error.response?.data?.message || "Error al registrarse"
-    };
+    throw error;
   }
 };
 
-export const login = async (userData) => {
-  try {
-    const response = await axiosOriginal.post(`${API_URL}/login`, userData);
-    const loginData = response.data.data; 
-    const token = loginData?.token;
-    const user = loginData?.user;
-
-    if (token) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+export const register = async (data) => {
+    try {
+        const response = await axios.post('/auth/register', data);
+        return response.data;
+    } catch (error) {
+        throw error;
     }
-
-    return response.data;
-  } catch (error) {
-    console.error("Error en login:", error);
-    return {
-      status: "error",
-      message: error.response?.data?.message || "Error al iniciar sesión"
-    };
-  }
 };
 
 export const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login'; 
+    localStorage.clear();
+    window.location.href = '/login';
 };
