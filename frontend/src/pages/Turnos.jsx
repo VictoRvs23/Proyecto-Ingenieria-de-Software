@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers } from '../services/user.service';
-import { getAllTurns, updateMultipleTurns, getTurnByUser } from '../services/turn.service';
+import { getAllTurns, updateMultipleTurns, getTurnByUser, getGuardCurrentTurnWithReplacement } from '../services/turn.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
+import { IoIosSave } from 'react-icons/io';
 
 const Turnos = () => {
   const [guardias, setGuardias] = useState([]);
@@ -10,6 +11,7 @@ const Turnos = () => {
   const [hayCambiosSinGuardar, setHayCambiosSinGuardar] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [replacementTurn, setReplacementTurn] = useState(null);
 
   useEffect(() => {
     const role = localStorage.getItem('role') || sessionStorage.getItem('role');
@@ -40,26 +42,58 @@ const Turnos = () => {
         const userName = localStorage.getItem('nombre') || sessionStorage.getItem('nombre') || 'Guardia';
         const userEmail = localStorage.getItem('email') || sessionStorage.getItem('email') || '';
         
-        let turnoGuardia = { bicicletero: '', jornada: '' };
+        let turnoGuardia = { bicicletero: '', hora_inicio: '', hora_salida: '' };
+        let reemplazante = null;
+        
         try {
-          const turnoResponse = await getTurnByUser(userId);
-          if (turnoResponse.data) {
-            turnoGuardia = {
-              bicicletero: turnoResponse.data.bicicletero || '',
-              jornada: turnoResponse.data.jornada || ''
-            };
+          const response = await getGuardCurrentTurnWithReplacement();
+          if (response.data) {
+            const { currentTurn, replacementTurn } = response.data;
+            
+            if (currentTurn) {
+              turnoGuardia = {
+                bicicletero: currentTurn.bicicletero || '',
+                hora_inicio: currentTurn.hora_inicio || '',
+                hora_salida: currentTurn.hora_salida || ''
+              };
+            }
+            
+            if (replacementTurn) {
+              reemplazante = {
+                nombre: replacementTurn.user?.nombre || 'Guardia reemplazante',
+                email: replacementTurn.user?.email || '',
+                hora_inicio: replacementTurn.hora_inicio || '',
+                hora_salida: replacementTurn.hora_salida || '',
+                bicicletero: replacementTurn.bicicletero || ''
+              };
+            }
           }
         } catch (error) {
-          console.error('Error al obtener turno del guardia:', error);
+          console.error('Error al obtener turno del guardia con reemplazo:', error);
+          
+          try {
+            const turnoResponse = await getTurnByUser(userId);
+            if (turnoResponse.data) {
+              turnoGuardia = {
+                bicicletero: turnoResponse.data.bicicletero || '',
+                hora_inicio: turnoResponse.data.hora_inicio || '',
+                hora_salida: turnoResponse.data.hora_salida || ''
+              };
+            }
+          } catch (innerError) {
+            console.error('Error al obtener turno del guardia:', innerError);
+          }
         }
         
+        setReplacementTurn(reemplazante);
         setGuardias([{
           id: userId,
           nombre: userName,
           email: userEmail,
           telefono: '',
           bicicletero: turnoGuardia.bicicletero,
-          jornada: turnoGuardia.jornada
+          hora_inicio: turnoGuardia.hora_inicio,
+          hora_salida: turnoGuardia.hora_salida
         }]);
         setLoading(false);
         return;
@@ -75,7 +109,8 @@ const Turnos = () => {
         turnosMap = turnos.reduce((acc, turno) => {
           acc[turno.user_id] = {
             bicicletero: turno.bicicletero || '',
-            jornada: turno.jornada || ''
+            hora_inicio: turno.hora_inicio || '',
+            hora_salida: turno.hora_salida || ''
           };
           return acc;
         }, {});
@@ -91,7 +126,8 @@ const Turnos = () => {
           email: user.email,
           telefono: user.numeroTelefonico || 'Sin teléfono',
           bicicletero: turnosMap[user.id]?.bicicletero || '',
-          jornada: turnosMap[user.id]?.jornada || ''
+          hora_inicio: turnosMap[user.id]?.hora_inicio || '',
+          hora_salida: turnosMap[user.id]?.hora_salida || ''
         }));
       
       setGuardias(guardiasConRol);
@@ -125,62 +161,74 @@ const Turnos = () => {
     setHayCambiosSinGuardar(true);
   };
 
-  const handleJornadaChange = (guardiaId, jornada) => {
-    const guardia = guardias.find(g => g.id === guardiaId);
-    
-    if (jornada && guardia.bicicletero) {
-      const conflicto = guardias.find(g => 
-        g.id !== guardiaId && 
-        g.bicicletero === guardia.bicicletero && 
-        g.jornada === jornada
-      );
-      
-      if (conflicto) {
-        showErrorAlert(`El guardia ${conflicto.nombre} ya tiene asignada la jornada "${jornada}" en el bicicletero ${guardia.bicicletero}. Solo un guardia puede tener ese turno.`);
-        return;
-      }
-    }
-    
+  const handleHoraInicioChange = (guardiaId, hora_inicio) => {
     setGuardias(guardias.map(g => 
-      g.id === guardiaId ? { ...g, jornada } : g
+      g.id === guardiaId ? { ...g, hora_inicio } : g
+    ));
+    setHayCambiosSinGuardar(true);
+  };
+
+  const handleHoraSalidaChange = (guardiaId, hora_salida) => {
+    setGuardias(guardias.map(g => 
+      g.id === guardiaId ? { ...g, hora_salida } : g
     ));
     setHayCambiosSinGuardar(true);
   };
 
   const handleGuardarCambios = async () => {
     try {
-      const conflictos = [];
-      guardias.forEach((guardia, index) => {
-        if (guardia.bicicletero && guardia.jornada) {
-          const otroGuardia = guardias.find((g, i) => 
-            i !== index && 
-            g.bicicletero === guardia.bicicletero && 
-            g.jornada === guardia.jornada
-          );
+      // Validaciones
+      const turnosConHoras = guardias.filter(g => g.hora_inicio || g.hora_salida);
+      
+      for (const guardia of turnosConHoras) {
+        if (!guardia.hora_inicio || !guardia.hora_salida) {
+          showErrorAlert(`${guardia.nombre}: Debe ingresar tanto hora de inicio como hora de salida.`);
+          return;
+        }
+        
+        if (!guardia.bicicletero) {
+          showErrorAlert(`${guardia.nombre}: Debe seleccionar un bicicletero.`);
+          return;
+        }
+
+        
+        const regexHora = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!regexHora.test(guardia.hora_inicio)) {
+          showErrorAlert(`${guardia.nombre}: Hora de inicio con formato invalido. Use HH:MM (ej: 08:00)`);
+          return;
+        }
+        if (!regexHora.test(guardia.hora_salida)) {
+          showErrorAlert(`${guardia.nombre}: Hora de salida con formato invalido. Use HH:MM (ej: 13:00)`);
+          return;
+        }
+      }
+      
+      
+      const turnosValidos = guardias.filter(g => g.bicicletero && g.hora_inicio && g.hora_salida);
+      for (let i = 0; i < turnosValidos.length; i++) {
+        for (let j = i + 1; j < turnosValidos.length; j++) {
+          const turno1 = turnosValidos[i];
+          const turno2 = turnosValidos[j];
           
-          if (otroGuardia) {
-            conflictos.push({
-              guardia1: guardia.nombre,
-              guardia2: otroGuardia.nombre,
-              bicicletero: guardia.bicicletero,
-              jornada: guardia.jornada
-            });
+          if (turno1.bicicletero === turno2.bicicletero) {
+            const start1 = parseInt(turno1.hora_inicio.replace(':', ''));
+            const end1 = parseInt(turno1.hora_salida.replace(':', ''));
+            const start2 = parseInt(turno2.hora_inicio.replace(':', ''));
+            const end2 = parseInt(turno2.hora_salida.replace(':', ''));
+            
+            if (start1 < end2 && start2 < end1) {
+              showErrorAlert(`Conflicto: ${turno1.nombre} (${turno1.hora_inicio}-${turno1.hora_salida}) y ${turno2.nombre} (${turno2.hora_inicio}-${turno2.hora_salida}) tienen horarios superpuestos en bicicletero ${turno1.bicicletero}`);
+              return;
+            }
           }
         }
-      });
-      
-      if (conflictos.length > 0) {
-        const mensajeConflictos = conflictos.map(c => 
-          `• ${c.guardia1} y ${c.guardia2} tienen el mismo turno: ${c.jornada} en bicicletero ${c.bicicletero}`
-        ).join('\n');
-        showErrorAlert(`No se pueden guardar los cambios. Hay turnos duplicados:\n\n${mensajeConflictos}`);
-        return;
       }
       
       const turnsToSave = guardias.map(g => ({
         userId: parseInt(g.id),
         bicicletero: g.bicicletero || '',
-        jornada: g.jornada || ''
+        hora_inicio: g.hora_inicio || '',
+        hora_salida: g.hora_salida || ''
       }));
       
       await updateMultipleTurns(turnsToSave);
@@ -219,15 +267,19 @@ const Turnos = () => {
           return (
             <div className="turno-card-container">
               <div className="turno-card">
+                <h2 className="turno-card-title">Mi Turno Actual</h2>
+                
                 <div className="turno-card-section">
                   <h2 className="turno-card-label">Guardia</h2>
                   <p className="turno-card-value">{miTurno.nombre}</p>
                 </div>
 
                 <div className="turno-card-section">
-                  <h2 className="turno-card-label">Jornada Asignada</h2>
+                  <h2 className="turno-card-label">Horario de Trabajo</h2>
                   <p className="turno-card-value">
-                    {miTurno.jornada || 'Sin asignar'}
+                    {miTurno.hora_inicio && miTurno.hora_salida 
+                      ? `${miTurno.hora_inicio.substring(0, 5)} Hrs - ${miTurno.hora_salida.substring(0, 5)} Hrs`
+                      : 'Sin asignar'}
                   </p>
                 </div>
 
@@ -238,6 +290,33 @@ const Turnos = () => {
                   </p>
                 </div>
               </div>
+
+              {replacementTurn && (
+                <div className="turno-card">
+                  <h2 className="turno-card-title">Guardia Reemplazante</h2>
+                  
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Guardia</h2>
+                    <p className="turno-card-value">{replacementTurn.nombre}</p>
+                  </div>
+
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Horario de Trabajo</h2>
+                    <p className="turno-card-value">
+                      {replacementTurn.hora_inicio && replacementTurn.hora_salida 
+                        ? `${replacementTurn.hora_inicio.substring(0, 5)} Hrs - ${replacementTurn.hora_salida.substring(0, 5)} Hrs`
+                        : 'Sin asignar'}
+                    </p>
+                  </div>
+
+                  <div className="turno-card-section">
+                    <h2 className="turno-card-label">Bicicletero</h2>
+                    <p className="turno-card-value">
+                      {replacementTurn.bicicletero ? `Número ${replacementTurn.bicicletero}` : 'Sin asignar'}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })()
@@ -248,7 +327,8 @@ const Turnos = () => {
               <tr>
                 <th>GUARDIAS</th>
                 <th>DATOS</th>
-                <th>JORNADA</th>
+                <th>HORA INICIO</th>
+                <th>HORA SALIDA</th>
                 <th>BICICLETERO</th>
               </tr>
             </thead>
@@ -264,15 +344,20 @@ const Turnos = () => {
                       </div>
                     </td>
                     <td>
-                      <select 
-                        value={guardia.jornada}
-                        onChange={(e) => handleJornadaChange(guardia.id, e.target.value)}
-                        className="jornada-select"
-                      >
-                        <option value="">PREDETERMINADA</option>
-                        <option value="Mañana">Mañana</option>
-                        <option value="Tarde">Tarde</option>
-                      </select>
+                      <input 
+                        type="time"
+                        value={guardia.hora_inicio}
+                        onChange={(e) => handleHoraInicioChange(guardia.id, e.target.value)}
+                        className="hora-input"
+                      />
+                    </td>
+                    <td>
+                      <input 
+                        type="time"
+                        value={guardia.hora_salida}
+                        onChange={(e) => handleHoraSalidaChange(guardia.id, e.target.value)}
+                        className="hora-input"
+                      />
                     </td>
                     <td>
                       <select 
@@ -291,7 +376,7 @@ const Turnos = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
+                  <td colSpan="5" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
                 </tr>
               )}
             </tbody>
@@ -302,7 +387,7 @@ const Turnos = () => {
       {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
         <div className="guardar-button-container">
           <button className="guardar-button" onClick={handleGuardarCambios}>
-            💾 Guardar Cambios
+            <IoIosSave /> Guardar Cambios
           </button>
         </div>
       )}

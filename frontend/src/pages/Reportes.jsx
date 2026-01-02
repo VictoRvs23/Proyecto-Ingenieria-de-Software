@@ -181,14 +181,45 @@ const Reportes = () => {
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Título del Incidente</label>
             <input id="swal-titulo" class="swal2-input" placeholder="Ej: Robo de casco" style="margin: 0 0 15px 0; width: 100%; box-sizing: border-box;">
 
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Tipo de problema</label>
-            <select id="swal-tipo" class="swal2-select" style="margin: 0 0 15px 0; width: 100%; border: 1px solid #d9d9d9; padding: 10px; border-radius: 4px; box-sizing: border-box;">
-                <option value="Robo">🚨 Robo</option>
-                <option value="Daño">🚲 Daño</option>
-                <option value="Objeto Perdido">🔍 Objeto Perdido</option>
-                <option value="Reclamo/Sugerencia">🗣️ Reclamo o Sugerencia</option>
-                <option value="Otro">📝 Otro</option>
-            </select>
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 8px;">Tipo de problema</label>
+            
+            <div class="swal-type-grid">
+                <div class="swal-type-option">
+                    <input type="radio" name="swal-tipo" value="Robo" checked>
+                    <div class="swal-type-label">
+                        <span class="swal-type-icon">🚨</span>
+                        <span>Robo</span>
+                    </div>
+                </div>
+                <div class="swal-type-option">
+                    <input type="radio" name="swal-tipo" value="Daño">
+                    <div class="swal-type-label">
+                        <span class="swal-type-icon">🚲</span>
+                        <span>Daño</span>
+                    </div>
+                </div>
+                <div class="swal-type-option">
+                    <input type="radio" name="swal-tipo" value="Objeto Perdido">
+                    <div class="swal-type-label">
+                        <span class="swal-type-icon">🔍</span>
+                        <span>Perdido</span>
+                    </div>
+                </div>
+                <div class="swal-type-option">
+                    <input type="radio" name="swal-tipo" value="Reclamo/Sugerencia">
+                    <div class="swal-type-label">
+                        <span class="swal-type-icon">🗣️</span>
+                        <span>Reclamo</span>
+                    </div>
+                </div>
+                <div class="swal-type-option">
+                    <input type="radio" name="swal-tipo" value="Otro">
+                    <div class="swal-type-label">
+                        <span class="swal-type-icon">📝</span>
+                        <span>Otro</span>
+                    </div>
+                </div>
+            </div>
 
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Descripción</label>
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Detalla qué sucedió..." style="margin: 0 0 15px 0; width: 100%; height: 80px; resize: none; border: 1px solid #d9d9d9; box-sizing: border-box;"></textarea>
@@ -207,12 +238,13 @@ const Reportes = () => {
       focusConfirm: false,
       preConfirm: () => {
         const titulo = document.getElementById('swal-titulo').value;
-        const tipo = document.getElementById('swal-tipo').value;
+        const tipoEl = document.querySelector('input[name="swal-tipo"]:checked');
+        const tipo = tipoEl ? tipoEl.value : null;
         const descripcion = document.getElementById('swal-desc').value;
         const imagenInput = document.getElementById('swal-img');
 
-        if (!titulo || !descripcion) {
-          Swal.showValidationMessage('Por favor completa título y descripción');
+        if (!titulo || !descripcion || !tipo) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
           return false;
         }
 
@@ -374,114 +406,116 @@ const Reportes = () => {
       </div>
 
       <div className="reportes-wrapper">
-        {loading ? (
-            <div className="loading-text">Cargando reportes...</div>
-        ) : filteredReportes.length === 0 ? (
-            <div className="no-data-text">No hay reportes encontrados con los filtros actuales.</div>
-        ) : (
-            <>
-                {isAdminOrGuard ? (
-                    <table className="reportes-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Estado</th>
-                                <th>Tipo</th>
-                                <th>Título</th>
-                                <th>Usuario</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+        <div className="reportes-scroll-area">
+            {loading ? (
+                <div className="loading-text">Cargando reportes...</div>
+            ) : filteredReportes.length === 0 ? (
+                <div className="no-data-text">No hay reportes encontrados con los filtros actuales.</div>
+            ) : (
+                <>
+                    {isAdminOrGuard ? (
+                        <table className="reportes-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estado</th>
+                                    <th>Tipo</th>
+                                    <th>Título</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredReportes.map((rep) => {
+                                    const hasValidImage = rep.imagenUrl && 
+                                                          !rep.imagenUrl.includes('undefined') && 
+                                                          rep.imagenUrl !== 'null';
+
+                                    return (
+                                        <tr key={rep.id}>
+                                            <td style={{color: '#1565C0', fontWeight: 'bold'}}>
+                                                {formatId(rep.id)}
+                                            </td>
+                                            <td>
+                                                <span className="status-badge" style={{backgroundColor: getStatusColor(rep.estado)}}>
+                                                    {rep.estado}
+                                                </span>
+                                            </td>
+                                            <td>{getTipoLabel(rep.tipo)}</td>
+                                            <td>{rep.titulo}</td>
+                                            <td>
+                                                <div style={{display:'flex', flexDirection:'column'}}>
+                                                    <strong>{rep.user?.nombre || 'Desc.'}</strong>
+                                                    <span style={{fontSize:'0.8rem', color:'#888'}}>{rep.user?.email}</span>
+                                                </div>
+                                            </td>
+                                            <td>{new Date(rep.created_at).toLocaleDateString()}</td>
+                                            <td>
+                                                {hasValidImage && (
+                                                    <button className="btn-icon-small" title="Ver Foto" onClick={() => showEvidence(rep.imagenUrl)}>
+                                                        <FaEye />
+                                                    </button>
+                                                )}
+                                                <button className="btn-icon-small" title="Gestionar" onClick={() => handleStatusChange(rep.id, rep.estado, rep.respuesta)}>
+                                                    <FaEdit />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="reportes-grid">
                             {filteredReportes.map((rep) => {
                                 const hasValidImage = rep.imagenUrl && 
                                                       !rep.imagenUrl.includes('undefined') && 
                                                       rep.imagenUrl !== 'null';
 
                                 return (
-                                    <tr key={rep.id}>
-                                        <td style={{color: '#1565C0', fontWeight: 'bold'}}>
-                                            {formatId(rep.id)}
-                                        </td>
-                                        <td>
-                                            <span className="status-badge" style={{backgroundColor: getStatusColor(rep.estado)}}>
-                                                {rep.estado}
-                                            </span>
-                                        </td>
-                                        <td>{getTipoLabel(rep.tipo)}</td>
-                                        <td>{rep.titulo}</td>
-                                        <td>
-                                            <div style={{display:'flex', flexDirection:'column'}}>
-                                                <strong>{rep.user?.nombre || 'Desc.'}</strong>
-                                                <span style={{fontSize:'0.8rem', color:'#888'}}>{rep.user?.email}</span>
+                                    <div 
+                                        key={rep.id} 
+                                        className="reporte-card" 
+                                        onClick={() => handleShowDetails(rep)}
+                                        style={{cursor: 'pointer'}}
+                                        title="Haz clic para ver detalles y respuesta"
+                                    >
+                                        <div className="card-header-status" style={{ backgroundColor: getStatusColor(rep.estado) }}>
+                                            {rep.estado}
+                                        </div>
+                                        <div className="card-body">
+                                            <div className="card-meta">
+                                                <span>{getTipoLabel(rep.tipo)}</span>
+                                                <span>{new Date(rep.created_at).toLocaleDateString()}</span>
                                             </div>
-                                        </td>
-                                        <td>{new Date(rep.created_at).toLocaleDateString()}</td>
-                                        <td>
+                                            <div className="card-title">
+                                                <span style={{color: '#1565C0', fontWeight: 'bold', marginRight: '5px'}}>
+                                                    {formatId(rep.id)}
+                                                </span>
+                                                {rep.titulo}
+                                            </div>
+                                            <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
                                             {hasValidImage && (
-                                                <button className="btn-icon-small" title="Ver Foto" onClick={() => showEvidence(rep.imagenUrl)}>
-                                                    <FaEye />
+                                                <button 
+                                                    style={{marginTop:'15px', background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        showEvidence(rep.imagenUrl);
+                                                    }}
+                                                >
+                                                    <FaEye /> Ver Evidencia
                                                 </button>
                                             )}
-                                            <button className="btn-icon-small" title="Gestionar" onClick={() => handleStatusChange(rep.id, rep.estado, rep.respuesta)}>
-                                                <FaEdit />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 );
                             })}
-                        </tbody>
-                    </table>
-                ) : (
-                    <div className="reportes-grid">
-                        {filteredReportes.map((rep) => {
-                            const hasValidImage = rep.imagenUrl && 
-                                                  !rep.imagenUrl.includes('undefined') && 
-                                                  rep.imagenUrl !== 'null';
-
-                            return (
-                                <div 
-                                    key={rep.id} 
-                                    className="reporte-card" 
-                                    onClick={() => handleShowDetails(rep)}
-                                    style={{cursor: 'pointer'}}
-                                    title="Haz clic para ver detalles y respuesta"
-                                >
-                                    <div className="card-header-status" style={{ backgroundColor: getStatusColor(rep.estado) }}>
-                                        {rep.estado}
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="card-meta">
-                                            <span>{getTipoLabel(rep.tipo)}</span>
-                                            <span>{new Date(rep.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="card-title">
-                                            <span style={{color: '#1565C0', fontWeight: 'bold', marginRight: '5px'}}>
-                                                {formatId(rep.id)}
-                                            </span>
-                                            {rep.titulo}
-                                        </div>
-                                        <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
-                                        {hasValidImage && (
-                                            <button 
-                                                style={{marginTop:'15px', background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    showEvidence(rep.imagenUrl);
-                                                }}
-                                            >
-                                                <FaEye /> Ver Evidencia
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </>
-        )}
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
       </div>
       <div className="reportes-actions">
         {userRole === 'user' && (
