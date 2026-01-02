@@ -326,7 +326,8 @@ const Turnos = () => {
             <thead>
               <tr>
                 <th>GUARDIAS</th>
-                <th>DATOS</th>
+                <th>EMAIL</th>
+                <th>TELÉFONO</th>
                 <th>HORA INICIO</th>
                 <th>HORA SALIDA</th>
                 <th>BICICLETERO</th>
@@ -337,12 +338,8 @@ const Turnos = () => {
                 guardias.map((guardia) => (
                   <tr key={guardia.id}>
                     <td>{guardia.nombre}</td>
-                    <td>
-                      <div className="datos-cell">
-                        <div>{guardia.email}</div>
-                        <div>{formatPhoneNumber(guardia.telefono)}</div>
-                      </div>
-                    </td>
+                    <td>{guardia.email}</td>
+                    <td>{formatPhoneNumber(guardia.telefono)}</td>
                     <td>
                       <input 
                         type="time"
@@ -376,7 +373,7 @@ const Turnos = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
+                  <td colSpan="6" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
                 </tr>
               )}
             </tbody>

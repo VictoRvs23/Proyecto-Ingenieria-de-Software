@@ -88,39 +88,63 @@
 }
 
 .tabla-wrapper {
-  max-width: 1200px;
-  max-height: 800px;
+  max-width: 1400px;
   margin: 0 auto;
   background: #f0f0f0;
   border-radius: 1.5rem;
   padding: 2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .tabla-turnos {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: white;
   border-radius: 1rem;
   overflow: hidden;
-  display: block;
+  table-layout: fixed; /* Esto hace que las columnas mantengan sus anchos */
 }
 
 .tabla-turnos thead {
   background: #2b79c2;
   color: white;
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+}
+
+/* Anchos específicos y proporcionales para cada columna */
+.tabla-turnos thead th:nth-child(1) { /* GUARDIAS */
+  width: 18%;
+}
+
+.tabla-turnos thead th:nth-child(2) { /* EMAIL */
+  width: 22%;
+}
+
+.tabla-turnos thead th:nth-child(3) { /* TELÉFONO */
+  width: 12%;
+}
+
+.tabla-turnos thead th:nth-child(4) { /* HORA INICIO */
+  width: 12%;
+}
+
+.tabla-turnos thead th:nth-child(5) { /* HORA SALIDA */
+  width: 12%;
+}
+
+.tabla-turnos thead th:nth-child(6) { /* BICICLETERO */
+  width: 24%;
 }
 
 .tabla-turnos thead th {
-  padding: 1rem;
+  padding: 1.2rem 0.8rem;
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
   letter-spacing: 0.5px;
   border-right: 2px solid white;
+  vertical-align: middle;
 }
 
 .tabla-turnos thead th:last-child {
@@ -128,35 +152,12 @@
 }
 
 .tabla-turnos tbody {
-  display: block;
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.tabla-turnos tbody::-webkit-scrollbar {
-  width: 8px;
-}
-
-.tabla-turnos tbody::-webkit-scrollbar-track {
-  background: #e0e0e0;
-  border-radius: 10px;
-}
-
-.tabla-turnos tbody::-webkit-scrollbar-thumb {
-  background: #2b79c2;
-  border-radius: 10px;
-}
-
-.tabla-turnos tbody::-webkit-scrollbar-thumb:hover {
-  background: #2b79c2;
+  display: table-row-group;
 }
 
 .tabla-turnos tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
   border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
 }
 
 .tabla-turnos tbody tr:last-child {
@@ -164,60 +165,75 @@
 }
 
 .tabla-turnos tbody td {
-  padding: 1rem;
+  padding: 1.2rem 0.8rem;
   text-align: center;
   font-size: 1rem;
   color: #333;
   border-right: 1px solid #e0e0e0;
+  vertical-align: middle;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tabla-turnos tbody td:last-child {
   border-right: none;
 }
 
+/* Estilo específico para email - azul */
+.tabla-turnos tbody td:nth-child(2) {
+  color: #1565C0;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Estilo específico para teléfono - negrita */
+.tabla-turnos tbody td:nth-child(3) {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
 .tabla-turnos tbody tr:hover {
-  background-color: #f5f5f5;
+  background-color: #f5f9ff;
 }
 
-.datos-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
+/* Asegura que todos los inputs y selects estén centrados */
+.tabla-turnos tbody td input,
+.tabla-turnos tbody td select {
+  margin: 0 auto;
+  display: block;
 }
 
-.jornada-select,
 .bicicletero-select {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
   background-color: #f9f9f9;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #333;
   cursor: pointer;
-  width: 100%;
-  min-width: 140px;
+  width: 120px;
   outline: none;
   transition: border-color 0.2s, background-color 0.2s;
+  text-align: center;
 }
 
-.jornada-select:hover,
 .bicicletero-select:hover {
   background-color: #fff;
   border-color: #b3b3b3;
 }
 
-.jornada-select:focus,
 .bicicletero-select:focus {
   border-color: #2b79c2;
   background-color: #fff;
-  box-shadow: 0 0 0 2px rgba(43, 121, 194, 0.15); /* Sutil sombra azul */
+  box-shadow: 0 0 0 2px rgba(43, 121, 194, 0.15);
 }
 
-.jornada-select option,
 .bicicletero-select option {
   background-color: #fff;
   color: #333;
+  text-align: center;
 }
 
 .hora-input {
@@ -225,12 +241,13 @@
   color: #333;
   border: 2px solid #2b79c2;
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   text-align: center;
-  min-width: 120px;
+  width: 110px;
+  margin: 0 auto;
   transition: border-color 0.3s, background-color 0.3s;
 }
 
@@ -280,26 +297,4 @@
 
 .guardar-button:active {
   transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .turnos-title {
-    font-size: 2rem;
-  }
-  
-  .tabla-wrapper {
-    padding: 1rem;
-  }
-  
-  .tabla-turnos thead th,
-  .tabla-turnos tbody td {
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .jornada-select,
-  .bicicletero-select {
-    min-width: 100px;
-    padding: 0.5rem 1rem;
-  }
 }
