@@ -42,12 +42,16 @@ const Register = () => {
 
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
+    const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
+    const emailLower = data.email.toLowerCase();
+    
+    const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
 
-    if (!data.email.toLowerCase().endsWith('@ubiobio.cl')) {
+    if (!isValidDomain) {
         await Swal.fire({
             icon: 'error',
             title: 'Correo Inválido',
-            text: 'Debes utilizar un correo institucional @ubiobio.cl',
+            html: 'El correo debe pertenecer a uno de los siguientes dominios:<br><b>@ubiobio.cl, @alumnos.ubiobio.cl, @gmail.com o @gmail.cl</b>',
             confirmButtonColor: '#d33'
         });
         setLoading(false);
@@ -80,17 +84,8 @@ const Register = () => {
             });
             return;
         }
-        const existingUsers = JSON.parse(localStorage.getItem("usersDB")) || [];
-        if (!existingUsers.find(u => u.email === data.email)) {
-            existingUsers.push({ 
-                email: data.email, 
-                name: data.nombre, 
-                password: data.password, 
-                role: "user" 
-            });
-            localStorage.setItem("usersDB", JSON.stringify(existingUsers));
-        }
-
+        
+        // Limpiamos datos previos
         localStorage.removeItem("bikeData");
         localStorage.removeItem("bikeImage");
         localStorage.removeItem("userImage");
