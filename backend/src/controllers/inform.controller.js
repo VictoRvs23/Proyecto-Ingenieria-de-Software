@@ -1,11 +1,27 @@
 import { handleErrorServer, handleSuccess, handleErrorClient } from "../Handlers/responseHandlers.js";
 import { generateDailyReport, listReports, getReportById } from "../services/inform.service.js";
 
-
 function isAfter8PM() {
     const now = new Date();
     const hour = now.getHours();
     return hour >= 20; 
+}
+
+function isBefore8AM() {
+    const now = new Date();
+    const hour = now.getHours();
+    return hour < 8;
+}
+
+function isBetween8PMAnd8AM() {
+    return isAfter8PM() || isBefore8AM();
+}
+
+function isAfter8_01PM() {
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    return hour > 20 || (hour === 20 && minute >= 1);
 }
 
 export async function getHistoryUrls(req, res) {
@@ -46,6 +62,15 @@ export async function downloadReportById(req, res) {
 
 export async function generateToday(req, res) {
     try {
+        // Validar que sea después de las 20:01
+        const now = new Date();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        
+        if (!(hour > 20 || (hour === 20 && minute >= 1))) {
+            return handleErrorClient(res, 403, 
+                "Los informes diarios solo se pueden generar después de las 20:01 hrs");
+        }
         
         const report = await generateDailyReport();
         const protocol = req.protocol;

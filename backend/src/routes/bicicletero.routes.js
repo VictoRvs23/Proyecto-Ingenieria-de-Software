@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { getStatus, entryBike, exitBike, getBicicleteroByNumber, getAllBicicleteros, toggleSpaceStatus } from "../controllers/bicicletero.controller.js";
+import { 
+  getStatus, 
+  getBicicleteroByNumber, 
+  getAllBicicleteros, 
+  toggleSpaceStatus,
+  checkAvailability 
+} from "../controllers/bicicletero.controller.js";
 
 const router = Router();
 
@@ -18,9 +24,9 @@ function allowRoles(...roles) {
 
 router.get("/all/list", authMiddleware, getAllBicicleteros);
 router.get("/:number", authMiddleware, getBicicleteroByNumber);
+router.get("/:number/availability", authMiddleware, checkAvailability);
 router.get("/", authMiddleware, allowRoles("admin","adminBicicletero", "guard"), getStatus);
-router.post("/entry/:number", authMiddleware, allowRoles("admin", "adminBicicletero", "guard"), entryBike);
-router.delete("/exit/:number/:id", authMiddleware, allowRoles("admin", "adminBicicletero", "guard"), exitBike);
+// Eliminamos entryBike y exitBike ya que ahora se manejan por reservas
 router.patch("/:number/space/:spaceNumber/toggle", authMiddleware, allowRoles("admin", "adminBicicletero", "guard"), toggleSpaceStatus);
 
 export default router;

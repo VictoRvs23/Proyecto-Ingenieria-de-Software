@@ -18,7 +18,11 @@ export const Reserve = new EntitySchema({
       type: "varchar",
       length: 100,
       nullable: false,
-      default: "ingresada"
+      default: "solicitada"
+    },
+    space: {  
+      type: "int",
+      nullable: true,
     },
     foto_url: {
       type: "varchar",
@@ -39,6 +43,10 @@ export const Reserve = new EntitySchema({
       type: "timestamp",
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
+    },
+    last_status_change: {
+      type: "timestamp",
+      nullable: true,
     },
   },
   relations: {

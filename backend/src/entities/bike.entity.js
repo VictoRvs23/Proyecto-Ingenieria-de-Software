@@ -30,14 +30,6 @@ export const Bike = new EntitySchema({
       nullable: true, 
       default: "/default-bike.png" 
     },
-    bicicletero_number: {
-      type: "int",
-      nullable: true,
-    },
-    space: {
-      type: "int",
-      nullable: true,
-    },
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -50,15 +42,6 @@ export const Bike = new EntitySchema({
     },
   },
   relations: {
-    bicicletero: {
-      type: "many-to-one",
-      target: "Bicicletero",
-      joinColumn: {
-        name: "bicicletero_number",
-        referencedColumnName: "number",
-      },
-      inverseSide: "bikes",
-    },
     user: { 
       type: "many-to-one", 
       target: "User",

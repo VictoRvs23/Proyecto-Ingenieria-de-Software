@@ -8,6 +8,12 @@ import {
 } from "../services/reserve.service.js";
 import { createReserveValidation, updateReserveValidation } from "../validations/reserve.validation.js";
 
+function isBetween8PMAnd8AM() {
+    const now = new Date();
+    const hour = now.getHours();
+    return hour >= 20 || hour < 8;
+}
+
 export async function getReserve(req, res) {
     try {
         const { token } = req.params;
@@ -40,6 +46,12 @@ export async function getReserves(req, res) {
 
 export async function createReserve(req, res) {
     try {
+        // Validar horario (no permitir entre 20:00 y 8:00)
+        if (isBetween8PMAnd8AM()) {
+            return handleErrorClient(res, 403, 
+                "No se pueden crear reservas entre las 20:00 hrs y las 8:00 hrs del día siguiente");
+        }
+
         const { error, value } = createReserveValidation.validate(req.body);
 
         if (error) {
@@ -57,6 +69,12 @@ export async function createReserve(req, res) {
 
 export async function updateReserve(req, res) {
     try {
+        // Validar horario (no permitir entre 20:00 y 8:00)
+        if (isBetween8PMAnd8AM()) {
+            return handleErrorClient(res, 403, 
+                "No se pueden editar reservas entre las 20:00 hrs y las 8:00 hrs del día siguiente");
+        }
+
         const { token } = req.params;
         const changes = req.body; 
 

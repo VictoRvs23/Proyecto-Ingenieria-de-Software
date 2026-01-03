@@ -7,6 +7,8 @@ import { fileURLToPath } from "url";
 import { AppDataSource, connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { createUsers } from "./config/initDb.js";
+import { setupCronJobs } from './config/cronJobs.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +38,8 @@ app.get("/", (req, res) => {
 
 connectDB()
   .then(() => {
+    // Inicializar cron jobs después de conectar a la base de datos
+    setupCronJobs();
     routerApi(app);
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, async () => {

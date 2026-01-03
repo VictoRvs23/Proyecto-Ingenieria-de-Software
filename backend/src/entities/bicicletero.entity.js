@@ -12,6 +12,7 @@ export const Bicicletero = new EntitySchema({
     space: {
       type: "int",
       nullable: false,
+      default: 15,
     },
     disabledSpaces: {
       type: "simple-array",
@@ -29,11 +30,6 @@ export const Bicicletero = new EntitySchema({
     },
   },
   relations: {
-    bikes: {
-      type: "one-to-many",
-      target: "Bike",
-      inverseSide: "bicicletero",
-    },
     informs: {
       type: "one-to-many",
       target: "Inform",
