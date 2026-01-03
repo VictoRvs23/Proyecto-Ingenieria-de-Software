@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { createReport, getMyReports, getAllReports, updateReportStatus } from '../services/reporte.service';
+import { createReport, getMyReports, getAllReports, updateReportStatus, deleteReport } from '../services/reporte.service';
 import Swal from 'sweetalert2';
 import '../styles/reportes.css';
-import { FaPlus, FaEye, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { IoFilterCircle, IoCloseCircle } from "react-icons/io5";
 
 const SERVER_URL = "http://localhost:3000";
@@ -172,6 +172,37 @@ const Reportes = () => {
       }
     }
   };
+  
+  const handleDeleteReport = async (id) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esto. El reporte será eliminado permanentemente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteReport(id);
+          Swal.fire(
+            'Eliminado!',
+            'Tu reporte ha sido eliminado.',
+            'success'
+          );
+          fetchReportes(userRole);
+        } catch (error) {
+          Swal.fire(
+            'Error',
+            'No se pudo eliminar el reporte.',
+            'error'
+          );
+        }
+      }
+    });
+  };
 
   const handleCreateReport = async () => {
     const { value: formValues } = await Swal.fire({
@@ -225,7 +256,6 @@ const Reportes = () => {
         formData.append('titulo', formValues.titulo);
         formData.append('tipo', formValues.tipo);
         formData.append('descripcion', formValues.descripcion);
-        // Ya no adjuntamos imagen
 
         await createReport(formData);
         
@@ -455,17 +485,32 @@ const Reportes = () => {
                                                 {rep.titulo}
                                             </div>
                                             <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
-                                            {hasValidImage && (
+                                            
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px'}}>
+                                                <div>
+                                                    {hasValidImage && (
+                                                        <button 
+                                                            style={{background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                showEvidence(rep.imagenUrl);
+                                                            }}
+                                                        >
+                                                            <FaEye /> Ver Evidencia
+                                                        </button>
+                                                    )}
+                                                </div>
                                                 <button 
-                                                    style={{marginTop:'15px', background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
+                                                    style={{background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: '1.2rem'}}
+                                                    title="Eliminar Reporte"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        showEvidence(rep.imagenUrl);
+                                                        handleDeleteReport(rep.id);
                                                     }}
                                                 >
-                                                    <FaEye /> Ver Evidencia
+                                                    <FaTrash />
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 );
