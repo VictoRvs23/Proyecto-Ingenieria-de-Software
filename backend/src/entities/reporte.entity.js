@@ -26,6 +26,10 @@ export const Reporte = new EntitySchema({
       type: "varchar",
       default: "Pendiente", 
     },
+    es_anonimo: {
+      type: "boolean",
+      default: false,
+    },
     imagenUrl: {
       type: "varchar",
       nullable: true,

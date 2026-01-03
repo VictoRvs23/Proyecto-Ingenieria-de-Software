@@ -7,21 +7,26 @@ import {
 } from "../services/reporte.service.js";
 
 export const createReport = async (req, res) => {
-  try {
-    const { titulo, descripcion, tipo } = req.body;
-    const userId = req.user.id;
-    const imagenUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    try {
+        const { titulo, tipo, descripcion, es_anonimo } = req.body;
+        const isAnonymous = es_anonimo === 'true'; 
+        const newReport = await createReportService(
+            {
+                titulo,
+                tipo,
+                descripcion,
+                es_anonimo: isAnonymous,
+                imagenUrl: req.file ? req.file.path : null
+            },
+            req.user.id 
+        );
 
-    const reporte = await createReportService(
-      { titulo, descripcion, tipo, imagenUrl },
-      userId
-    );
+        res.json(newReport);
 
-    res.status(201).json({ message: "Reporte creado exitosamente", data: reporte });
-  } catch (error) {
-    console.error("Error al crear reporte:", error);
-    res.status(500).json({ message: "Error interno al crear el reporte" });
-  }
+    } catch (error) {
+        console.error("Error en createReport:", error);
+        return res.status(500).json({ message: error.message });
+    }
 };
 
 export const getReports = async (req, res) => {
