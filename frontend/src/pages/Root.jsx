@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/styles.css'; 
 import Notificacion from '../components/Notificacion';
+import ChatSeguridad from './ChatSeguridad'; 
 
 const Root = () => {
   return (
@@ -15,6 +16,8 @@ const Root = () => {
       <main className="content-area">
         <Outlet /> 
       </main>
+
+      <ChatSeguridad />
     </div>
   );
 };
