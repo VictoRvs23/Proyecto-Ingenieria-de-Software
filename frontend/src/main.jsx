@@ -13,6 +13,7 @@ import Turnos from './pages/Turnos';
 import Usuarios from './pages/Usuarios'; 
 import Reportes from './pages/Reportes';
 import Consultas from './pages/Consultas';
+import ChatSeguridad from './pages/ChatSeguridad'; 
 
 const router = createBrowserRouter([
   {
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
       {
         path: "consultas",
         element: <Consultas />,
+      },
+      {
+        path: "chat",
+        element: <ChatSeguridad />,
       },
     ],
   },
