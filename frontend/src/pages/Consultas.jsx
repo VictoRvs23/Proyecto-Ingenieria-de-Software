@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaChevronDown, FaChevronUp, FaTrash, FaSpinner, FaReply } from 'react-icons/fa';
 import { createConsulta, getMyConsultas, getAllConsultas, deleteConsulta, responderConsulta } from '../services/consulta.service';
-import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
+import Swal from 'sweetalert2';
 import '../styles/consultas.css';
+import { FaPlus, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { IoFilterCircle, IoCloseCircle } from "react-icons/io5";
 
 const Consultas = () => {
   const [consultas, setConsultas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedItems, setExpandedItems] = useState({});
-  const [pregunta, setPregunta] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [userRole, setUserRole] = useState('user');
-  const [respondingId, setRespondingId] = useState(null);
-  const [respondingText, setRespondingText] = useState('');
-  const [respondingStatus, setRespondingStatus] = useState('Respondida');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
     const role = localStorage.getItem('role') || sessionStorage.getItem('role');
@@ -30,295 +26,353 @@ const Consultas = () => {
       } else if (['guard', 'admin', 'adminBicicletero'].includes(role)) {
         data = await getAllConsultas();
       }
-      setConsultas(Array.isArray(data) ? data : []);
+      
+      const sortedData = (Array.isArray(data) ? data : []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setConsultas(sortedData);
     } catch (error) {
       console.error('Error al cargar consultas:', error);
-      showErrorAlert('Error al cargar consultas');
+      Swal.fire('Error', 'No se pudieron cargar las consultas', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmitConsulta = async (e) => {
-    e.preventDefault();
+  const handleFilterClick = async () => {
+    const { value: status } = await Swal.fire({
+      title: 'Filtrar Consultas',
+      input: 'select',
+      inputOptions: {
+        'all': 'Todas',
+        'Pendiente': 'Pendientes',
+        'Respondida': 'Respondidas',
+        'En proceso': 'En proceso'
+      },
+      inputValue: filterStatus,
+      showCancelButton: true,
+      confirmButtonColor: '#1565C0',
+      confirmButtonText: 'Filtrar',
+      cancelButtonText: 'Cancelar'
+    });
 
-    if (!pregunta.trim()) {
-      showErrorAlert('Por favor escribe una pregunta');
-      return;
+    if (status) {
+      setFilterStatus(status);
     }
+  };
 
-    if (pregunta.trim().length < 10) {
-      showErrorAlert('La pregunta debe tener al menos 10 caracteres');
-      return;
-    }
+  const clearFilters = () => {
+    setFilterStatus('all');
+  };
 
-    try {
-      setSubmitting(true);
-      const response = await createConsulta(pregunta);
-      
-      if (response.data) {
-        setConsultas([response.data, ...consultas]);
-        setPregunta('');
-        showSuccessAlert('Consulta enviada exitosamente');
+  const handleCreateConsulta = async () => {
+    const { value: pregunta } = await Swal.fire({
+      title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Nueva Consulta</h2>',
+      html: `
+        <div style="text-align: left; margin-top: 10px;">
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Tu Pregunta</label>
+            <textarea id="swal-pregunta" class="swal2-textarea" placeholder="Escribe tu consulta aquí (mínimo 10 caracteres)..." style="margin: 0 0 15px 0; width: 100%; height: 100px; resize: none; border: 1px solid #d9d9d9; box-sizing: border-box;"></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Enviar Consulta',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#2b79c2',
+      cancelButtonColor: '#d33',
+      width: '500px',
+      padding: '25px',
+      focusConfirm: false,
+      preConfirm: () => {
+        const text = document.getElementById('swal-pregunta').value;
+        if (!text || text.trim().length < 10) {
+          Swal.showValidationMessage('La pregunta debe tener al menos 10 caracteres');
+          return false;
+        }
+        return text;
       }
-    } catch (error) {
-      console.error('Error al crear consulta:', error);
-      showErrorAlert('Error al enviar tu consulta');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    });
 
-  const handleDeleteConsulta = async (id) => {
-    try {
-      await deleteConsulta(id);
-      setConsultas(consultas.filter(c => c.id !== id));
-      showSuccessAlert('Consulta eliminada exitosamente');
-    } catch (error) {
-      console.error('Error al eliminar consulta:', error);
-      showErrorAlert('Error al eliminar la consulta');
-    }
-  };
-
-  const handleResponderConsulta = async (id) => {
-    if (!respondingText.trim()) {
-      showErrorAlert('Por favor escribe una respuesta');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const response = await responderConsulta(id, respondingStatus, respondingText);
-      
-      if (response.data) {
-        setConsultas(consultas.map(c => 
-          c.id === id ? response.data : c
-        ));
-        setRespondingId(null);
-        setRespondingText('');
-        setRespondingStatus('Respondida');
-        showSuccessAlert('Respuesta enviada exitosamente');
+    if (pregunta) {
+      try {
+        await createConsulta(pregunta);
+        Swal.fire({
+          icon: 'success',
+          title: 'Enviada',
+          text: 'Tu consulta ha sido enviada exitosamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        loadConsultas(userRole);
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo enviar la consulta', 'error');
       }
-    } catch (error) {
-      console.error('Error al responder consulta:', error);
-      showErrorAlert('Error al enviar la respuesta');
-    } finally {
-      setSubmitting(false);
     }
   };
 
-  const toggleExpand = (id) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
+  const handleManageConsulta = async (consulta) => {
+    const isAdmin = ['guard', 'admin', 'adminBicicletero'].includes(userRole);
+    
+    const respuestaHtml = consulta.respuesta 
+        ? `<div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; text-align: left; margin-top: 15px; border-left: 4px solid #2e7d32;">
+             <strong style="color: #2e7d32; font-size: 1rem; display: block; margin-bottom: 5px;">Respuesta:</strong>
+             <p style="margin: 0; font-size: 0.95rem; color: #333; white-space: pre-wrap;">${consulta.respuesta}</p>
+           </div>`
+        : `<div style="margin-top: 15px; padding: 10px; color: #757575; font-style: italic; text-align: center; border: 1px dashed #ccc; border-radius: 5px; background-color: #fafafa;">
+             Aún no hay respuesta.
+           </div>`;
+    if (isAdmin) {
+        const { value: formValues } = await Swal.fire({
+            title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Gestionar Consulta</h2>',
+            html: `
+                <div style="text-align: left; margin-top: 10px; font-size: 0.95rem;">
+                    <p><strong>Usuario:</strong> ${consulta.user?.nombre || 'Anónimo'}</p>
+                    <p><strong>Pregunta:</strong></p>
+                    <p style="background: #f5f5f5; padding: 10px; border-radius: 5px;">${consulta.pregunta}</p>
+                    
+                    <hr style="margin: 15px 0; border-top: 1px solid #eee;">
+                    
+                    <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Estado</label>
+                    <select id="swal-status" class="swal2-select" style="margin: 0 0 15px 0; width: 100%; border: 1px solid #d9d9d9; padding: 10px; border-radius: 4px;">
+                        <option value="Pendiente" ${consulta.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                        <option value="En proceso" ${consulta.estado === 'En proceso' ? 'selected' : ''}>En proceso</option>
+                        <option value="Respondida" ${consulta.estado === 'Respondida' ? 'selected' : ''}>Respondida</option>
+                    </select>
 
-  const getEstadoColor = (estado) => {
-    switch (estado) {
-      case 'Respondida':
-        return 'estado-respondida';
-      case 'Pendiente':
-        return 'estado-pendiente';
-      case 'En proceso':
-        return 'estado-proceso';
-      default:
-        return 'estado-pendiente';
+                    <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Respuesta</label>
+                    <textarea id="swal-respuesta" class="swal2-textarea" placeholder="Escribe la respuesta..." style="margin: 0; width: 100%; height: 100px; resize: none; border: 1px solid #d9d9d9;">${consulta.respuesta || ''}</textarea>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar Cambios',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#2b79c2',
+            focusConfirm: false,
+            preConfirm: () => {
+                return {
+                    estado: document.getElementById('swal-status').value,
+                    respuesta: document.getElementById('swal-respuesta').value
+                };
+            }
+        });
+
+        if (formValues) {
+            try {
+                await responderConsulta(consulta.id, formValues.estado, formValues.respuesta);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Actualizado',
+                    text: 'Consulta actualizada correctamente',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                loadConsultas(userRole);
+            } catch (error) {
+                Swal.fire('Error', 'No se pudo actualizar la consulta', 'error');
+            }
+        }
+    } else {
+        Swal.fire({
+            title: `<h3 style="color: #1565C0; margin: 0; font-size: 1.5rem;">Detalle de Consulta</h3>`,
+            html: `
+                <div style="text-align: left; font-size: 0.95rem; color: #444;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span><strong>Estado:</strong> <span style="color: ${getStatusColor(consulta.estado)}; font-weight: bold;">${consulta.estado}</span></span>
+                        <span><strong>Fecha:</strong> ${new Date(consulta.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p style="margin-bottom: 5px;"><strong>Tu Pregunta:</strong></p>
+                    <p style="color: #333; background: #f5f5f5; padding: 10px; border-radius: 5px;">${consulta.pregunta}</p>
+                    
+                    ${respuestaHtml}
+                </div>
+            `,
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#2b79c2',
+            showCloseButton: true
+        });
     }
   };
 
-  const formatFecha = (fecha) => {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-ES', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  const handleDelete = async (id) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await deleteConsulta(id);
+                Swal.fire('Eliminado', 'La consulta ha sido eliminada.', 'success');
+                loadConsultas(userRole);
+            } catch (error) {
+                Swal.fire('Error', 'No se pudo eliminar', 'error');
+            }
+        }
     });
   };
 
-  const isAdmin = ['guard', 'admin', 'adminBicicletero'].includes(userRole);
+  const getStatusColor = (status) => {
+    switch(status) {
+        case 'Pendiente': return '#95a5a6';
+        case 'En proceso': return '#f1c40f'; 
+        case 'Respondida': return '#2ecc71'; 
+        default: return '#95a5a6'; 
+    }
+  };
+
+  const formatId = (id) => {
+    return `#${id.toString().padStart(3, '0')}`;
+  };
+
+  const filteredConsultas = consultas.filter(c => 
+    filterStatus === 'all' || c.estado === filterStatus
+  );
+
+  const isAdminOrGuard = ['admin', 'guard', 'adminBicicletero'].includes(userRole);
 
   return (
     <div className="consultas-container">
       <div className="consultas-header">
-        <h1 className="consultas-title">MIS CONSULTAS</h1>
-        <p className="consultas-subtitle">
-          {isAdmin 
-            ? 'Gestiona las consultas de los usuarios y responde sus preguntas'
-            : 'Aqui tus respuestas seran respondidas por los trabajadores'
-          }
-        </p>
+        <h1>CONSULTAS</h1>
+        
+        <div className="header-filter-actions">
+            {filterStatus !== 'all' && (
+                <span className="filter-badge">
+                    {filterStatus}
+                    <IoCloseCircle 
+                    size={18} 
+                    className="filter-close-icon"
+                    onClick={clearFilters}
+                    title="Quitar filtro"
+                    />
+                </span>
+            )}
+            <button 
+                className="btn-filter-icon" 
+                onClick={handleFilterClick} 
+                title="Filtrar Consultas"
+            >
+                <IoFilterCircle size={45} />
+            </button>
+        </div>
       </div>
 
-      <div className="consultas-content">
-        {/* Formulario para crear consulta (solo usuarios) */}
-        {!isAdmin && (
-          <div className="consulta-form-section">
-            <h2 className="form-title">Haz tu pregunta</h2>
-            <form onSubmit={handleSubmitConsulta} className="consulta-form">
-              <div className="form-group">
-                <textarea
-                  value={pregunta}
-                  onChange={(e) => setPregunta(e.target.value)}
-                  placeholder="Escribe tu pregunta aquí (mínimo 10 caracteres)..."
-                  className="consulta-textarea"
-                  rows="4"
-                  disabled={submitting}
-                />
-              </div>
-              <button
-                type="submit"
-                className="submit-button"
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>
-                    <FaSpinner className="spinner-icon" /> Enviando...
-                  </>
-                ) : (
-                  '✉️ Enviar Consulta'
-                )}
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Lista de consultas */}
-        <div className="consultas-list-section">
-          <h2 className="consultas-list-title">
-            {isAdmin ? 'Todas las Consultas' : 'Mis Consultas'}
-          </h2>
-          
-          {loading ? (
-            <div className="loading-message">Cargando consultas...</div>
-          ) : consultas.length === 0 ? (
-            <div className="no-consultas-message">
-              <p>{isAdmin ? 'No hay consultas disponibles' : 'Aún no has enviado ninguna consulta'}</p>
-              <p>{isAdmin ? 'Los usuarios aún no han realizado consultas' : 'Usa el formulario anterior para hacer tu primera pregunta'}</p>
-            </div>
-          ) : (
-            <div className="consultas-list">
-              {consultas.map((consulta) => (
-                <div key={consulta.id} className="consulta-item">
-                  <div className="consulta-header-bar">
-                    <div className="consulta-header-info">
-                      <h3 className="consulta-pregunta">{consulta.pregunta}</h3>
-                      <p className="consulta-usuario">
-                        <strong>Por:</strong> {consulta.user?.nombre || 'Usuario anónimo'}
-                      </p>
-                      <div className="consulta-meta">
-                        <span className={`consulta-estado ${getEstadoColor(consulta.estado)}`}>
-                          {consulta.estado}
-                        </span>
-                        <span className="consulta-fecha">{formatFecha(consulta.created_at)}</span>
-                      </div>
-                    </div>
-                    <div className="consulta-actions">
-                      <button
-                        className={`consulta-toggle-btn ${expandedItems[consulta.id] ? 'active' : ''}`}
-                        onClick={() => toggleExpand(consulta.id)}
-                      >
-                        {expandedItems[consulta.id] ? <FaChevronUp /> : <FaChevronDown />}
-                      </button>
-                      {!isAdmin && (
-                        <button
-                          className="delete-button"
-                          onClick={() => handleDeleteConsulta(consulta.id)}
-                          title="Eliminar consulta"
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {expandedItems[consulta.id] && (
-                    <div className="consulta-content">
-                      {consulta.respuesta ? (
-                        <div className="consulta-respuesta">
-                          <h4 className="respuesta-title">Respuesta del equipo:</h4>
-                          <p className="respuesta-text">{consulta.respuesta}</p>
+      <div className="consultas-wrapper">
+        <div className="consultas-scroll-area">
+            {loading ? (
+                <div className="loading-text">Cargando consultas...</div>
+            ) : filteredConsultas.length === 0 ? (
+                <div className="no-data-text">No hay consultas encontradas.</div>
+            ) : (
+                <>
+                    {isAdminOrGuard ? (
+                        <table className="consultas-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estado</th>
+                                    <th>Pregunta</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredConsultas.map((cons) => (
+                                    <tr key={cons.id}>
+                                        <td style={{color: '#1565C0', fontWeight: 'bold'}}>
+                                            {formatId(cons.id)}
+                                        </td>
+                                        <td>
+                                            <span className="status-badge" style={{backgroundColor: getStatusColor(cons.estado)}}>
+                                                {cons.estado}
+                                            </span>
+                                        </td>
+                                        <td style={{maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                                            {cons.pregunta}
+                                        </td>
+                                        <td>
+                                            <div style={{display:'flex', flexDirection:'column'}}>
+                                                <strong>{cons.user?.nombre || 'Anónimo'}</strong>
+                                                <span style={{fontSize:'0.8rem', color:'#888'}}>{cons.user?.email}</span>
+                                            </div>
+                                        </td>
+                                        <td>{new Date(cons.created_at).toLocaleDateString()}</td>
+                                        <td>
+                                            <button className="btn-icon-small" title="Responder/Gestionar" onClick={() => handleManageConsulta(cons)}>
+                                                <FaEdit />
+                                            </button>
+                                            <button className="btn-icon-small" title="Eliminar" style={{color: '#d32f2f'}} onClick={() => handleDelete(cons.id)}>
+                                                <FaTrash />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="consultas-grid">
+                            {filteredConsultas.map((cons) => (
+                                <div 
+                                    key={cons.id} 
+                                    className="consulta-card" 
+                                    onClick={() => handleManageConsulta(cons)}
+                                    title="Haz clic para ver detalles"
+                                >
+                                    <div className="card-header-status" style={{ backgroundColor: getStatusColor(cons.estado) }}>
+                                        {cons.estado}
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="card-meta">
+                                            <span>Consulta</span>
+                                            <span>{new Date(cons.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="card-title">
+                                            <span style={{color: '#1565C0', fontWeight: 'bold', marginRight: '5px'}}>
+                                                {formatId(cons.id)}
+                                            </span>
+                                            {cons.pregunta}
+                                        </div>
+                                        {cons.respuesta ? (
+                                            <p style={{color:'#2e7d32', fontSize:'0.85rem', marginTop: '10px', fontStyle:'italic'}}>
+                                                ✓ Respondida
+                                            </p>
+                                        ) : (
+                                            <p style={{color:'#999', fontSize:'0.85rem', marginTop: '10px', fontStyle:'italic'}}>
+                                                Esperando respuesta...
+                                            </p>
+                                        )}
+                                        
+                                        <div style={{marginTop: 'auto', paddingTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
+                                            <button 
+                                                className="btn-icon-small" 
+                                                style={{color: '#d32f2f'}}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(cons.id);
+                                                }}
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                      ) : (
-                        <div className="sin-respuesta-message">
-                          <p>{isAdmin ? 'Esta consulta aún no tiene respuesta' : 'Aún no hay respuesta para tu consulta'}</p>
-                          <p>{isAdmin ? 'Proporciona una respuesta abajo' : 'Nuestro equipo está trabajando en ello'}</p>
-                        </div>
-                      )}
-
-                      {isAdmin && respondingId !== consulta.id && (
-                        <button
-                          className="responder-button"
-                          onClick={() => {
-                            setRespondingId(consulta.id);
-                            setRespondingText(consulta.respuesta || '');
-                            setRespondingStatus(consulta.estado);
-                          }}
-                        >
-                          <FaReply /> {consulta.respuesta ? 'Editar Respuesta' : 'Responder'}
-                        </button>
-                      )}
-
-                      {isAdmin && respondingId === consulta.id && (
-                        <div className="responder-form">
-                          <div className="form-group">
-                            <label className="form-label">Estado:</label>
-                            <select
-                              value={respondingStatus}
-                              onChange={(e) => setRespondingStatus(e.target.value)}
-                              className="estado-select"
-                            >
-                              <option value="Pendiente">Pendiente</option>
-                              <option value="En proceso">En proceso</option>
-                              <option value="Respondida">Respondida</option>
-                            </select>
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label">Tu respuesta:</label>
-                            <textarea
-                              value={respondingText}
-                              onChange={(e) => setRespondingText(e.target.value)}
-                              placeholder="Escribe la respuesta..."
-                              className="respuesta-textarea"
-                              rows="4"
-                              disabled={submitting}
-                            />
-                          </div>
-                          <div className="responder-buttons">
-                            <button
-                              type="button"
-                              className="submit-respuesta-button"
-                              onClick={() => handleResponderConsulta(consulta.id)}
-                              disabled={submitting}
-                            >
-                              {submitting ? (
-                                <>
-                                  <FaSpinner className="spinner-icon" /> Enviando...
-                                </>
-                              ) : (
-                                '✓ Enviar Respuesta'
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              className="cancel-respuesta-button"
-                              onClick={() => setRespondingId(null)}
-                              disabled={submitting}
-                            >
-                              ✕ Cancelar
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                    )}
+                </>
+            )}
         </div>
+      </div>
+
+      <div className="consultas-actions">
+        {userRole === 'user' && (
+            <button className="btn-action" onClick={handleCreateConsulta}>
+                <FaPlus /> Crear Nueva Consulta
+            </button>
+        )}
       </div>
     </div>
   );

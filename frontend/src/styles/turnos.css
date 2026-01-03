@@ -104,7 +104,7 @@
   background: white;
   border-radius: 1rem;
   overflow: hidden;
-  table-layout: fixed; /* Esto hace que las columnas mantengan sus anchos */
+  table-layout: fixed; 
 }
 
 .tabla-turnos thead {
@@ -112,28 +112,27 @@
   color: white;
 }
 
-/* Anchos específicos y proporcionales para cada columna */
-.tabla-turnos thead th:nth-child(1) { /* GUARDIAS */
+.tabla-turnos thead th:nth-child(1) { 
   width: 18%;
 }
 
-.tabla-turnos thead th:nth-child(2) { /* EMAIL */
+.tabla-turnos thead th:nth-child(2) {
   width: 22%;
 }
 
-.tabla-turnos thead th:nth-child(3) { /* TELÉFONO */
+.tabla-turnos thead th:nth-child(3) { 
   width: 12%;
 }
 
-.tabla-turnos thead th:nth-child(4) { /* HORA INICIO */
+.tabla-turnos thead th:nth-child(4) {
   width: 12%;
 }
 
-.tabla-turnos thead th:nth-child(5) { /* HORA SALIDA */
+.tabla-turnos thead th:nth-child(5) { 
   width: 12%;
 }
 
-.tabla-turnos thead th:nth-child(6) { /* BICICLETERO */
+.tabla-turnos thead th:nth-child(6) { 
   width: 24%;
 }
 
@@ -180,14 +179,12 @@
   border-right: none;
 }
 
-/* Estilo específico para email - azul */
 .tabla-turnos tbody td:nth-child(2) {
   color: #1565C0;
   font-weight: 500;
   font-size: 0.95rem;
 }
 
-/* Estilo específico para teléfono - negrita */
 .tabla-turnos tbody td:nth-child(3) {
   font-weight: 600;
   color: #333;
@@ -198,7 +195,6 @@
   background-color: #f5f9ff;
 }
 
-/* Asegura que todos los inputs y selects estén centrados */
 .tabla-turnos tbody td input,
 .tabla-turnos tbody td select {
   margin: 0 auto;
@@ -213,7 +209,6 @@
   font-size: 0.95rem;
   color: #333;
   cursor: pointer;
-  width: 120px;
   outline: none;
   transition: border-color 0.2s, background-color 0.2s;
   text-align: center;

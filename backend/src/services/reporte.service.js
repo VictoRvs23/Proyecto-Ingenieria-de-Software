@@ -67,3 +67,20 @@ export const updateReportStatusService = async (id, estado, respuesta) => {
 
   return reporteActualizado;
 };
+
+export async function deleteReportService(id) {
+    try {
+        const reportRepository = AppDataSource.getRepository(Reporte);
+        const report = await reportRepository.findOne({ where: { id: Number(id) } });
+
+        if (!report) {
+            return null;
+        }
+
+        const deletedReport = await reportRepository.remove(report);
+        return deletedReport;
+    } catch (error) {
+        console.error("Error en deleteReportService:", error);
+        throw error;
+    }
+}

@@ -2,7 +2,8 @@ import {
   createReportService, 
   getAllReportsService, 
   getReportsByUserService, 
-  updateReportStatusService 
+  updateReportStatusService,
+  deleteReportService 
 } from "../services/reporte.service.js";
 
 export const createReport = async (req, res) => {
@@ -59,4 +60,20 @@ export const updateStatus = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Error al actualizar estado" });
   }
+};
+
+export const deleteReport = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await deleteReportService(id);
+
+        if (!resultado) {
+            return res.status(404).json({ message: "Reporte no encontrado" });
+        }
+
+        return res.status(200).json({ message: "Reporte eliminado exitosamente" });
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        return res.status(500).json({ message: "Error al eliminar el reporte" });
+    }
 };
