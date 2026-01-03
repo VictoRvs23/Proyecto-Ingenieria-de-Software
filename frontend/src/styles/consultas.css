@@ -208,7 +208,6 @@
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
-  /* Efecto de puntos suspensivos */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;

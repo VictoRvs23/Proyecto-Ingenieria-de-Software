@@ -172,8 +172,7 @@ const Reportes = () => {
       }
     }
   };
-
-  // --- FUNCIÓN PARA ELIMINAR REPORTE (USUARIO) ---
+  
   const handleDeleteReport = async (id) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -488,7 +487,6 @@ const Reportes = () => {
                                             <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
                                             
                                             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px'}}>
-                                                {/* Botón Ver Evidencia (si existe) */}
                                                 <div>
                                                     {hasValidImage && (
                                                         <button 
@@ -502,8 +500,6 @@ const Reportes = () => {
                                                         </button>
                                                     )}
                                                 </div>
-
-                                                {/* Botón Eliminar Reporte (NUEVO) */}
                                                 <button 
                                                     style={{background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: '1.2rem'}}
                                                     title="Eliminar Reporte"
