@@ -1,9 +1,21 @@
+'use strict';
+import { AppDataSource } from "../config/configDb.js";
+import { User } from "../entities/user.entity.js";
 import { deleteTurn } from "./turn.service.js";
+import { sendEmail } from "./email.service.js"; // <--- 1. IMPORTA TU NUEVO SERVICIO
+import bcrypt from "bcrypt";
+
+const userRepository = AppDataSource.getRepository(User);
+
+/**
+ * Elimina usuario y su turno asociado
+ */
 export async function deleteUserAndTurn(userId) {
   try {
     try {
       await deleteTurn(userId);
     } catch (e) {
+      // Si no hay turno, ignoramos el error y seguimos
     }
     const user = await userRepository.findOneBy({ id: userId });
     if (!user) throw new Error("Usuario no encontrado");
@@ -13,12 +25,10 @@ export async function deleteUserAndTurn(userId) {
     throw new Error(`Error al eliminar usuario: ${error.message}`);
   }
 }
-import { AppDataSource } from "../config/configDb.js";
-import { User } from "../entities/user.entity.js";
-import bcrypt from "bcrypt";
 
-const userRepository = AppDataSource.getRepository(User);
-
+/**
+ * Crea un nuevo usuario y envía correo de bienvenida
+ */
 export async function createUser(data) {
   const existingUser = await userRepository.findOneBy({ email: data.email });
   
@@ -42,7 +52,29 @@ export async function createUser(data) {
     role: "user",
   });
 
-  return await userRepository.save(newUser);
+  // 2. GUARDAMOS EL USUARIO EN LA BD
+  const savedUser = await userRepository.save(newUser);
+
+  // 3. ENVIAMOS EL GMAIL (No usamos await aquí para que la respuesta al usuario sea instantánea)
+  sendEmail(
+    savedUser.email,
+    "¡Bienvenido al Sistema Bicicletero UBB!",
+    `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <h2 style="color: #2c3e50;">¡Hola ${savedUser.nombre}!</h2>
+      <p>Gracias por registrarte en nuestro sistema de bicicleteros.</p>
+      <p>Ahora puedes acceder a la plataforma para:</p>
+      <ul>
+        <li>Reservar espacios para tu bicicleta.</li>
+        <li>Ver el estado de los bicicleteros en tiempo real.</li>
+        <li>Realizar consultas y reportes.</li>
+      </ul>
+      <p style="margin-top: 20px;">Saludos,<br><b>Equipo Bicicletero UBB</b></p>
+    </div>
+    `
+  ).catch(err => console.error("Error enviado correo de bienvenida:", err));
+
+  return savedUser;
 }
 
 export async function findUserByEmail(email) {
