@@ -1,26 +1,66 @@
 import { AppDataSource } from "../config/configDb.js";
 import { Inform } from "../entities/inform.entity.js";
 import { DailyReport } from "../entities/dailyReport.entity.js";
+import { Turn } from "../entities/turn.entity.js";
 import PDFDocument from "pdfkit";
 
 const informRepository = AppDataSource.getRepository(Inform);
 const dailyReportRepository = AppDataSource.getRepository(DailyReport);
+const turnRepository = AppDataSource.getRepository(Turn);
 
-export async function createInformLog(reserve, note = "") {
+// Función original para logs de reservas
+export async function createInformLog(reserve, note = "", actionType = null) {
     try {
+        const tipoAccion = actionType || reserve.estado;
+        
         const newLog = informRepository.create({
             bicicletero_number: reserve.bicicletero ? reserve.bicicletero.number : null,
-            estado_nuevo: reserve.estado,
+            estado_nuevo: tipoAccion,
             user: reserve.user,
             user_email_snapshot: reserve.user.email,
             bike: reserve.bike,
-            nota: note || "Sin nota"
+            nota: note || "Sin nota",
+            espacio: reserve.space || null
         });
 
         await informRepository.save(newLog);
-        console.log("Log de informe creado con éxito.");
+        console.log(`Log de informe creado con éxito. Tipo: ${tipoAccion}`);
     } catch (error) {
         console.error("Error creando log de informe:", error);
+    }
+}
+
+// Nueva función para logs de turnos
+export async function createInformLogForTurn(turn, note = "", actionType = "turno_cambiado") {
+    try {
+        // Obtener usuario completo con relaciones
+        const turnWithUser = await turnRepository.findOne({
+            where: { id: turn.id },
+            relations: ["user"]
+        });
+
+        if (!turnWithUser || !turnWithUser.user) {
+            console.error("No se pudo obtener información del usuario para el log de turno");
+            return;
+        }
+
+        const newLog = informRepository.create({
+            bicicletero_number: turn.bicicletero ? parseInt(turn.bicicletero) : null,
+            estado_nuevo: actionType,
+            user: turnWithUser.user,
+            user_email_snapshot: turnWithUser.user.email,
+            bike: null, // Los turnos no tienen bicicleta
+            nota: `${note}. Guardia: ${turnWithUser.user.nombre || turnWithUser.user.name || 'N/A'}, ` +
+                `Email: ${turnWithUser.user.email}, ` +
+                `Bicicletero: ${turn.bicicletero || 'N/A'}, ` +
+                `Horario: ${turn.hora_inicio || 'N/A'} - ${turn.hora_salida || 'N/A'}`,
+            espacio: null
+        });
+
+        await informRepository.save(newLog);
+        console.log("Log de turno creado con éxito.");
+    } catch (error) {
+        console.error("Error creando log de turno:", error);
     }
 }
 
@@ -34,7 +74,6 @@ export async function listReports() {
         order: { fecha_reporte: "DESC" }
     });
 }
-
 
 function getYesterdayDate() {
     const yesterday = new Date();
@@ -128,22 +167,77 @@ async function generateReportForDate(fecha, logs) {
         } else {
             logs.forEach((log, index) => {
                 const hora = new Date(log.fecha_hora).toLocaleTimeString();
-                const biciId = log.bike ? log.bike.id : "Eliminada";
-                const userId = log.user ? log.user.id : "Eliminado";
+                const biciId = log.bike ? log.bike.id : "N/A";
+                const userId = log.user ? log.user.id : "N/A";
+                const userName = log.user ? (log.user.nombre || log.user.name || "N/A") : "N/A";
                 const userEmail = log.user_email_snapshot || "Sin email";
-                const bicicletero = log.bicicletero_number;
+                const bicicletero = log.bicicletero_number || "N/A";
                 const nota = log.nota ? log.nota : "Sin nota";
                 const estado = log.estado_nuevo.toUpperCase();
+                const espacio = log.espacio ? `Espacio: ${log.espacio}` : "";
+
+                // Determinar color según tipo de acción
+                let color = 'black';
+                let tituloAccion = estado;
+                
+                switch(log.estado_nuevo.toLowerCase()) {
+                    case 'solicitada':
+                        color = 'orange';
+                        tituloAccion = 'RESERVA CREADA';
+                        break;
+                    case 'ingresada':
+                        color = 'green';
+                        tituloAccion = 'BICICLETA INGRESADA';
+                        break;
+                    case 'entregada':
+                        color = 'blue';
+                        tituloAccion = 'BICICLETA ENTREGADA';
+                        break;
+                    case 'cancelada':
+                        color = 'red';
+                        tituloAccion = 'RESERVA CANCELADA';
+                        break;
+                    case 'turno_cambiado':
+                        color = 'purple';
+                        tituloAccion = 'TURNO MODIFICADO';
+                        break;
+                    default:
+                        color = 'black';
+                        tituloAccion = estado;
+                }
 
                 doc.fontSize(10).font('Helvetica-Bold');
-                doc.fillColor(estado === 'INGRESADA' ? 'green' : (estado === 'ENTREGADA' ? 'blue' : 'red'));
-                doc.text(`[${hora}] Estado: ${estado}`);
+                doc.fillColor(color);
+                doc.text(`[${hora}] ${tituloAccion}`);
                 doc.fillColor('black').font('Helvetica');
-                doc.text(`Bicicletero: #${bicicletero}  |  Bici ID: ${biciId}  |  Usuario ID: ${userId}`);
-                doc.text(`Usuario Email: ${userEmail}`);
+                
+                // Mostrar información específica según el tipo de log
+                if (log.estado_nuevo.toLowerCase() === 'turno_cambiado') {
+                    // Formato para logs de turnos
+                    doc.text(`Guardia: ${userName} (ID: ${userId})`);
+                    doc.text(`Email: ${userEmail}`);
+                    doc.text(`Bicicletero asignado: ${bicicletero}`);
+                    
+                    // Extraer información de horario de la nota
+                    const horarioMatch = nota.match(/Horario:\s*([^-]+)\s*-\s*(.+)/);
+                    if (horarioMatch) {
+                        doc.text(`Horario: ${horarioMatch[1].trim()} - ${horarioMatch[2].trim()}`);
+                    }
+                } else {
+                    // Formato para logs de reservas/bicicletas
+                    doc.text(`Bicicletero: #${bicicletero}  |  Bici ID: ${biciId}  |  Usuario ID: ${userId}`);
+                    doc.text(`Usuario: ${userName} (${userEmail})`);
+                    if (espacio) {
+                        doc.text(espacio);
+                    }
+                }
+                
                 if (nota !== "Sin nota" && nota !== "") {
                     doc.font('Helvetica-Oblique').fillColor('gray');
-                    doc.text(`Nota: "${nota}"`);
+                    // Mostrar solo parte relevante de la nota para turnos
+                    if (log.estado_nuevo.toLowerCase() !== 'turno_cambiado') {
+                        doc.text(`Nota: "${nota}"`);
+                    }
                 }
                 doc.moveDown(0.5);
                 doc.strokeColor('#cccccc').moveTo(30, doc.y).lineTo(550, doc.y).stroke();

@@ -71,7 +71,7 @@ async function verificarEspacioDisponible(bicicleteroNumber, space, excludeToken
     const whereClause = {
         bicicletero: { number: bicicleteroNumber },
         space: space,
-        estado: In(["solicitada", "ingresada"])
+        estado: In(["ingresada"]) // SOLO verificamos reservas "ingresadas" que ocupan espacio físico
     };
     
     // Si estamos excluyendo un token (para updates), agregar esa condición
@@ -84,7 +84,7 @@ async function verificarEspacioDisponible(bicicleteroNumber, space, excludeToken
     });
     
     if (existingReserveInSpace) {
-        throw new Error(`El espacio ${space} ya está ocupado en el bicicletero ${bicicleteroNumber}`);
+        throw new Error(`El espacio ${space} ya está ocupado por una bicicleta ingresada en el bicicletero ${bicicleteroNumber}`);
     }
     
     return true;
@@ -155,7 +155,7 @@ export async function createReserveService(reserveData, userId) {
 
         if (!bicicletero) throw new Error(`El bicicletero número ${bicicletero_number} no existe`);
         
-        // VALIDACIÓN 1: Verificar que no haya más de 15 reservas activas en el bicicletero
+        // VALIDACIÓN: Verificar que no haya más de 15 reservas activas en el bicicletero
         const activeReservesCount = await reserveRepository.count({
             where: {
                 bicicletero: { number: bicicletero_number },
@@ -168,26 +168,24 @@ export async function createReserveService(reserveData, userId) {
             throw new Error(`El bicicletero ${bicicletero_number} está lleno (máximo ${maxSpaces} reservas activas)`);
         }
 
-        // VALIDACIÓN 2: Si se especifica espacio, verificar que esté disponible
-        let espacioAsignado = space;
+        // IMPORTANTE: NO asignamos espacio automáticamente al crear la reserva
+        // El espacio será null hasta que el guardia ingrese la bicicleta
+        // Solo validamos espacio si el usuario intenta especificar uno
+        let espacioAsignado = null;
         
-        if (espacioAsignado) {
-            await verificarEspacioDisponible(bicicletero_number, espacioAsignado);
-        } else {
-            // Asignar espacio automáticamente si no se especifica
-            espacioAsignado = await asignarEspacioAutomatico(bicicletero_number);
-            
-            if (!espacioAsignado) {
-                throw new Error(`No hay espacios disponibles en el bicicletero ${bicicletero_number}`);
-            }
+        if (space) {
+            // Si el usuario proporciona un espacio, validamos que esté disponible
+            await verificarEspacioDisponible(bicicletero_number, space);
+            espacioAsignado = space;
         }
+        // Si no se proporciona espacio, la reserva se crea sin espacio asignado (null)
 
         const token = Math.floor(1000 + Math.random() * 9000);
         
         const newReserve = reserveRepository.create({
             token,
             estado: "solicitada",
-            space: espacioAsignado,
+            space: espacioAsignado, // Puede ser null si no se especifica espacio
             foto_url,
             doc_url,
             last_status_change: new Date(),
@@ -197,6 +195,12 @@ export async function createReserveService(reserveData, userId) {
         });
 
         const savedReserve = await reserveRepository.save(newReserve);
+
+        // ✅ CREAR LOG DE RESERVA CREADA
+        await createInformLog(savedReserve, 
+            `Reserva creada. Token: ${savedReserve.token}. ${espacioAsignado ? `Espacio: ${espacioAsignado}` : 'Sin espacio asignado aún.'}`, 
+            "solicitada"
+        );
 
         return savedReserve;
 
@@ -231,16 +235,46 @@ export async function updateReserveService(token, updateData) {
             );
         }
 
+        // VALIDACIÓN ESPECIAL: Si se está cambiando a "ingresada", asegurar que haya espacio
+        if (updateData.estado === "ingresada" && !updateData.space && !reserve.space) {
+            throw new Error("No se puede cambiar a 'ingresada' sin especificar un espacio");
+        }
+
         // Actualizar el timestamp del último cambio de estado
         if (updateData.estado && updateData.estado !== reserve.estado) {
             updateData.last_status_change = new Date();
         }
 
+        // Guardar el estado anterior para comparar
+        const estadoAnterior = reserve.estado;
+        const espacioAnterior = reserve.space;
+
         reserveRepository.merge(reserve, updateData);
         const updatedReserve = await reserveRepository.save(reserve);
 
-        if (["ingresada", "entregada"].includes(updatedReserve.estado)) {
-            await createInformLog(updatedReserve, updateData.nota || "Estado actualizado");
+        // ✅ CREAR LOGS SEGÚN EL CAMBIO DE ESTADO
+        if (updatedReserve.estado === "ingresada") {
+            await createInformLog(updatedReserve, 
+                `Bicicleta ingresada en espacio ${updatedReserve.space}. ${updateData.nota || "Bicicleta ingresada al bicicletero"}`,
+                "ingresada"
+            );
+        } else if (updatedReserve.estado === "entregada") {
+            await createInformLog(updatedReserve, 
+                updateData.nota || `Bicicleta retirada del espacio ${espacioAnterior || "sin espacio asignado"}`,
+                "entregada"
+            );
+        } else if (updatedReserve.estado === "cancelada" && estadoAnterior !== "cancelada") {
+            // Solo crear log si se cancela por primera vez
+            await createInformLog(updatedReserve, 
+                updateData.nota || "Reserva cancelada", 
+                "cancelada"
+            );
+        } else if (updateData.space && updateData.space !== espacioAnterior) {
+            // Log si solo se cambia el espacio
+            await createInformLog(updatedReserve, 
+                `Espacio cambiado de ${espacioAnterior || "sin asignar"} a ${updateData.space}. ${updateData.nota || ""}`,
+                "espacio_cambiado"
+            );
         }
 
         return updatedReserve;
@@ -248,7 +282,6 @@ export async function updateReserveService(token, updateData) {
         throw new Error(`Error actualizando reserva: ${error.message}`);
     }
 }
-
 
 export async function deleteReserveService(token) {
     try {

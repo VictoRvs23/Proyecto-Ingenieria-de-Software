@@ -31,6 +31,10 @@ export const Inform = new EntitySchema({
       type: "text", 
       nullable: true 
     },
+    espacio: { 
+      type: "int",
+      nullable: true
+    }
   },
   relations: {
     user: {
