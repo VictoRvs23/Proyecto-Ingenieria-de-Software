@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { createReport, getMyReports, getAllReports, updateReportStatus } from '../services/reporte.service';
+import { createReport, getMyReports, getAllReports, updateReportStatus, deleteReport } from '../services/reporte.service';
 import Swal from 'sweetalert2';
 import '../styles/reportes.css';
-import { FaPlus, FaEye, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { IoFilterCircle, IoCloseCircle } from "react-icons/io5";
 
 const SERVER_URL = "http://localhost:3000";
@@ -172,6 +172,37 @@ const Reportes = () => {
       }
     }
   };
+  
+  const handleDeleteReport = async (id) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esto. El reporte será eliminado permanentemente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteReport(id);
+          Swal.fire(
+            'Eliminado!',
+            'Tu reporte ha sido eliminado.',
+            'success'
+          );
+          fetchReportes(userRole);
+        } catch (error) {
+          Swal.fire(
+            'Error',
+            'No se pudo eliminar el reporte.',
+            'error'
+          );
+        }
+      }
+    });
+  };
 
   const handleCreateReport = async () => {
     const { value: formValues } = await Swal.fire({
@@ -182,19 +213,22 @@ const Reportes = () => {
             <input id="swal-titulo" class="swal2-input" placeholder="Ej: Robo de casco" style="margin: 0 0 15px 0; width: 100%; box-sizing: border-box;">
 
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Tipo de problema</label>
-            <select id="swal-tipo" class="swal2-select" style="margin: 0 0 15px 0; width: 100%; border: 1px solid #d9d9d9; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+            <select id="swal-tipo" class="swal2-select" style="width: 100%; margin: 0 0 15px 0; display: block; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                <option value="" disabled selected>Selecciona una opción...</option>
                 <option value="Robo">🚨 Robo</option>
                 <option value="Daño">🚲 Daño</option>
                 <option value="Objeto Perdido">🔍 Objeto Perdido</option>
-                <option value="Reclamo/Sugerencia">🗣️ Reclamo o Sugerencia</option>
+                <option value="Reclamo/Sugerencia">🗣️ Reclamo/Sugerencia</option>
                 <option value="Otro">📝 Otro</option>
             </select>
 
+            <div id="anonimo-wrapper" style="display: none; margin-bottom: 15px; align-items: center;">
+                <input type="checkbox" id="swal-anonimo" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="swal-anonimo" style="margin-left: 10px; cursor: pointer; color: #555;">Enviar como anónimo (se ocultará tu nombre)</label>
+            </div>
+
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Descripción</label>
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Detalla qué sucedió..." style="margin: 0 0 15px 0; width: 100%; height: 80px; resize: none; border: 1px solid #d9d9d9; box-sizing: border-box;"></textarea>
-            
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Evidencia (Opcional)</label>
-            <input type="file" id="swal-img" class="swal2-file" style="font-size: 0.9rem; border: 1px solid #d9d9d9; width: 100%; box-sizing: border-box;">
         </div>
       `,
       showCancelButton: true,
@@ -205,26 +239,32 @@ const Reportes = () => {
       width: '500px',
       padding: '25px',
       focusConfirm: false,
+      didOpen: () => {
+        const tipoSelect = Swal.getPopup().querySelector('#swal-tipo');
+        const anonWrapper = Swal.getPopup().querySelector('#anonimo-wrapper');
+        const anonCheckbox = Swal.getPopup().querySelector('#swal-anonimo');
+
+        tipoSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'Reclamo/Sugerencia') {
+                anonWrapper.style.display = 'flex';
+            } else {
+                anonWrapper.style.display = 'none';
+                anonCheckbox.checked = false; 
+            }
+        });
+      },
       preConfirm: () => {
         const titulo = document.getElementById('swal-titulo').value;
-        const tipo = document.getElementById('swal-tipo').value;
+        const tipo = document.getElementById('swal-tipo').value; 
         const descripcion = document.getElementById('swal-desc').value;
-        const imagenInput = document.getElementById('swal-img');
+        const esAnonimo = document.getElementById('swal-anonimo').checked; 
 
-        if (!titulo || !descripcion) {
-          Swal.showValidationMessage('Por favor completa título y descripción');
+        if (!titulo || !descripcion || !tipo) {
+          Swal.showValidationMessage('Por favor completa todos los campos');
           return false;
         }
 
-        const file = imagenInput.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                Swal.showValidationMessage('El archivo no es una imagen. Por favor sube solo imágenes.');
-                return false;
-            }
-        }
-
-        return { titulo, tipo, descripcion, file: file };
+        return { titulo, tipo, descripcion, esAnonimo };
       }
     });
 
@@ -234,7 +274,7 @@ const Reportes = () => {
         formData.append('titulo', formValues.titulo);
         formData.append('tipo', formValues.tipo);
         formData.append('descripcion', formValues.descripcion);
-        if (formValues.file) formData.append('image', formValues.file);
+        formData.append('es_anonimo', formValues.esAnonimo);
 
         await createReport(formData);
         
@@ -343,7 +383,7 @@ const Reportes = () => {
   return (
     <div className="reportes-container">
       <div className="reportes-header">
-        <h1>REPORTES E INCIDENTES</h1>
+        <h1>REPORTES</h1>
         
         {isAdminOrGuard && (
             <div className="header-filter-actions">
@@ -374,114 +414,136 @@ const Reportes = () => {
       </div>
 
       <div className="reportes-wrapper">
-        {loading ? (
-            <div className="loading-text">Cargando reportes...</div>
-        ) : filteredReportes.length === 0 ? (
-            <div className="no-data-text">No hay reportes encontrados con los filtros actuales.</div>
-        ) : (
-            <>
-                {isAdminOrGuard ? (
-                    <table className="reportes-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Estado</th>
-                                <th>Tipo</th>
-                                <th>Título</th>
-                                <th>Usuario</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+        <div className="reportes-scroll-area">
+            {loading ? (
+                <div className="loading-text">Cargando reportes...</div>
+            ) : filteredReportes.length === 0 ? (
+                <div className="no-data-text">No hay reportes encontrados con los filtros actuales.</div>
+            ) : (
+                <>
+                    {isAdminOrGuard ? (
+                        <table className="reportes-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estado</th>
+                                    <th>Tipo</th>
+                                    <th>Título</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredReportes.map((rep) => {
+                                    const hasValidImage = rep.imagenUrl && 
+                                                          !rep.imagenUrl.includes('undefined') && 
+                                                          rep.imagenUrl !== 'null';
+
+                                    return (
+                                        <tr key={rep.id}>
+                                            <td style={{color: '#1565C0', fontWeight: 'bold'}}>
+                                                {formatId(rep.id)}
+                                            </td>
+                                            <td>
+                                                <span className="status-badge" style={{backgroundColor: getStatusColor(rep.estado)}}>
+                                                    {rep.estado}
+                                                </span>
+                                            </td>
+                                            <td>{getTipoLabel(rep.tipo)}</td>
+                                            <td>{rep.titulo}</td>
+                                            <td>
+                                                <div style={{display:'flex', flexDirection:'column'}}>
+                                                    <strong>
+                                                        {rep.es_anonimo ? '👤 Anónimo' : (rep.user?.nombre || 'Desc.')}
+                                                    </strong>
+                                                    <span style={{fontSize:'0.8rem', color:'#888'}}>
+                                                        {rep.es_anonimo ? 'N/A' : rep.user?.email}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td>{new Date(rep.created_at).toLocaleDateString()}</td>
+                                            <td>
+                                                {hasValidImage && (
+                                                    <button className="btn-icon-small" title="Ver Foto" onClick={() => showEvidence(rep.imagenUrl)}>
+                                                        <FaEye />
+                                                    </button>
+                                                )}
+                                                <button className="btn-icon-small" title="Gestionar" onClick={() => handleStatusChange(rep.id, rep.estado, rep.respuesta)}>
+                                                    <FaEdit />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="reportes-grid">
                             {filteredReportes.map((rep) => {
                                 const hasValidImage = rep.imagenUrl && 
                                                       !rep.imagenUrl.includes('undefined') && 
                                                       rep.imagenUrl !== 'null';
 
                                 return (
-                                    <tr key={rep.id}>
-                                        <td style={{color: '#1565C0', fontWeight: 'bold'}}>
-                                            {formatId(rep.id)}
-                                        </td>
-                                        <td>
-                                            <span className="status-badge" style={{backgroundColor: getStatusColor(rep.estado)}}>
-                                                {rep.estado}
-                                            </span>
-                                        </td>
-                                        <td>{getTipoLabel(rep.tipo)}</td>
-                                        <td>{rep.titulo}</td>
-                                        <td>
-                                            <div style={{display:'flex', flexDirection:'column'}}>
-                                                <strong>{rep.user?.nombre || 'Desc.'}</strong>
-                                                <span style={{fontSize:'0.8rem', color:'#888'}}>{rep.user?.email}</span>
+                                    <div 
+                                        key={rep.id} 
+                                        className="reporte-card" 
+                                        onClick={() => handleShowDetails(rep)}
+                                        style={{cursor: 'pointer'}}
+                                        title="Haz clic para ver detalles y respuesta"
+                                    >
+                                        <div className="card-header-status" style={{ backgroundColor: getStatusColor(rep.estado) }}>
+                                            {rep.estado}
+                                        </div>
+                                        <div className="card-body">
+                                            <div className="card-meta">
+                                                <span>{getTipoLabel(rep.tipo)}</span>
+                                                <span>{new Date(rep.created_at).toLocaleDateString()}</span>
                                             </div>
-                                        </td>
-                                        <td>{new Date(rep.created_at).toLocaleDateString()}</td>
-                                        <td>
-                                            {hasValidImage && (
-                                                <button className="btn-icon-small" title="Ver Foto" onClick={() => showEvidence(rep.imagenUrl)}>
-                                                    <FaEye />
+                                            <div className="card-title">
+                                                <span style={{color: '#1565C0', fontWeight: 'bold', marginRight: '5px'}}>
+                                                    {formatId(rep.id)}
+                                                </span>
+                                                {rep.titulo}
+                                            </div>
+                                            <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
+                                            
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px'}}>
+                                                <div>
+                                                    {hasValidImage && (
+                                                        <button 
+                                                            style={{background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                showEvidence(rep.imagenUrl);
+                                                            }}
+                                                        >
+                                                            <FaEye /> Ver Evidencia
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <button 
+                                                    style={{background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: '1.2rem'}}
+                                                    title="Eliminar Reporte"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteReport(rep.id);
+                                                    }}
+                                                >
+                                                    <FaTrash />
                                                 </button>
-                                            )}
-                                            <button className="btn-icon-small" title="Gestionar" onClick={() => handleStatusChange(rep.id, rep.estado, rep.respuesta)}>
-                                                <FaEdit />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </div>
+                                        </div>
+                                    </div>
                                 );
                             })}
-                        </tbody>
-                    </table>
-                ) : (
-                    <div className="reportes-grid">
-                        {filteredReportes.map((rep) => {
-                            const hasValidImage = rep.imagenUrl && 
-                                                  !rep.imagenUrl.includes('undefined') && 
-                                                  rep.imagenUrl !== 'null';
-
-                            return (
-                                <div 
-                                    key={rep.id} 
-                                    className="reporte-card" 
-                                    onClick={() => handleShowDetails(rep)}
-                                    style={{cursor: 'pointer'}}
-                                    title="Haz clic para ver detalles y respuesta"
-                                >
-                                    <div className="card-header-status" style={{ backgroundColor: getStatusColor(rep.estado) }}>
-                                        {rep.estado}
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="card-meta">
-                                            <span>{getTipoLabel(rep.tipo)}</span>
-                                            <span>{new Date(rep.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="card-title">
-                                            <span style={{color: '#1565C0', fontWeight: 'bold', marginRight: '5px'}}>
-                                                {formatId(rep.id)}
-                                            </span>
-                                            {rep.titulo}
-                                        </div>
-                                        <p style={{color:'#666', fontSize:'0.9rem'}}>{rep.descripcion}</p>
-                                        {hasValidImage && (
-                                            <button 
-                                                style={{marginTop:'15px', background:'none', border:'none', color:'#1565C0', cursor:'pointer', fontSize:'0.9rem', fontWeight:'bold'}}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    showEvidence(rep.imagenUrl);
-                                                }}
-                                            >
-                                                <FaEye /> Ver Evidencia
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </>
-        )}
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
       </div>
       <div className="reportes-actions">
         {userRole === 'user' && (

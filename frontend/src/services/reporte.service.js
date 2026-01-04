@@ -40,3 +40,13 @@ export const updateReportStatus = async (id, status, respuestaAdmin) => {
         throw error;
     }
 };
+
+export const deleteReport = async (id) => {
+    try {
+        const response = await axios.delete(`/reportes/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al eliminar reporte:", error);
+        throw error;
+    }
+};

@@ -1,13 +1,24 @@
 import { AppDataSource } from "../config/configDb.js";
-import { Reporte } from "../entities/Reporte.entity.js"; 
+import { Reporte } from "../entities/reporte.entity.js";
+import { crearNotificacionService, crearNotificacionPorRol } from "./notificacion.service.js";
 
 export const createReportService = async (data, userId) => {
   const reporteRepository = AppDataSource.getRepository(Reporte);
   const nuevoReporte = reporteRepository.create({
     ...data,
-    user: { id: userId }, 
+    user: { id: userId },
   });
-  return await reporteRepository.save(nuevoReporte);
+  
+  const reporteGuardado = await reporteRepository.save(nuevoReporte);
+
+  await crearNotificacionPorRol({
+    roles: ['admin', 'adminBicicletero'],
+    mensaje: `📢 Nuevo reporte creado: "${data.titulo}"`,
+    tipo: 'REPORTE',
+    referenciaId: reporteGuardado.id
+  });
+
+  return reporteGuardado;
 };
 
 export const getAllReportsService = async () => {
@@ -27,15 +38,41 @@ export const getReportsByUserService = async (userId) => {
 
 export const updateReportStatusService = async (id, estado, respuesta) => {
   const reporteRepository = AppDataSource.getRepository(Reporte);
-  const reporte = await reporteRepository.findOneBy({ id: Number(id) });
+  const reporte = await reporteRepository.findOne({
+    where: { id: Number(id) },
+    relations: ["user"]
+  });
 
   if (!reporte) return null;
 
   reporte.estado = estado;
+  if (respuesta) reporte.respuesta = respuesta;
 
-  if (respuesta) {
-      reporte.respuesta = respuesta;
+  const reporteActualizado = await reporteRepository.save(reporte);
+
+  if (reporte.user) {
+    let mensaje = `Tu reporte #${reporte.id} ha cambiado a estado: ${estado}.`;
+    if (respuesta) mensaje += " Se ha añadido una respuesta.";
+
+    await crearNotificacionService({
+      userId: reporte.user.id,
+      mensaje: mensaje,
+      tipo: 'REPORTE',
+      referenciaId: reporte.id
+    });
   }
 
-  return await reporteRepository.save(reporte);
+  return reporteActualizado;
 };
+
+export async function deleteReportService(id) {
+    try {
+        const reportRepository = AppDataSource.getRepository(Reporte);
+        const report = await reportRepository.findOne({ where: { id: Number(id) } });
+        if (!report) return null;
+        return await reportRepository.remove(report);
+    } catch (error) {
+        console.error("Error en deleteReportService:", error);
+        throw error;
+    }
+}

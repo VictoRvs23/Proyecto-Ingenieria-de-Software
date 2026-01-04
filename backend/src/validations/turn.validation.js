@@ -9,13 +9,13 @@ export const turnValidation = Joi.object({
     }),
   hora_inicio: Joi.string()
     .allow("", null)
-    .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+    .pattern(/^$|^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
     .messages({
       "string.pattern.base": "La hora de inicio debe estar en formato HH:MM.",
     }),
   hora_salida: Joi.string()
     .allow("", null)
-    .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+    .pattern(/^$|^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
     .messages({
       "string.pattern.base": "La hora de salida debe estar en formato HH:MM.",
     }),
@@ -47,13 +47,13 @@ export const batchTurnsValidation = Joi.object({
           }),
         hora_inicio: Joi.string()
           .allow("", null)
-          .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .pattern(/^$|^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
           .messages({
             "string.pattern.base": "La hora de inicio debe estar en formato HH:MM.",
           }),
         hora_salida: Joi.string()
           .allow("", null)
-          .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .pattern(/^$|^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
           .messages({
             "string.pattern.base": "La hora de salida debe estar en formato HH:MM.",
           }),

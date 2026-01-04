@@ -155,6 +155,7 @@ const Usuarios = () => {
     return phoneStr;
   };
 
+  // --- FUNCIÓN CORREGIDA: CREAR USUARIO ---
   const handleCreateUser = async (initialValues = {}) => {
     const { value: formValues } = await Swal.fire({
       title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Crear Nuevo Usuario</h2>',
@@ -163,7 +164,7 @@ const Usuarios = () => {
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
             <input id="swal-nombre" class="swal2-input" placeholder="Ej: Juan Pérez" value="${initialValues.nombre || ''}" style="margin: 0 0 15px 0; width: 100%;">
             
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email (@ubiobio.cl)</label>
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email</label>
             <input id="swal-email" class="swal2-input" placeholder="ejemplo@ubiobio.cl" type="email" value="${initialValues.email || ''}" style="margin: 0 0 15px 0; width: 100%;">
             
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Teléfono</label>
@@ -190,8 +191,12 @@ const Usuarios = () => {
           return false;
         }
 
-        if (!email.toLowerCase().endsWith('@ubiobio.cl')) {
-          Swal.showValidationMessage('El correo debe ser del dominio @ubiobio.cl');
+        const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
+        const emailLower = email.toLowerCase();
+        const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
+
+        if (!isValidDomain) {
+          Swal.showValidationMessage('El correo debe ser: @ubiobio.cl, @alumnos.ubiobio.cl, @gmail.com o @gmail.cl');
           return false;
         }
 
@@ -239,7 +244,7 @@ const Usuarios = () => {
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
             <input id="swal-nombre" class="swal2-input" value="${user.nombre || ''}" style="margin: 0 0 15px 0; width: 100%;">
             
-            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email (@ubiobio.cl)</label>
+            <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Email</label>
             <input id="swal-email" class="swal2-input" type="email" value="${user.email}" style="margin: 0 0 15px 0; width: 100%;">
             
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Teléfono</label>
@@ -251,7 +256,7 @@ const Usuarios = () => {
       confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#1565C0',
-      cancelButtonColor: '#d33', // ROJO
+      cancelButtonColor: '#d33',
       preConfirm: () => {
         const nombre = document.getElementById('swal-nombre').value;
         const email = document.getElementById('swal-email').value;
@@ -262,8 +267,12 @@ const Usuarios = () => {
           return false;
         }
 
-        if (!email.toLowerCase().endsWith('@ubiobio.cl')) {
-          Swal.showValidationMessage('El correo debe ser del dominio @ubiobio.cl');
+        const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
+        const emailLower = email.toLowerCase();
+        const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
+
+        if (!isValidDomain) {
+          Swal.showValidationMessage('El correo debe ser: @ubiobio.cl, @alumnos.ubiobio.cl, @gmail.com o @gmail.cl');
           return false;
         }
 

@@ -88,7 +88,6 @@ const TablaInforme = () => {
             </>
           )}
         </button>
-        {/* Pequeño texto de ayuda debajo del botón */}
         <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
           <FaExclamationTriangle style={{ color: '#f0ad4e' }} /> 
         </p>
@@ -111,10 +110,8 @@ const TablaInforme = () => {
               {informes.length > 0 ? (
                 informes.map((informe, index) => (
                   <tr key={index}>
-                    {/* El backend devuelve 'fecha' (YYYY-MM-DD) */}
                     <td>{informe.fecha}</td>
                     <td>
-                      {/* El backend devuelve 'url_descarga' y 'archivo' */}
                       <a 
                         href={informe.url_descarga} 
                         target="_blank" 

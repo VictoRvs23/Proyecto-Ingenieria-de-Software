@@ -3,6 +3,7 @@ import { getAllUsers } from '../services/user.service';
 import { getAllTurns, updateMultipleTurns, getTurnByUser, getGuardCurrentTurnWithReplacement } from '../services/turn.service';
 import { showSuccessAlert, showErrorAlert } from '../helpers/sweetAlert';
 import '../styles/turnos.css';
+import { IoIosSave } from 'react-icons/io';
 
 const Turnos = () => {
   const [guardias, setGuardias] = useState([]);
@@ -47,23 +48,23 @@ const Turnos = () => {
         try {
           const response = await getGuardCurrentTurnWithReplacement();
           if (response.data) {
-            const { currentTurn, replacementTurn } = response.data;
+            const { currentTurn, replacementTurn: repTurn } = response.data;
             
             if (currentTurn) {
               turnoGuardia = {
                 bicicletero: currentTurn.bicicletero || '',
-                hora_inicio: currentTurn.hora_inicio || '',
-                hora_salida: currentTurn.hora_salida || ''
+                hora_inicio: (currentTurn.hora_inicio || '').substring(0, 5),
+                hora_salida: (currentTurn.hora_salida || '').substring(0, 5)
               };
             }
             
-            if (replacementTurn) {
+            if (repTurn) {
               reemplazante = {
-                nombre: replacementTurn.user?.nombre || 'Guardia reemplazante',
-                email: replacementTurn.user?.email || '',
-                hora_inicio: replacementTurn.hora_inicio || '',
-                hora_salida: replacementTurn.hora_salida || '',
-                bicicletero: replacementTurn.bicicletero || ''
+                nombre: repTurn.user?.nombre || 'Guardia reemplazante',
+                email: repTurn.user?.email || '',
+                hora_inicio: (repTurn.hora_inicio || '').substring(0, 5),
+                hora_salida: (repTurn.hora_salida || '').substring(0, 5),
+                bicicletero: repTurn.bicicletero || ''
               };
             }
           }
@@ -75,8 +76,8 @@ const Turnos = () => {
             if (turnoResponse.data) {
               turnoGuardia = {
                 bicicletero: turnoResponse.data.bicicletero || '',
-                hora_inicio: turnoResponse.data.hora_inicio || '',
-                hora_salida: turnoResponse.data.hora_salida || ''
+                hora_inicio: (turnoResponse.data.hora_inicio || '').substring(0, 5),
+                hora_salida: (turnoResponse.data.hora_salida || '').substring(0, 5)
               };
             }
           } catch (innerError) {
@@ -108,8 +109,8 @@ const Turnos = () => {
         turnosMap = turnos.reduce((acc, turno) => {
           acc[turno.user_id] = {
             bicicletero: turno.bicicletero || '',
-            hora_inicio: turno.hora_inicio || '',
-            hora_salida: turno.hora_salida || ''
+            hora_inicio: (turno.hora_inicio || '').substring(0, 5),
+            hora_salida: (turno.hora_salida || '').substring(0, 5)
           };
           return acc;
         }, {});
@@ -176,7 +177,6 @@ const Turnos = () => {
 
   const handleGuardarCambios = async () => {
     try {
-      // Validaciones
       const turnosConHoras = guardias.filter(g => g.hora_inicio || g.hora_salida);
       
       for (const guardia of turnosConHoras) {
@@ -190,7 +190,6 @@ const Turnos = () => {
           return;
         }
 
-        
         const regexHora = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
         if (!regexHora.test(guardia.hora_inicio)) {
           showErrorAlert(`${guardia.nombre}: Hora de inicio con formato invalido. Use HH:MM (ej: 08:00)`);
@@ -201,7 +200,6 @@ const Turnos = () => {
           return;
         }
       }
-      
       
       const turnosValidos = guardias.filter(g => g.bicicletero && g.hora_inicio && g.hora_salida);
       for (let i = 0; i < turnosValidos.length; i++) {
@@ -277,7 +275,7 @@ const Turnos = () => {
                   <h2 className="turno-card-label">Horario de Trabajo</h2>
                   <p className="turno-card-value">
                     {miTurno.hora_inicio && miTurno.hora_salida 
-                      ? `${miTurno.hora_inicio.substring(0, 5)} Hrs - ${miTurno.hora_salida.substring(0, 5)} Hrs`
+                      ? `${miTurno.hora_inicio} Hrs - ${miTurno.hora_salida} Hrs`
                       : 'Sin asignar'}
                   </p>
                 </div>
@@ -303,7 +301,7 @@ const Turnos = () => {
                     <h2 className="turno-card-label">Horario de Trabajo</h2>
                     <p className="turno-card-value">
                       {replacementTurn.hora_inicio && replacementTurn.hora_salida 
-                        ? `${replacementTurn.hora_inicio.substring(0, 5)} Hrs - ${replacementTurn.hora_salida.substring(0, 5)} Hrs`
+                        ? `${replacementTurn.hora_inicio} Hrs - ${replacementTurn.hora_salida} Hrs`
                         : 'Sin asignar'}
                     </p>
                   </div>
@@ -324,11 +322,12 @@ const Turnos = () => {
           <table className="tabla-turnos">
             <thead>
               <tr>
-                <th>GUARDIAS</th>
-                <th>DATOS</th>
-                <th>HORA INICIO</th>
-                <th>HORA SALIDA</th>
-                <th>BICICLETERO</th>
+                <th>Guardias</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Hora Inicio</th>
+                <th>Hora Salida</th>
+                <th>Bicicletero</th>
               </tr>
             </thead>
             <tbody>
@@ -336,12 +335,8 @@ const Turnos = () => {
                 guardias.map((guardia) => (
                   <tr key={guardia.id}>
                     <td>{guardia.nombre}</td>
-                    <td>
-                      <div className="datos-cell">
-                        <div>{guardia.email}</div>
-                        <div>{formatPhoneNumber(guardia.telefono)}</div>
-                      </div>
-                    </td>
+                    <td>{guardia.email}</td>
+                    <td>{formatPhoneNumber(guardia.telefono)}</td>
                     <td>
                       <input 
                         type="time"
@@ -375,7 +370,7 @@ const Turnos = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
+                  <td colSpan="6" style={{ textAlign: 'center' }}>No hay guardias disponibles</td>
                 </tr>
               )}
             </tbody>
@@ -386,7 +381,7 @@ const Turnos = () => {
       {!loading && guardias.length > 0 && hayCambiosSinGuardar && (
         <div className="guardar-button-container">
           <button className="guardar-button" onClick={handleGuardarCambios}>
-            💾 Guardar Cambios
+            <IoIosSave /> Guardar Cambios
           </button>
         </div>
       )}

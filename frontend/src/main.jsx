@@ -15,6 +15,7 @@ import Reportes from './pages/Reportes';
 import Consultas from './pages/Consultas';
 import UserReserves from './pages/UserReserves';
 import TablaInforme from './pages/TablaInforme';
+import ChatSeguridad from './pages/ChatSeguridad'; 
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
       {
         path: "reservas",
         element: <UserReserves />,
+      },
+      {
+        path: "chat",
+        element: <ChatSeguridad />,
       },
     ],
   },

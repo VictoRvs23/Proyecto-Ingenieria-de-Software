@@ -2,6 +2,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { Turn } from "../entities/turn.entity.js";
 import { User } from "../entities/user.entity.js";
 import { createInformLogForTurn } from "./inform.service.js";
+import { crearNotificacionService } from "./notificacion.service.js"; 
 
 const turnRepository = AppDataSource.getRepository(Turn);
 const userRepository = AppDataSource.getRepository(User);
@@ -43,13 +44,11 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
       throw new Error("Solo se pueden asignar turnos a guardias");
     }
 
-    
     if ((hora_inicio || hora_salida) && (!hora_inicio || !hora_salida)) {
       throw new Error("Debe ingresar tanto hora de inicio como hora de salida");
     }
 
     if (bicicletero && hora_inicio && hora_salida) {
-      
       const existingTurns = await turnRepository.find({
         where: { bicicletero },
       });
@@ -59,7 +58,6 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
 
           const existingStart = existingTurn.hora_inicio;
           const existingEnd = existingTurn.hora_salida;
-          
           
           if (horariosSeSuperponen(hora_inicio, hora_salida, existingStart, existingEnd)) {
             const conflictUser = await userRepository.findOne({
@@ -90,6 +88,17 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
       turn.hora_inicio = hora_inicio || null;
       turn.hora_salida = hora_salida || null;
       await turnRepository.save(turn);
+
+      if (hora_inicio && hora_salida) {
+        await crearNotificacionService({
+          userId: userId,
+          mensaje: `Tu turno ha sido actualizado: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
+          tipo: 'TURNO',
+          referenciaId: turn.id
+        });
+      }
+
+      return turn;
     } else {
       const newTurn = turnRepository.create({
         user_id: userId,
@@ -103,9 +112,21 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
         where: { id: turn.id },
         relations: ['user']
       });
+      
+      await turnRepository.save(newTurn);
+
+      if (hora_inicio && hora_salida) {
+        await crearNotificacionService({
+          userId: userId,
+          mensaje: `Se te ha asignado un nuevo turno: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
+          tipo: 'TURNO',
+          referenciaId: newTurn.id
+        });
+      }
+
+      return newTurn;
     }
 
-    // ✅ CREAR LOG DE CAMBIO DE TURNO
     if (turn) {
       let nota = "";
       
@@ -135,9 +156,7 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
   }
 }
 
-
 function horariosSeSuperponen(inicio1, fin1, inicio2, fin2) {
-  
   const toMinutes = (timeStr) => {
     const [hours, minutes] = timeStr.split(':').map(Number);
     return hours * 60 + minutes;
@@ -147,7 +166,6 @@ function horariosSeSuperponen(inicio1, fin1, inicio2, fin2) {
   const end1 = toMinutes(fin1);
   const start2 = toMinutes(inicio2);
   const end2 = toMinutes(fin2);
-  
   
   return start1 < end2 && start2 < end1;
 }
@@ -206,7 +224,6 @@ export async function updateMultipleTurns(turnsData) {
 
 export async function getGuardTurnWithReplacement(userId) {
   try {
-    // Obtener el turno del guardia actual
     const currentGuardTurn = await turnRepository.findOne({
       where: { user_id: userId },
       relations: ['user'],
@@ -219,7 +236,6 @@ export async function getGuardTurnWithReplacement(userId) {
       };
     }
 
-    // Si no tiene bicicletero o horarios asignados, no hay reemplazo
     if (!currentGuardTurn.bicicletero || !currentGuardTurn.hora_inicio || !currentGuardTurn.hora_salida) {
       return {
         currentTurn: currentGuardTurn,
@@ -227,33 +243,27 @@ export async function getGuardTurnWithReplacement(userId) {
       };
     }
 
-    // Obtener todos los turnos en el mismo bicicletero
     const allTurnsInBicicletero = await turnRepository.find({
       where: { bicicletero: currentGuardTurn.bicicletero },
       relations: ['user'],
     });
 
-    // Filtrar turnos válidos (que tengan hora_inicio y hora_salida)
     const validTurns = allTurnsInBicicletero.filter(
       turn => turn.hora_inicio && turn.hora_salida && turn.user_id !== userId
     );
 
-    // Convertir tiempo a minutos para comparación
     const toMinutes = (timeStr) => {
       const [hours, minutes] = timeStr.split(':').map(Number);
       return hours * 60 + minutes;
     };
 
     const currentEndMinutes = toMinutes(currentGuardTurn.hora_salida);
-
-    // Buscar el turno que comienza más tarde después del turno actual
     let replacementTurn = null;
     let earliestReplacementTime = Infinity;
 
     for (const turn of validTurns) {
       const turnStartMinutes = toMinutes(turn.hora_inicio);
       
-      // El turno de reemplazo debe comenzar después o en el mismo momento que termina el turno actual
       if (turnStartMinutes >= currentEndMinutes) {
         if (turnStartMinutes < earliestReplacementTime) {
           earliestReplacementTime = turnStartMinutes;

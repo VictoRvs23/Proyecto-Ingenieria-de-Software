@@ -43,20 +43,33 @@ const Register = () => {
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
 
-    if (!data.email.toLowerCase().endsWith('@ubiobio.cl')) {
+    // ============================================================
+    // SOLUCIÓN: VALIDACIÓN DE DOMINIOS PERMITIDOS
+    // ============================================================
+    const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
+    const emailLower = data.email.toLowerCase();
+    
+    // Verificamos si el correo termina con alguno de los dominios de la lista
+    const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
+
+    if (!isValidDomain) {
         await Swal.fire({
             icon: 'error',
             title: 'Correo Inválido',
-            text: 'Debes utilizar un correo institucional @ubiobio.cl',
+            // Mensaje claro para el usuario
+            html: 'El correo debe pertenecer a uno de los siguientes dominios:<br><br><b>@ubiobio.cl<br>@alumnos.ubiobio.cl<br>@gmail.com<br>@gmail.cl</b>',
             confirmButtonColor: '#d33'
         });
         setLoading(false);
-        return;
+        return; // Detenemos el registro aquí si el dominio no es válido
     }
+    // ============================================================
 
     try {
+        // Limpieza básica del teléfono (deja solo números)
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";
 
+        // Agrega el '9' si el usuario puso solo 8 dígitos
         if (phoneClean.length === 8) {
             phoneClean = '9' + phoneClean;
         }
@@ -80,23 +93,9 @@ const Register = () => {
             });
             return;
         }
-        const existingUsers = JSON.parse(localStorage.getItem("usersDB")) || [];
-        if (!existingUsers.find(u => u.email === data.email)) {
-            existingUsers.push({ 
-                email: data.email, 
-                name: data.nombre, 
-                password: data.password, 
-                role: "user" 
-            });
-            localStorage.setItem("usersDB", JSON.stringify(existingUsers));
-        }
-
-        localStorage.removeItem("bikeData");
-        localStorage.removeItem("bikeImage");
-        localStorage.removeItem("userImage");
-        localStorage.removeItem("role");
-        localStorage.removeItem("name");
-        localStorage.removeItem("email");
+        
+        // Limpiamos datos antiguos por seguridad antes de ir al login
+        localStorage.clear();
 
         await Swal.fire({
             icon: 'success',

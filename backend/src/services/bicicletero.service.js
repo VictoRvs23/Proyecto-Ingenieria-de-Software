@@ -12,7 +12,6 @@ export class BicicleteroService {
     });
     
     return bicicleteros.map(b => {
-      // Contar reservas activas en lugar de bicicletas
       const activeReservesCount = b.reserves ? 
         b.reserves.filter(r => ["solicitada", "ingresada"].includes(r.estado)).length : 0;
       

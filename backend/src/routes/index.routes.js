@@ -10,6 +10,7 @@ import turnRoutes from "./turn.routes.js";
 import userRoutes from "./user.routes.js";
 import reporteRoutes from "./reporte.routes.js";
 import consultaRoutes from "./consulta.routes.js";
+import notificacionRoutes from "./notificacion.routes.js";
 
 export function routerApi(app) {
 
@@ -27,6 +28,7 @@ export function routerApi(app) {
   router.use("/reportes", reporteRoutes);
   router.use("/consultas", consultaRoutes);
   router.use("/users", userRoutes);
+  router.use("/notificaciones", notificacionRoutes);
 }
 
 
