@@ -101,7 +101,7 @@ connectDB()
     setupCronJobs();
     routerApi(app);
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, async () => {
+    server.listen(PORT, async () => {
       console.log(`Servidor iniciado en http://localhost:${PORT}`);
 
       try {

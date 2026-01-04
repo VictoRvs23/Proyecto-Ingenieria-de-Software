@@ -13,7 +13,7 @@ export const DailyReport = new EntitySchema({
             type: "date", 
             unique: true, 
             nullable: false 
-        }, // "2023-12-28"
+        },
         filename: {
             type: "varchar", 
             length: 100, 
@@ -22,7 +22,7 @@ export const DailyReport = new EntitySchema({
         pdf_data: { 
             type: "bytea", 
             nullable: false 
-        }, // El archivo en sí
+        }, 
         created_at: {
             type: "timestamp", 
             createDate: true 

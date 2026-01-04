@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
   username: `${DB_USERNAME}`,
   password: `${DB_PASSWORD}`,
   database: `${DATABASE}`,
-  entities: [User, Bike, Reserve, Inform, Bicicletero, DailyReport], 
+  entities: ["src/entities/**/*.js"],
   synchronize: true, 
   logging: false,
 });
