@@ -21,7 +21,9 @@ const Bicicletero = () => {
   const loadBicicleteros = async () => {
     try {
       const data = await getAllBicicleteros();
-      setBicicleteros(data);
+      // ✅ Ordenar por número (1, 2, 3, 4)
+      const sortedData = data.sort((a, b) => a.numero - b.numero);
+      setBicicleteros(sortedData);
       setLoading(false);
     } catch (error) {
       console.error('Error al cargar bicicleteros:', error);

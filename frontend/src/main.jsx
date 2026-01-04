@@ -13,6 +13,8 @@ import Turnos from './pages/Turnos';
 import Usuarios from './pages/Usuarios'; 
 import Reportes from './pages/Reportes';
 import Consultas from './pages/Consultas';
+import UserReserves from './pages/UserReserves';
+import TablaInforme from './pages/TablaInforme';
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,14 @@ const router = createBrowserRouter([
       {
         path: "consultas",
         element: <Consultas />,
+      },
+      {
+        path: "historial-informes",
+        element: <TablaInforme />,
+      },
+      {
+        path: "reservas",
+        element: <UserReserves />,
       },
     ],
   },

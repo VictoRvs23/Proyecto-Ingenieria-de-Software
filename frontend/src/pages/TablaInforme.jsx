@@ -56,14 +56,13 @@ const TablaInforme = () => {
   return (
     <div className="tabla-informe-container">
       <div className="header-actions">
-        <button className="back-button" onClick={() => navigate('/home/informes')}>
-            <FaArrowLeft /> Volver
+        <button className="btn-back" onClick={() => navigate('/home')}>
+          <FaArrowLeft />
         </button>
       </div>
-      
-      <h1 className="tabla-informe-title">HISTORIAL DE INFORMES</h1>
-
-      {/* Botón de Generar Informe Hoy */}
+        <div>
+          <h1 className="tabla-informe-title">HISTORIAL DE INFORMES</h1>
+        </div>
       <div className="actions-container" style={{ marginBottom: '20px', textAlign: 'center' }}>
         <button 
           className="generate-btn" 
@@ -91,7 +90,7 @@ const TablaInforme = () => {
         </button>
         {/* Pequeño texto de ayuda debajo del botón */}
         <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
-          <FaExclamationTriangle style={{ color: '#f0ad4e' }} /> Nota: Bloquea edición de reservas de hoy.
+          <FaExclamationTriangle style={{ color: '#f0ad4e' }} /> 
         </p>
       </div>
 

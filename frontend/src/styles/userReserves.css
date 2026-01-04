@@ -1,0 +1,303 @@
+.user-reserves-container {
+  width: 100%;
+  padding: 2rem;
+  padding-top: 80px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #ffffff;
+  border: 2px solid #1565C0;
+  color: #1565C0;
+  border-radius: 5px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background: #1565C0;
+  color: white;
+}
+
+.reserves-title {
+  font-family: 'Roboto', sans-serif;
+  color: #1565C0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #1565C0;
+  margin-top: 50px;
+}
+
+.no-reserves {
+  text-align: center;
+  padding: 50px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.no-reserves p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.btn-go-to-bicicletero {
+  background: #2b74ad;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-go-to-bicicletero:hover {
+  background: #1d5a8a;
+}
+
+.reserves-info {
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 30px;
+  color: #1565C0;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  max-width: 1000px;
+  margin: 0 auto 30px;
+}
+
+.reserves-info ul {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+}
+
+.reserves-info li {
+  margin-bottom: 5px;
+  font-size: 0.95rem;
+}
+
+.reserves-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reserve-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid #e0e0e0;
+}
+
+.reserve-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.reserve-header {
+  background: #f8f9fa;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.reserve-token {
+  display: flex;
+  flex-direction: column;
+}
+
+.token-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+.token-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1565C0;
+  letter-spacing: 3px;
+  font-family: monospace;
+}
+
+.reserve-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.status-icon {
+  font-size: 24px;
+}
+
+.status-icon.solicitada {
+  color: #FFA500;
+}
+
+.status-icon.ingresada {
+  color: #FF6B6B;
+}
+
+.status-icon.entregada {
+  color: #28a745;
+}
+
+.status-icon.cancelada {
+  color: #6c757d;
+}
+
+.status-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.reserve-details {
+  padding: 25px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 120px;
+}
+
+.detail-value {
+  color: #333;
+  text-align: right;
+  max-width: 200px;
+  word-break: break-word;
+}
+
+.detail-value.nota {
+  font-style: italic;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.reserve-actions {
+  padding: 20px;
+  background: #f8f9fa;
+  display: flex;
+  gap: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-show-token, .btn-cancel-reserve {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.btn-show-token {
+  background: #2b74ad;
+  color: white;
+}
+
+.btn-show-token:hover {
+  background: #1d5a8a;
+  transform: translateY(-2px);
+}
+
+.btn-cancel-reserve {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-cancel-reserve:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reserves-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reserve-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .reserve-status {
+    align-items: center;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .detail-label, .detail-value {
+    text-align: left;
+    min-width: auto;
+    max-width: 100%;
+  }
+  
+  .reserve-actions {
+    flex-direction: column;
+  }
+  
+  .reserves-info {
+    flex-direction: column;
+  }
+}

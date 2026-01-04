@@ -1,7 +1,31 @@
+.btn-back {
+    position: absolute;
+    left: 0;
+    background: transparent;
+    border: 2px solid #1565C0;
+    color: #1565C0;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+  
+.btn-back:hover {
+    background-color: #1565C0;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Ajustar el padding-top del contenedor */
 .espacios-container {
   width: 100%;
   padding: 2rem;
-  padding-top: 20px;
+  padding-top: 80px; /* Aumentado para dar espacio al botón */
   min-height: 100vh;
   background-color: #ffffff;
   display: flex;
@@ -10,30 +34,7 @@
   position: relative;
 }
 
-.back-button {
-  position: absolute;
-  top: 10px;
-  left: 80px;
-  background: #ffffff;
-  border: 2px solid #1565C0;
-  color: #1565C0;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.3s;
-  z-index: 10;
-}
-
-.back-button:hover {
-  background: #1565C0;
-  color: white;
-}
-
+/* Ajustar el header para el nuevo diseño */
 .espacios-header {
   display: flex;
   align-items: center;
@@ -45,12 +46,13 @@
   margin-top: 40px;
 }
 
+/* Ajustar el título */
 .espacios-title {
   font-family: 'Roboto', sans-serif;
   color: #1565C0;
   font-size: 3rem;
   font-weight: 600;
-  margin-bottom: 25px;
+  margin: 0;
   text-transform: uppercase;
   text-align: center;
 }
@@ -296,4 +298,164 @@
 
 .espacio-item.selected {
   box-shadow: 0 0 0 3px #ffcc00;
+}
+
+.espacio-item.reserva-solicitada {
+  background: #FFA500 !important; /* Naranja para solicitada */
+  border-color: #CC8400 !important;
+}
+
+.espacio-item.reserva-ingresada {
+  background: #FF6B6B !important; /* Rojo para ingresada */
+  border-color: #990505 !important;
+}
+
+.espacio-item.deshabilitado {
+  background: #CCCCCC !important; /* Gris para deshabilitado */
+  border-color: #999999 !important;
+  cursor: not-allowed !important;
+}
+
+.espacio-item.deshabilitado:hover {
+  transform: none !important;
+}
+
+/* Iconos */
+.espacio-pending-icon {
+  font-size: 1.3rem;
+  color: #000000;
+  margin-top: 5px;
+}
+
+.espacio-disabled-icon {
+  font-size: 1.3rem;
+  color: #666666;
+  margin-top: 5px;
+}
+
+/* Selección de espacios */
+.space-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.space-option {
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.space-option:hover:not(.unavailable):not(.disabled) {
+  background: #f0f0f0;
+}
+
+.space-option.selected {
+  border-color: #2b74ad;
+  background: #e3f2fd;
+}
+
+.space-option.unavailable {
+  background: #ffcccc;
+  border-color: #ff6666;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.space-option.disabled {
+  background: #eeeeee;
+  border-color: #cccccc;
+  color: #999999;
+  cursor: not-allowed;
+}
+
+/* Instrucciones mejoradas */
+.instructions ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.instructions li {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.color-sample {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+  border-radius: 3px;
+  margin: 0 8px;
+}
+
+/* Botones de acción mejorados */
+.user-actions-header {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.btn-action {
+  padding: 10px 20px;
+  background: #2b74ad;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-action:hover {
+  background: #1d5a8a;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .user-actions-header {
+    position: static;
+    transform: none;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  
+  .espacios-header {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .space-selection-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .btn-action {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .instructions ul {
+    font-size: 14px;
+  }
 }
