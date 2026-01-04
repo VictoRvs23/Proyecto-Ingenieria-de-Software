@@ -12,6 +12,7 @@ export const Bicicletero = new EntitySchema({
     space: {
       type: "int",
       nullable: false,
+      default: 15,
     },
     created_at: {
       type: "timestamp",
@@ -25,9 +26,14 @@ export const Bicicletero = new EntitySchema({
     },
   },
   relations: {
-    bikes: {
+    informs: {
       type: "one-to-many",
-      target: "Bike",
+      target: "Inform",
+      inverseSide: "bicicletero",
+    },
+    reserves: {
+      type: "one-to-many",
+      target: "Reserve", 
       inverseSide: "bicicletero",
     },
   },

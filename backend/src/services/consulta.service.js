@@ -13,7 +13,7 @@ export const createConsultaService = async (data, userId) => {
 
   await crearNotificacionPorRol({
     roles: ['admin', 'adminBicicletero', 'guard'],
-    mensaje: `💬 Nueva consulta recibida: "${data.asunto || 'Sin asunto'}"`,
+    mensaje: `Nueva consulta recibida: "${data.asunto || 'Sin asunto'}"`,
     tipo: 'CONSULTA',
     referenciaId: consultaGuardada.id
   });

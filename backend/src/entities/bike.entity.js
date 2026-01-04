@@ -12,7 +12,7 @@ export const Bike = new EntitySchema({
     brand: {
       type: "varchar",
       length: 100,
-      nullable: false,
+      nullable: true,
     },
     model: {
       type: "varchar",
@@ -42,19 +42,11 @@ export const Bike = new EntitySchema({
     },
   },
   relations: {
-    bicicletero: {
-      type: "many-to-one",
-      target: "Bicicletero",
-      joinColumn: {
-        name: "bicicletero_number",
-        referencedColumnName: "number",
-      },
-      inverseSide: "bikes",
-    },
     user: { 
       type: "many-to-one", 
       target: "User",
       joinColumn: { name: "user_id" }, 
+      nullable: true,
       inverseSide: "bikes", 
       onDelete: "CASCADE"   
     },

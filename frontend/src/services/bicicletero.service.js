@@ -26,3 +26,12 @@ export const toggleSpaceStatus = async (bicicleteroNumber, spaceNumber, disable)
     throw error.response?.data || error;
   }
 };
+
+export const checkBicicleteroAvailability = async (bicicleteroNumber) => {
+  try {
+    const response = await axios.get(`/bicicletero/${bicicleteroNumber}/availability`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error al verificar disponibilidad" };
+  }
+};

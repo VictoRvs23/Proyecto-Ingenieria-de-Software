@@ -8,6 +8,8 @@ import { Server as SocketServer } from "socket.io";
 import { fileURLToPath } from "url"; 
 import { AppDataSource, connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
+import { createUsers } from "./config/initDb.js";
+import { setupCronJobs } from './config/cronJobs.js';
 import { Mensaje } from "./entities/mensaje.entity.js";
 import { User } from "./entities/user.entity.js";
 
@@ -95,11 +97,18 @@ io.on('connection', (socket) => {
 
 connectDB()
   .then(() => {
+    // Inicializar cron jobs después de conectar a la base de datos
+    setupCronJobs();
     routerApi(app);
     const PORT = process.env.PORT || 3000;
-  
-    server.listen(PORT, () => {
+    server.listen(PORT, async () => {
       console.log(`Servidor iniciado en http://localhost:${PORT}`);
+
+      try {
+        await createUsers();
+      } catch (err) {
+        console.error("Error al crear usuarios:", err);
+      }
     });
   })
   .catch((error) => {

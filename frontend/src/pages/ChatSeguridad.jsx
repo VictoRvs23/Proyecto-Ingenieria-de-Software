@@ -19,7 +19,7 @@ const ChatSeguridad = () => {
     const nombre = localStorage.getItem('nombre');
 
     if (!['admin', 'guard', 'adminBicicletero'].includes(role)) {
-         return;
+        return;
     }
 
     setCurrentUser({ id, role, nombre });

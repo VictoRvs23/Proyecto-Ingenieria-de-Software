@@ -16,21 +16,23 @@ export const Reserve = new EntitySchema({
     },
     estado: {
       type: "varchar",
-      length: 50,
+      length: 100,
       nullable: false,
       default: "solicitada"
     },
-    user_id: {
+    space: {  
       type: "int",
-      nullable: false,
+      nullable: true,
     },
-    bike_id: {
-      type: "int",
-      nullable: false,
+    foto_url: {
+      type: "varchar",
+      length: 500,
+      nullable: true,
     },
-    bicicletero_number: {
-      type: "int",
-      nullable: false,
+    doc_url: {
+      type: "varchar", 
+      length: 500,
+      nullable: true,
     },
     created_at: {
       type: "timestamp",
@@ -42,15 +44,16 @@ export const Reserve = new EntitySchema({
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
     },
+    last_status_change: {
+      type: "timestamp",
+      nullable: true,
+    },
   },
   relations: {
     user: {
       type: "many-to-one",
       target: "User",
-      joinColumn: {
-        name: "user_id",
-        referencedColumnName: "id"
-      },
+      joinColumn: { name: "user_id" },
       nullable: false,
       onDelete: "CASCADE",
     },
@@ -64,12 +67,9 @@ export const Reserve = new EntitySchema({
     bicicletero: {
       type: "many-to-one",
       target: "Bicicletero",
-      joinColumn: { 
-        name: "bicicletero_number",
-        referencedColumnName: "number" 
-      },
+      joinColumn: { name: "bicicletero_number", referencedColumnName: "number" },
       nullable: false,
       onDelete: "CASCADE",
     }
-  },
+  }
 });

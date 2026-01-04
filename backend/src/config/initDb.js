@@ -1,4 +1,5 @@
 "use strict";
+
 import { AppDataSource } from "./configDb.js";
 import { User } from "../entities/user.entity.js";
 import bcrypt from "bcrypt";
@@ -29,13 +30,13 @@ export async function seedBicicleteros(dataSource) {
 }
 
 export async function createUsers() {
-  try {
+    try {
     const userRepository = AppDataSource.getRepository(User);
     const count = await userRepository.count();
     if (count > 0) return;
 
     const users = [
-      {
+    {
         username: "Admin",
         nombre: "Admin",
         rut: "12345678-9",
@@ -75,10 +76,10 @@ export async function createUsers() {
 
     console.log("Creando usuarios...");
     for (const u of users) {
-      await userRepository.save(userRepository.create(u));
-      console.log(`Usuario '${u.username}' creado: ${u.email}`);
+    await userRepository.save(userRepository.create(u));
+    console.log(`Usuario '${u.username}' creado: ${u.email}`);
     }
-  } catch (error) {
+    } catch (error) {
     console.error("Error al crear usuarios:", error);
     throw error;
   }

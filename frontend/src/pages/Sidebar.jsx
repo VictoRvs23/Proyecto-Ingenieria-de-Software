@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/sidebar.css'; 
-import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt, FaUsers, FaClipboardList, FaQuestionCircle } from 'react-icons/fa';
+import { FaHome, FaUser, FaBicycle, FaFileAlt, FaClock, FaSignOutAlt, FaUsers, FaClipboardList, FaQuestionCircle, FaKey } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -27,6 +27,8 @@ const Sidebar = () => {
 
   const showAdminModules = ['admin', 'adminBicicletero', 'guard'].includes(userRole);
   const showUsuariosModule = ['admin', 'adminBicicletero'].includes(userRole);
+  const isUser = userRole.toLowerCase() === 'user';
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -45,6 +47,12 @@ const Sidebar = () => {
         <Link to="/home/bicicletero" className="menu-item">
           <FaBicycle className="icon" /> Bicicletero
         </Link>
+
+        {isUser && (
+          <Link to="/home/reservas" className="menu-item">
+            <FaKey className="icon" /> Mis Reservas
+          </Link>
+        )}
 
         <Link to="/home/reportes" className="menu-item">
           <FaClipboardList className="icon" /> Reportes
@@ -69,6 +77,10 @@ const Sidebar = () => {
             
             <Link to="/home/usuarios" className="menu-item">
               <FaUsers className="icon" /> Usuarios
+            </Link>
+
+            <Link to="/home/historial-informes" className="menu-item">
+              <FaFileAlt className="icon" /> Historial Informes
             </Link>
           </>
         )}

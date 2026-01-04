@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import { Turn } from "../entities/turn.entity.js";
 import { User } from "../entities/user.entity.js";
+import { createInformLogForTurn } from "./inform.service.js";
 import { crearNotificacionService } from "./notificacion.service.js"; 
 
 const turnRepository = AppDataSource.getRepository(Turn);
@@ -54,6 +55,7 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
       
       for (const existingTurn of existingTurns) {
         if (existingTurn.user_id !== userId && existingTurn.hora_inicio && existingTurn.hora_salida) {
+
           const existingStart = existingTurn.hora_inicio;
           const existingEnd = existingTurn.hora_salida;
           
@@ -71,7 +73,15 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
 
     let turn = await turnRepository.findOne({
       where: { user_id: userId },
+      relations: ['user']
     });
+
+    // Guardar información del turno anterior para el log
+    const turnoAnterior = turn ? {
+      bicicletero: turn.bicicletero,
+      hora_inicio: turn.hora_inicio,
+      hora_salida: turn.hora_salida
+    } : null;
 
     if (turn) {
       turn.bicicletero = bicicletero || null;
@@ -82,7 +92,7 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
       if (hora_inicio && hora_salida) {
         await crearNotificacionService({
           userId: userId,
-          mensaje: `📅 Tu turno ha sido actualizado: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
+          mensaje: `Tu turno ha sido actualizado: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
           tipo: 'TURNO',
           referenciaId: turn.id
         });
@@ -96,12 +106,19 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
         hora_inicio: hora_inicio || null,
         hora_salida: hora_salida || null,
       });
+      turn = await turnRepository.save(newTurn);
+      // Cargar relaciones para el nuevo turno
+      turn = await turnRepository.findOne({
+        where: { id: turn.id },
+        relations: ['user']
+      });
+      
       await turnRepository.save(newTurn);
 
       if (hora_inicio && hora_salida) {
         await crearNotificacionService({
           userId: userId,
-          mensaje: `📅 Se te ha asignado un nuevo turno: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
+          mensaje: `Se te ha asignado un nuevo turno: ${hora_inicio} - ${hora_salida} en Bicicletero ${bicicletero || 'Sin asignar'}.`,
           tipo: 'TURNO',
           referenciaId: newTurn.id
         });
@@ -109,6 +126,31 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
 
       return newTurn;
     }
+
+    if (turn) {
+      let nota = "";
+      
+      if (!turnoAnterior) {
+        nota = "Turno asignado por primera vez";
+      } else if (turnoAnterior.bicicletero !== turn.bicicletero || turnoAnterior.hora_inicio !== turn.hora_inicio || turnoAnterior.hora_salida !== turn.hora_salida) {
+        
+        const cambios = [];
+        if (turnoAnterior.bicicletero !== turn.bicicletero) {
+          cambios.push(`Bicicletero: ${turnoAnterior.bicicletero || 'N/A'} → ${turn.bicicletero || 'N/A'}`);
+        }
+        if (turnoAnterior.hora_inicio !== turn.hora_inicio || turnoAnterior.hora_salida !== turn.hora_salida) {
+          cambios.push(`Horario: ${turnoAnterior.hora_inicio || 'N/A'} - ${turnoAnterior.hora_salida || 'N/A'} → ${turn.hora_inicio || 'N/A'} - ${turn.hora_salida || 'N/A'}`);
+        }
+        
+        nota = `Turno modificado. Cambios: ${cambios.join(', ')}`;
+      } else {
+        nota = "Turno actualizado (sin cambios significativos)";
+      }
+      
+      await createInformLogForTurn(turn, nota, "turno_cambiado");
+    }
+
+    return turn;
   } catch (error) {
     throw error;
   }
@@ -132,11 +174,14 @@ export async function deleteTurn(userId) {
   try {
     const turn = await turnRepository.findOne({
       where: { user_id: userId },
+      relations: ['user']
     });
     
     if (!turn) {
       throw new Error("Turno no encontrado");
     }
+    
+    await createInformLogForTurn(turn, "Turno eliminado del sistema", "turno_cambiado");
     
     await turnRepository.remove(turn);
     return { message: "Turno eliminado exitosamente" };

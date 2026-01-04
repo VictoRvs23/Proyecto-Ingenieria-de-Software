@@ -29,12 +29,12 @@ export const User = new EntitySchema({
     numeroTelefonico: {
       type: "varchar",
       length: 10,
-      nullable: false,
+      nullable: true,
     },
     nombre: {
       type: "varchar",
       length: 100,
-      nullable: false,
+      nullable: true,
     },
     userImage: {
       type: "varchar",

@@ -2,6 +2,12 @@
 import { DataSource } from "typeorm";
 import { DATABASE, DB_USERNAME, HOST, DB_PASSWORD, DB_PORT } from "./configEnv.js";
 import { createUsers, seedBicicleteros } from "./initDb.js";
+import { User } from "../entities/user.entity.js";
+import { Bike } from "../entities/bike.entity.js";
+import { Reserve } from "../entities/reserve.entity.js";
+import { Inform } from "../entities/inform.entity.js";
+import { Bicicletero } from "../entities/bicicletero.entity.js";
+import { DailyReport } from "../entities/dailyReport.entity.js";
 
 export const AppDataSource = new DataSource({
   type: "postgres",

@@ -53,18 +53,9 @@ export const bikeEntryValidation = Joi.object({
             "number.min": "El numero del bicicletero debe ser al menos 1.",
             "number.max": "El numero del bicicletero no puede ser mayor a 4.",
             "any.required": "El numero del bicicletero es obligatorio."
-        }),
-    space: Joi.number()
-        .integer()
-        .min(0)
-        .required()
-        .messages({
-            "number.base": "El espacio asignado debe ser un número entero.",
-            "number.min": "El espacio asignado no puede ser negativo.",
-            "any.required": "El espacio asignado es obligatorio."
         })
     })
     .unknown(false)
     .messages({
         "object.unknown": "No se permiten campos adicionales",
-      });
+        });

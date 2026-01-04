@@ -33,39 +33,58 @@ export const getStatus = async (req, res) => {
     }
 };
 
+// Nuevo endpoint para verificar disponibilidad
+export const checkAvailability = async (req, res) => {
+  try {
+    const { number } = req.params;
+    if (!number) {
+      return res.status(400).json({ error: "Falta parámetro: number" });
+    }
+    const service = new BicicleteroService(); // Crear instancia del servicio
+    const data = await service.checkAvailability(number); // Llamar al método
+    return res.json(data);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+// Los endpoints entryBike y exitBike ahora están obsoletos
+// Se mantienen por compatibilidad pero lanzan error
+
 export const entryBike = async (req, res) => {
   try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ error: "No autenticado" });
-    }
-    const guardId = Number(req.user.id);
-
-    const { brand, model, color, owner, bicicletero, space } = req.body;
-    if (!model || !owner || !color || !brand || !bicicletero) {
-      return res.status(400).json({ error: "Faltan campos" });
-    }
-
-    const spaceNum = space ? Number(space) : undefined;
-    const bicicleteroId = Number(bicicletero);
-
-    const bikeData = { brand, model, color, owner, bicicletero, space: spaceNum };
-
-    const result = await service.addBike(guardId, bikeData, bicicleteroId);
-    return res.status(201).json({ message: "Bicicleta ingresada", bike: result });
+    return res.status(410).json({ 
+      error: "Este endpoint está obsoleto. Use el sistema de reservas en su lugar.",
+      message: "Para ingresar una bicicleta, cree una reserva y luego actualice su estado a 'ingresada'"
+    });
   } catch (error) {
-    console.error("[entryBike] error:", error);
     return res.status(400).json({ error: error.message });
   }
 };
 
 export const exitBike = async (req, res) => {
     try {
-        await service.removeBike(req.user.id, req.params.id);
-        return res.json({ message: "Bicicleta retirada" });
+        return res.status(410).json({ 
+          error: "Este endpoint está obsoleto. Use el sistema de reservas en su lugar.",
+          message: "Para retirar una bicicleta, actualice el estado de la reserva a 'entregada'"
+        });
     } catch (e) {
         return res.status(400).json({ error: e.message });
     }
 };
 
-
-
+export const toggleSpaceStatus = async (req, res) => {
+  try {
+    const { number, spaceNumber } = req.params;
+    const { disable } = req.body;
+    
+    if (!number || !spaceNumber) {
+      return res.status(400).json({ error: "Faltan parámetros" });
+    }
+    
+    const result = await service.toggleSpaceStatus(number, spaceNumber, disable);
+    return res.json({ message: "Estado del espacio actualizado", data: result });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
