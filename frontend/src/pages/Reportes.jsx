@@ -213,7 +213,6 @@ const Reportes = () => {
             <input id="swal-titulo" class="swal2-input" placeholder="Ej: Robo de casco" style="margin: 0 0 15px 0; width: 100%; box-sizing: border-box;">
 
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Tipo de problema</label>
-            
             <select id="swal-tipo" class="swal2-select" style="width: 100%; margin: 0 0 15px 0; display: block; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px;">
                 <option value="" disabled selected>Selecciona una opción...</option>
                 <option value="Robo">🚨 Robo</option>
@@ -223,10 +222,14 @@ const Reportes = () => {
                 <option value="Otro">📝 Otro</option>
             </select>
 
+            <div id="anonimo-wrapper" style="display: none; margin-bottom: 15px; align-items: center;">
+                <input type="checkbox" id="swal-anonimo" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="swal-anonimo" style="margin-left: 10px; cursor: pointer; color: #555;">Enviar como anónimo (se ocultará tu nombre)</label>
+            </div>
+
             <label style="display: block; color: #545454; font-weight: 600; margin-bottom: 5px;">Descripción</label>
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Detalla qué sucedió..." style="margin: 0 0 15px 0; width: 100%; height: 80px; resize: none; border: 1px solid #d9d9d9; box-sizing: border-box;"></textarea>
-            
-            </div>
+        </div>
       `,
       showCancelButton: true,
       confirmButtonText: 'Enviar Reporte',
@@ -236,17 +239,32 @@ const Reportes = () => {
       width: '500px',
       padding: '25px',
       focusConfirm: false,
+      didOpen: () => {
+        const tipoSelect = Swal.getPopup().querySelector('#swal-tipo');
+        const anonWrapper = Swal.getPopup().querySelector('#anonimo-wrapper');
+        const anonCheckbox = Swal.getPopup().querySelector('#swal-anonimo');
+
+        tipoSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'Reclamo/Sugerencia') {
+                anonWrapper.style.display = 'flex';
+            } else {
+                anonWrapper.style.display = 'none';
+                anonCheckbox.checked = false; 
+            }
+        });
+      },
       preConfirm: () => {
         const titulo = document.getElementById('swal-titulo').value;
         const tipo = document.getElementById('swal-tipo').value; 
         const descripcion = document.getElementById('swal-desc').value;
+        const esAnonimo = document.getElementById('swal-anonimo').checked; 
 
         if (!titulo || !descripcion || !tipo) {
           Swal.showValidationMessage('Por favor completa todos los campos');
           return false;
         }
 
-        return { titulo, tipo, descripcion };
+        return { titulo, tipo, descripcion, esAnonimo };
       }
     });
 
@@ -256,6 +274,7 @@ const Reportes = () => {
         formData.append('titulo', formValues.titulo);
         formData.append('tipo', formValues.tipo);
         formData.append('descripcion', formValues.descripcion);
+        formData.append('es_anonimo', formValues.esAnonimo);
 
         await createReport(formData);
         
@@ -435,10 +454,15 @@ const Reportes = () => {
                                             <td>{rep.titulo}</td>
                                             <td>
                                                 <div style={{display:'flex', flexDirection:'column'}}>
-                                                    <strong>{rep.user?.nombre || 'Desc.'}</strong>
-                                                    <span style={{fontSize:'0.8rem', color:'#888'}}>{rep.user?.email}</span>
+                                                    <strong>
+                                                        {rep.es_anonimo ? '👤 Anónimo' : (rep.user?.nombre || 'Desc.')}
+                                                    </strong>
+                                                    <span style={{fontSize:'0.8rem', color:'#888'}}>
+                                                        {rep.es_anonimo ? 'N/A' : rep.user?.email}
+                                                    </span>
                                                 </div>
                                             </td>
+
                                             <td>{new Date(rep.created_at).toLocaleDateString()}</td>
                                             <td>
                                                 {hasValidImage && (

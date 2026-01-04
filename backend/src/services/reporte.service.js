@@ -1,12 +1,12 @@
 import { AppDataSource } from "../config/configDb.js";
-import { Reporte } from "../entities/Reporte.entity.js"; 
+import { Reporte } from "../entities/reporte.entity.js";
 import { crearNotificacionService, crearNotificacionPorRol } from "./notificacion.service.js";
 
 export const createReportService = async (data, userId) => {
   const reporteRepository = AppDataSource.getRepository(Reporte);
   const nuevoReporte = reporteRepository.create({
     ...data,
-    user: { id: userId }, 
+    user: { id: userId },
   });
   
   const reporteGuardado = await reporteRepository.save(nuevoReporte);
@@ -46,10 +46,7 @@ export const updateReportStatusService = async (id, estado, respuesta) => {
   if (!reporte) return null;
 
   reporte.estado = estado;
-
-  if (respuesta) {
-      reporte.respuesta = respuesta;
-  }
+  if (respuesta) reporte.respuesta = respuesta;
 
   const reporteActualizado = await reporteRepository.save(reporte);
 
@@ -72,13 +69,8 @@ export async function deleteReportService(id) {
     try {
         const reportRepository = AppDataSource.getRepository(Reporte);
         const report = await reportRepository.findOne({ where: { id: Number(id) } });
-
-        if (!report) {
-            return null;
-        }
-
-        const deletedReport = await reportRepository.remove(report);
-        return deletedReport;
+        if (!report) return null;
+        return await reportRepository.remove(report);
     } catch (error) {
         console.error("Error en deleteReportService:", error);
         throw error;
