@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
 
 connectDB()
   .then(() => {
-    // Inicializar cron jobs después de conectar a la base de datos
+    
     setupCronJobs();
     routerApi(app);
     const PORT = process.env.PORT || 3000;
