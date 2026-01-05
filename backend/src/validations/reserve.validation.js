@@ -25,7 +25,7 @@ export const createReserveValidation = Joi.object({
     space: Joi.number()
     .integer()
     .min(1)
-    .max(15) // Asumiendo que cada bicicletero tiene 15 espacios
+    .max(15) 
     .optional() 
     .messages({
       "number.base": "El espacio debe ser un número",
@@ -50,7 +50,7 @@ export const updateReserveValidation = Joi.object({
       "any.only": "El estado debe ser uno de: ingresada, entregada, cancelada",
       "any.required": "El campo 'estado' es obligatorio",
     }),
-    space: Joi.number()  // También permitir actualizar el espacio
+    space: Joi.number() 
     .integer()
     .min(1)
     .max(15)

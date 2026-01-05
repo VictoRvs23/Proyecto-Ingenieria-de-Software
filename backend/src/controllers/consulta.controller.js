@@ -8,7 +8,6 @@ import {
 
 export const createConsulta = async (req, res) => {
   try {
-    // Solo usuarios regulares pueden crear consultas
     if (req.user.role !== "user") {
       return res.status(403).json({
         message: "Solo usuarios pueden crear consultas",
@@ -35,7 +34,6 @@ export const createConsulta = async (req, res) => {
 
 export const getConsultas = async (req, res) => {
   try {
-    // Admin, AdminBicicletero y Guard pueden ver todas las consultas
     if (
       req.user.role !== "admin" &&
       req.user.role !== "adminBicicletero" &&
@@ -67,7 +65,6 @@ export const getMyConsultas = async (req, res) => {
 
 export const updateConsultaResponse = async (req, res) => {
   try {
-    // Admin, AdminBicicletero y Guard pueden responder consultas
     if (
       req.user.role !== "admin" &&
       req.user.role !== "adminBicicletero" &&
@@ -110,8 +107,6 @@ export const deleteConsulta = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Verificar que el usuario sea dueño de la consulta
     const consultas = await getConsultasByUserService(userId);
     const consulta = consultas.find((c) => c.id === Number(id));
 

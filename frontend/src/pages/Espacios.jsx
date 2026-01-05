@@ -80,21 +80,13 @@ const Espacios = () => {
     try {
       const bicicletero = await getBicicleteroById(id);
       const disabledSpaces = bicicletero.disabledSpaces || [];
-      
-      // Obtener TODAS las reservas activas de este bicicletero
       const allActiveReserves = bicicletero.activeReserves || [];
-      
-      // Cargar reservas del usuario para este bicicletero
+
       await loadUserReserves();
       
       const espaciosArray = Array.from({ length: bicicletero.space || 15 }, (_, i) => {
         const numeroEspacio = i + 1;
-        
-        // Verificar si el espacio está deshabilitado
-        const isDisabled = disabledSpaces.includes(numeroEspacio) || 
-                          disabledSpaces.includes(String(numeroEspacio));
-        
-        // Buscar si hay una reserva del USUARIO para este espacio
+        const isDisabled = disabledSpaces.includes(numeroEspacio) || disabledSpaces.includes(String(numeroEspacio));
         let reservaActivaUsuario = null;
         if (userReserves.length > 0) {
           reservaActivaUsuario = userReserves.find(r => 
@@ -102,12 +94,9 @@ const Espacios = () => {
             (r.estado === 'solicitada' || r.estado === 'ingresada')
           );
         }
-        
-        // Determinar estado basado en datos del backend
-        // IMPORTANTE: Solo las reservas "ingresadas" con espacio asignado ocupan físicamente
         const reservaOcupante = allActiveReserves.find(r => 
           r.space === numeroEspacio && 
-          r.estado === 'ingresada'  // SOLO "ingresada" ocupa espacio físico
+          r.estado === 'ingresada'  
         );
         
         let estado = 'disponible';
@@ -117,16 +106,12 @@ const Espacios = () => {
         if (isDisabled) {
           estado = 'deshabilitado';
         } else if (reservaOcupante) {
-          // Solo marcar como ocupado si hay una reserva "ingresada" en este espacio
           estado = 'ocupado';
           estadoReserva = 'ingresada';
           reservaActiva = reservaOcupante;
         } else if (reservaActivaUsuario && reservaActivaUsuario.space === numeroEspacio) {
-          // Si el usuario tiene una reserva en este espacio específico
           reservaActiva = reservaActivaUsuario;
           estadoReserva = reservaActivaUsuario.estado;
-          // PERO NO cambiamos el estado a "ocupado" si es "solicitada"
-          // El espacio sigue disponible visualmente
         }
         
         return {
@@ -142,7 +127,6 @@ const Espacios = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error cargando espacios:', error);
-      // Si falla, crear espacios por defecto
       const espaciosDefault = Array.from({ length: 15 }, (_, i) => ({
         numero: i + 1,
         estado: 'disponible',
@@ -155,7 +139,6 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 FUNCIÓN PRINCIPAL
   const handleSpaceClick = async (espacio) => {
     if (userRole === 'user') {
       await handleUserClick(espacio);
@@ -164,29 +147,24 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 CLICK PARA USUARIOS
   const handleUserClick = async (espacio) => {
-    // Si el espacio está deshabilitado
+
     if (espacio.isDisabled) {
       showErrorAlert('Este espacio está deshabilitado temporalmente');
       return;
     }
     
-    // Si el usuario tiene una reserva activa en este espacio
     if (espacio.reservaActiva) {
       await handleUserReserveAction(espacio);
       return;
     }
-    
-    // Si el espacio está ocupado por una bicicleta ingresada
+
     if (espacio.estado === 'ocupado' && espacio.estadoReserva === 'ingresada') {
       showErrorAlert('Este espacio ya está ocupado por una bicicleta');
       return;
     }
-    
-    // Si el espacio está disponible
+
     if (espacio.estado === 'disponible') {
-      // Verificar que el usuario tenga bicicletas
       if (userBikes.length === 0) {
         showErrorAlert('No tienes bicicletas registradas. Regístra una bicicleta en tu perfil primero.');
         return;
@@ -197,14 +175,10 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 MANEJAR RESERVA EXISTENTE DEL USUARIO
   const handleUserReserveAction = async (espacio) => {
   const { reservaActiva } = espacio;
-  
-  // Verificar si el espacio está ocupado físicamente
   const espacioEstaOcupado = espacio.estado === 'ocupado' && espacio.estadoReserva === 'ingresada';
   
-  // Si el espacio está ocupado, mostrar mensaje simple
   if (espacioEstaOcupado) {
     await Swal.fire({
       title: `Espacio ${espacio.numero} Ocupado`,
@@ -212,10 +186,9 @@ const Espacios = () => {
       icon: 'info',
       confirmButtonText: 'Entendido'
     });
-    return; // Terminar aquí
+    return; 
   }
-  
-  // Si NO está ocupado, mostrar información completa de la reserva
+
   const tieneEspacioAsignado = reservaActiva.space !== null && reservaActiva.space !== undefined;
   
   const result = await Swal.fire({
@@ -245,7 +218,6 @@ const Espacios = () => {
   });
   
   if (result.isConfirmed) {
-    // Mostrar token
     await Swal.fire({
       title: 'Tu Token de Retiro',
       html: `
@@ -264,12 +236,10 @@ const Espacios = () => {
       confirmButtonText: 'Entendido'
     });
   } else if (result.isDenied && reservaActiva.estado === 'solicitada') {
-    // Cancelar reserva
     await handleCancelUserReserve(reservaActiva.token);
   }
 };
 
-  // 🎯 CANCELAR RESERVA DEL USUARIO
   const handleCancelUserReserve = async (token) => {
     const { value: confirm } = await Swal.fire({
       title: '¿Cancelar reserva?',
@@ -294,7 +264,6 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 CREAR NUEVA RESERVA (SIN ESPACIO ESPECÍFICO)
   const handleCreateReserve = async () => {
     if (!selectedBike) {
       showErrorAlert('Selecciona una bicicleta para reservar');
@@ -305,7 +274,6 @@ const Espacios = () => {
       const reservaData = {
         bike_id: parseInt(selectedBike),
         bicicletero_number: parseInt(id),
-        // NO enviamos el espacio específico
       };
 
       const result = await createReserve(reservaData);
@@ -342,7 +310,6 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 ACCIONES DEL STAFF
   const handleStaffClick = async (espacio) => {
     setSelectedSpace(espacio);
     
@@ -392,7 +359,7 @@ const Espacios = () => {
       try {
         await updateReserve(token, {
           estado: 'ingresada',
-          space: espacio.numero, // AHORA sí asignamos el espacio
+          space: espacio.numero, 
           nota: `Bicicleta ingresada en espacio ${espacio.numero} por guardia`
         });
 
@@ -521,7 +488,6 @@ const Espacios = () => {
     }
   };
 
-  // 🎯 ICONOS SEGÚN ESTADO
   const getSpaceIcon = (espacio) => {
     if (espacio.isDisabled) {
       return <FaBan className="espacio-disabled-icon" title="Espacio deshabilitado" />;
@@ -533,8 +499,6 @@ const Espacios = () => {
       }
       return <FaBicycle className="espacio-bike-icon" title="Ocupado" />;
     }
-    
-    // NOTA: No mostramos icono para reservas "solicitada" sin espacio asignado
     
     return null;
   };
@@ -552,8 +516,6 @@ const Espacios = () => {
       
       <div className="espacios-header">
         <h1 className="espacios-title">BICICLETERO #{id}</h1>
-        
-        {/* SOLO MOSTRAR TOKEN SI TIENE RESERVA ACTIVA */}
         {userRole === 'user' && activeReserveInThisBicicletero && (
           <div className="user-actions-header">
             <button 

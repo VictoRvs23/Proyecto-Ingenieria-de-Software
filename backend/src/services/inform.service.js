@@ -8,7 +8,6 @@ const informRepository = AppDataSource.getRepository(Inform);
 const dailyReportRepository = AppDataSource.getRepository(DailyReport);
 const turnRepository = AppDataSource.getRepository(Turn);
 
-// Función original para logs de reservas
 export async function createInformLog(reserve, note = "", actionType = null) {
     try {
         const tipoAccion = actionType || reserve.estado;
@@ -30,10 +29,9 @@ export async function createInformLog(reserve, note = "", actionType = null) {
     }
 }
 
-// Nueva función para logs de turnos
+
 export async function createInformLogForTurn(turn, note = "", actionType = "turno_cambiado") {
     try {
-        // Obtener usuario completo con relaciones
         const turnWithUser = await turnRepository.findOne({
             where: { id: turn.id },
             relations: ["user"]
@@ -49,7 +47,7 @@ export async function createInformLogForTurn(turn, note = "", actionType = "turn
             estado_nuevo: actionType,
             user: turnWithUser.user,
             user_email_snapshot: turnWithUser.user.email,
-            bike: null, // Los turnos no tienen bicicleta
+            bike: null, 
             nota: `${note}. Guardia: ${turnWithUser.user.nombre || turnWithUser.user.name || 'N/A'}, ` +
                 `Email: ${turnWithUser.user.email}, ` +
                 `Bicicletero: ${turn.bicicletero || 'N/A'}, ` +
@@ -121,7 +119,6 @@ export async function generateDailyReport() {
         
         return await generateEmptyReport(hoy);
     }
-
     return await generateReportForDate(hoy, logs);
 }
 
@@ -175,8 +172,6 @@ async function generateReportForDate(fecha, logs) {
                 const nota = log.nota ? log.nota : "Sin nota";
                 const estado = log.estado_nuevo.toUpperCase();
                 const espacio = log.espacio ? `Espacio: ${log.espacio}` : "";
-
-                // Determinar color según tipo de acción
                 let color = 'black';
                 let tituloAccion = estado;
                 
@@ -211,20 +206,15 @@ async function generateReportForDate(fecha, logs) {
                 doc.text(`[${hora}] ${tituloAccion}`);
                 doc.fillColor('black').font('Helvetica');
                 
-                // Mostrar información específica según el tipo de log
                 if (log.estado_nuevo.toLowerCase() === 'turno_cambiado') {
-                    // Formato para logs de turnos
                     doc.text(`Guardia: ${userName} (ID: ${userId})`);
                     doc.text(`Email: ${userEmail}`);
                     doc.text(`Bicicletero asignado: ${bicicletero}`);
-                    
-                    // Extraer información de horario de la nota
                     const horarioMatch = nota.match(/Horario:\s*([^-]+)\s*-\s*(.+)/);
                     if (horarioMatch) {
                         doc.text(`Horario: ${horarioMatch[1].trim()} - ${horarioMatch[2].trim()}`);
                     }
                 } else {
-                    // Formato para logs de reservas/bicicletas
                     doc.text(`Bicicletero: #${bicicletero}  |  Bici ID: ${biciId}  |  Usuario ID: ${userId}`);
                     doc.text(`Usuario: ${userName} (${userEmail})`);
                     if (espacio) {
@@ -234,7 +224,6 @@ async function generateReportForDate(fecha, logs) {
                 
                 if (nota !== "Sin nota" && nota !== "") {
                     doc.font('Helvetica-Oblique').fillColor('gray');
-                    // Mostrar solo parte relevante de la nota para turnos
                     if (log.estado_nuevo.toLowerCase() !== 'turno_cambiado') {
                         doc.text(`Nota: "${nota}"`);
                     }
