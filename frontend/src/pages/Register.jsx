@@ -43,33 +43,24 @@ const Register = () => {
   const handleRegisterSubmit = async (data) => {
     setLoading(true);
 
-    // ============================================================
-    // SOLUCIÓN: VALIDACIÓN DE DOMINIOS PERMITIDOS
-    // ============================================================
     const allowedDomains = ['@gmail.com', '@ubiobio.cl', '@gmail.cl', '@alumnos.ubiobio.cl'];
     const emailLower = data.email.toLowerCase();
-    
-    // Verificamos si el correo termina con alguno de los dominios de la lista
     const isValidDomain = allowedDomains.some(domain => emailLower.endsWith(domain));
 
     if (!isValidDomain) {
         await Swal.fire({
             icon: 'error',
             title: 'Correo Inválido',
-            // Mensaje claro para el usuario
             html: 'El correo debe pertenecer a uno de los siguientes dominios:<br><br><b>@ubiobio.cl<br>@alumnos.ubiobio.cl<br>@gmail.com<br>@gmail.cl</b>',
             confirmButtonColor: '#d33'
         });
         setLoading(false);
-        return; // Detenemos el registro aquí si el dominio no es válido
+        return; 
     }
-    // ============================================================
 
     try {
-        // Limpieza básica del teléfono (deja solo números)
         let phoneClean = data.numeroTelefonico ? data.numeroTelefonico.replace(/\D/g, '') : "";
 
-        // Agrega el '9' si el usuario puso solo 8 dígitos
         if (phoneClean.length === 8) {
             phoneClean = '9' + phoneClean;
         }
@@ -94,7 +85,6 @@ const Register = () => {
             return;
         }
         
-        // Limpiamos datos antiguos por seguridad antes de ir al login
         localStorage.clear();
 
         await Swal.fire({

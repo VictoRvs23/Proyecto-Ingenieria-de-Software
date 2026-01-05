@@ -7,15 +7,12 @@ import bcrypt from "bcrypt";
 
 const userRepository = AppDataSource.getRepository(User);
 
-/**
- * Elimina usuario y su turno asociado
- */
 export async function deleteUserAndTurn(userId) {
   try {
     try {
       await deleteTurn(userId);
     } catch (e) {
-      // Si no hay turno, ignoramos el error y seguimos
+      // Si no hay turno, ignoramos y seguimos
     }
     const user = await userRepository.findOneBy({ id: userId });
     if (!user) throw new Error("Usuario no encontrado");
@@ -26,11 +23,7 @@ export async function deleteUserAndTurn(userId) {
   }
 }
 
-/**
- * Crea un nuevo usuario y envía correo de bienvenida
- */
 export async function createUser(data) {
-  // Validaciones de existencia
   const existingUser = await userRepository.findOneBy({ email: data.email });
   if (existingUser) {
     throw new Error("Este correo ya está registrado");
@@ -53,7 +46,6 @@ export async function createUser(data) {
 
   const savedUser = await userRepository.save(newUser);
 
-  // --- DISEÑO DE CORREO DE BIENVENIDA ---
   const welcomeHTML = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f9f9; padding: 30px;">
       <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; border: 1px solid #e0e0e0; overflow: hidden;">
@@ -86,23 +78,16 @@ export async function createUser(data) {
     </div>
   `;
 
-  // Enviar email de bienvenida (sin await para respuesta inmediata)
   sendEmail(savedUser.email, "¡Bienvenido al Sistema Bicicletero UBB!", welcomeHTML)
     .catch(err => console.error("Error enviado correo de bienvenida:", err));
 
   return savedUser;
 }
 
-/**
- * Busca usuario por email
- */
 export async function findUserByEmail(email) {
   return await userRepository.findOneBy({ email });
 }
 
-/**
- * Obtiene todos los usuarios
- */
 export async function getAllUsers() {
   try {
     const users = await userRepository.find({

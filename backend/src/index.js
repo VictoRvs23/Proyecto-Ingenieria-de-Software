@@ -78,9 +78,6 @@ io.on('connection', (socket) => {
         });
 
         const guardado = await mensajeRepo.save(nuevoMensaje);
-
-        // CAMBIO AQUÍ: Usamos socket.broadcast.emit
-        // Esto envía el mensaje a TODOS excepto al remitente (tú)
         socket.broadcast.emit('nuevo_mensaje', {
           id: guardado.id,
           contenido: guardado.contenido,

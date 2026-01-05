@@ -89,7 +89,6 @@ const TablaInforme = () => {
           )}
         </button>
         <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
-          <FaExclamationTriangle style={{ color: '#f0ad4e' }} /> 
         </p>
       </div>
 

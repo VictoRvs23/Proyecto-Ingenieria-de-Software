@@ -76,7 +76,6 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
       relations: ['user']
     });
 
-    // Guardar información del turno anterior para el log
     const turnoAnterior = turn ? {
       bicicletero: turn.bicicletero,
       hora_inicio: turn.hora_inicio,
@@ -107,7 +106,6 @@ export async function createOrUpdateTurn(userId, bicicletero, hora_inicio, hora_
         hora_salida: hora_salida || null,
       });
       turn = await turnRepository.save(newTurn);
-      // Cargar relaciones para el nuevo turno
       turn = await turnRepository.findOne({
         where: { id: turn.id },
         relations: ['user']

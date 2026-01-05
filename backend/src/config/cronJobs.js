@@ -1,4 +1,3 @@
-// config/cronJobs.js
 import cron from 'node-cron';
 import { generateDailyReport } from '../services/inform.service.js';
 import { cancelExpiredReserves } from '../services/reserve.service.js';

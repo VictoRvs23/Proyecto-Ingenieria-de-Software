@@ -372,7 +372,6 @@
   background: #218838;
 }
 
-/* Tarjeta informativa */
 .info-card {
   background: #e3f2fd;
   border-radius: 10px;
@@ -410,7 +409,6 @@
   padding-left: 15px;
 }
 
-/* Información de la tabla */
 .table-info {
   background: #fff3cd;
   border: 1px solid #ffeaa7;
@@ -423,7 +421,6 @@
   gap: 10px;
 }
 
-/* Estados de carga y vacío */
 .loading-message {
   text-align: center;
   padding: 40px;
@@ -486,7 +483,6 @@
   background: #0d47a1;
 }
 
-/* Estilos de la tabla */
 .today-row {
   background-color: #fff8e1 !important;
 }
@@ -552,7 +548,6 @@
   background: #0d47a1;
 }
 
-/* Pie informativo */
 .footer-info {
   margin-top: 40px;
   padding: 20px;
@@ -570,7 +565,6 @@
   margin-bottom: 0;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .tabla-header {
     flex-direction: column;
@@ -592,23 +586,20 @@
   }
 }
 .tabla-informe-container {
-  padding-top: 40px; /* Reduce el padding superior si es necesario */
+  padding-top: 40px; 
 }
 
-/* Estilo para el contenedor del botón de volver */
 .header-actions {
-  margin-bottom: 30px; /* Más espacio debajo del botón */
+  margin-bottom: 30px; 
 }
 
-/* Estilo para el título principal */
 .tabla-informe-title {
-  margin-top: 20px; /* Aumenta el espacio arriba del título */
-  margin-bottom: 40px; /* Más espacio abajo del título */
-  text-align: center; /* Centrar el título si quieres */
-  width: 100%; /* Ocupar todo el ancho */
+  margin-top: 20px; 
+  margin-bottom: 40px; 
+  text-align: center; 
+  width: 100%; 
 }
 
-/* Opcional: Si quieres más separación visual */
 .tabla-informe-title::after {
   content: '';
   display: block;

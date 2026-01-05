@@ -155,7 +155,6 @@ const Usuarios = () => {
     return phoneStr;
   };
 
-  // --- FUNCIÓN CORREGIDA: CREAR USUARIO ---
   const handleCreateUser = async (initialValues = {}) => {
     const { value: formValues } = await Swal.fire({
       title: '<h2 style="color: #545454; font-size: 1.8em; font-weight: 600;">Crear Nuevo Usuario</h2>',

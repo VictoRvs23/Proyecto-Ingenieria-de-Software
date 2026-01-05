@@ -62,7 +62,7 @@ export async function downloadReportById(req, res) {
 
 export async function generateToday(req, res) {
     try {
-        // Validar que sea después de las 20:01
+        // Validar 20:01
         const now = new Date();
         const hour = now.getHours();
         const minute = now.getMinutes();

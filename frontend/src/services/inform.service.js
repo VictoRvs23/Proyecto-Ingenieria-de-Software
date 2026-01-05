@@ -25,7 +25,6 @@ export const InformService = {
     }
   },
 
-  // Generar informe de hoy (GET /api/informs/today)
   generateToday: async () => {
     try {
       const response = await axios.get(`${API_URL}/today`, getAuthHeaders());

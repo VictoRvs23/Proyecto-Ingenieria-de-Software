@@ -48,30 +48,6 @@ export const checkAvailability = async (req, res) => {
   }
 };
 
-
-
-export const entryBike = async (req, res) => {
-  try {
-    return res.status(410).json({ 
-      error: "Este endpoint está obsoleto. Use el sistema de reservas en su lugar.",
-      message: "Para ingresar una bicicleta, cree una reserva y luego actualice su estado a 'ingresada'"
-    });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-};
-
-export const exitBike = async (req, res) => {
-    try {
-        return res.status(410).json({ 
-          error: "Este endpoint está obsoleto. Use el sistema de reservas en su lugar.",
-          message: "Para retirar una bicicleta, actualice el estado de la reserva a 'entregada'"
-        });
-    } catch (e) {
-        return res.status(400).json({ error: e.message });
-    }
-};
-
 export const toggleSpaceStatus = async (req, res) => {
   try {
     const { number, spaceNumber } = req.params;

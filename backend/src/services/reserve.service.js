@@ -75,7 +75,7 @@ const genericNoticeHTML = (title, message, color = "#555") => `
   </div>
 `;
 
-//funciones
+// hasta aqui
 
 export async function cancelExpiredReserves() {
   try {
