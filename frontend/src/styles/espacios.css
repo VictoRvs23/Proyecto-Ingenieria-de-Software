@@ -21,11 +21,10 @@
     transform: scale(1.1);
 }
 
-/* Ajustar el padding-top del contenedor */
 .espacios-container {
   width: 100%;
   padding: 2rem;
-  padding-top: 80px; /* Aumentado para dar espacio al botón */
+  padding-top: 80px; 
   min-height: 100vh;
   background-color: #ffffff;
   display: flex;
@@ -34,7 +33,6 @@
   position: relative;
 }
 
-/* Ajustar el header para el nuevo diseño */
 .espacios-header {
   display: flex;
   align-items: center;
@@ -46,7 +44,6 @@
   margin-top: 40px;
 }
 
-/* Ajustar el título */
 .espacios-title {
   font-family: 'Roboto', sans-serif;
   color: #1565C0;
@@ -301,17 +298,17 @@
 }
 
 .espacio-item.reserva-solicitada {
-  background: #FFA500 !important; /* Naranja para solicitada */
+  background: #FFA500 !important; 
   border-color: #CC8400 !important;
 }
 
 .espacio-item.reserva-ingresada {
-  background: #FF6B6B !important; /* Rojo para ingresada */
+  background: #FF6B6B !important; 
   border-color: #990505 !important;
 }
 
 .espacio-item.deshabilitado {
-  background: #CCCCCC !important; /* Gris para deshabilitado */
+  background: #CCCCCC !important; 
   border-color: #999999 !important;
   cursor: not-allowed !important;
 }
@@ -320,7 +317,6 @@
   transform: none !important;
 }
 
-/* Iconos */
 .espacio-pending-icon {
   font-size: 1.3rem;
   color: #000000;
@@ -333,7 +329,6 @@
   margin-top: 5px;
 }
 
-/* Selección de espacios */
 .space-selection-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -380,7 +375,6 @@
   cursor: not-allowed;
 }
 
-/* Instrucciones mejoradas */
 .instructions ul {
   margin: 10px 0;
   padding-left: 20px;
@@ -401,7 +395,6 @@
   margin: 0 8px;
 }
 
-/* Botones de acción mejorados */
 .user-actions-header {
   position: absolute;
   right: 20px;
@@ -430,7 +423,6 @@
   background: #1d5a8a;
 }
 
-/* Responsive */
 @media (max-width: 1200px) {
   .user-actions-header {
     position: static;

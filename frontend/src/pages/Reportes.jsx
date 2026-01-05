@@ -425,7 +425,7 @@ const Reportes = () => {
                         <table className="reportes-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>N°</th>
                                     <th>Estado</th>
                                     <th>Tipo</th>
                                     <th>Título</th>

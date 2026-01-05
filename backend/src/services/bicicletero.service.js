@@ -20,7 +20,7 @@ export class BicicleteroService {
       return {
         numero: b.number,
         espaciosOcupados: activeReservesCount + markedOccupiedCount,
-        espaciosTotales: b.space || 15, // Default 15
+        espaciosTotales: b.space || 15, 
         reservasActivas: activeReservesCount,
         espaciosDeshabilitados: markedOccupiedCount
       };
@@ -36,17 +36,6 @@ export class BicicleteroService {
     return data;
   }
 
-  async addBike(guardId, bikeData, bicicleteroId) {
-    // Esta función ya no debería usarse para agregar bicicletas directamente
-    // Las bicicletas ahora se asocian a través de reservas
-    throw new Error("Esta función está obsoleta. Use el sistema de reservas en su lugar.");
-  }
-
-  async removeBike(guardId, bikeId) {
-    // Esta función también está obsoleta
-    throw new Error("Esta función está obsoleta. Use el sistema de reservas en su lugar.");
-  }
-
   async getBicicleteroByNumber(number) {
     const repo = AppDataSource.getRepository(Bicicletero);
     const reserveRepo = AppDataSource.getRepository(Reserve);
@@ -59,7 +48,6 @@ export class BicicleteroService {
       throw new Error(`Bicicletero con número ${number} no encontrado`);
     }
     
-    // Obtener reservas activas para este bicicletero
     const activeReserves = await reserveRepo.find({
       where: {
         bicicletero: { number: Number(number) },
@@ -104,7 +92,6 @@ export class BicicleteroService {
     return bicicletero;
   }
   
-  // Nueva función para verificar disponibilidad - CORREGIDA
   async checkAvailability(bicicleteroNumber) {
     const repo = AppDataSource.getRepository(Bicicletero);
     const reserveRepo = AppDataSource.getRepository(Reserve);
@@ -117,7 +104,6 @@ export class BicicleteroService {
       throw new Error(`Bicicletero con número ${bicicleteroNumber} no encontrado`);
     }
     
-    // Obtener reservas activas
     const activeReserves = await reserveRepo.find({
       where: {
         bicicletero: { number: Number(bicicleteroNumber) },
@@ -127,12 +113,8 @@ export class BicicleteroService {
     
     const maxSpaces = bicicletero.space || 15;
     const activeReservesCount = activeReserves.length;
-    
-    // Determinar espacios ocupados y disponibles
     const espaciosOcupados = activeReserves.map(r => r.space).filter(s => s != null);
     const espaciosDeshabilitados = bicicletero.disabledSpaces || [];
-    
-    // Calcular espacios disponibles (1-15)
     const todosEspacios = Array.from({length: maxSpaces}, (_, i) => i + 1);
     const espaciosDisponibles = todosEspacios.filter(espacio => 
       !espaciosOcupados.includes(espacio) && 

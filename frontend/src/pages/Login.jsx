@@ -49,7 +49,7 @@ const Login = () => {
       localStorage.setItem('name', responseData.user.username || responseData.user.nombre);
     }
     
-    showSuccessAlert("¡Éxito!", "Inicio de sesión exitoso");
+    
     navigate("/home");
 
   } catch (error) {
