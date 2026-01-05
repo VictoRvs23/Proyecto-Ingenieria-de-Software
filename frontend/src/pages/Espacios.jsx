@@ -199,61 +199,75 @@ const Espacios = () => {
 
   // 🎯 MANEJAR RESERVA EXISTENTE DEL USUARIO
   const handleUserReserveAction = async (espacio) => {
-    const { reservaActiva } = espacio;
-    
-    // Verificar si la reserva tiene espacio asignado
-    const tieneEspacioAsignado = reservaActiva.space !== null && reservaActiva.space !== undefined;
-    
-    const result = await Swal.fire({
-      title: `Tu Reserva - Token: ${reservaActiva.token}`,
+  const { reservaActiva } = espacio;
+  
+  // Verificar si el espacio está ocupado físicamente
+  const espacioEstaOcupado = espacio.estado === 'ocupado' && espacio.estadoReserva === 'ingresada';
+  
+  // Si el espacio está ocupado, mostrar mensaje simple
+  if (espacioEstaOcupado) {
+    await Swal.fire({
+      title: `Espacio ${espacio.numero} Ocupado`,
+      text: 'Este espacio está ocupado por una bicicleta ingresada.',
+      icon: 'info',
+      confirmButtonText: 'Entendido'
+    });
+    return; // Terminar aquí
+  }
+  
+  // Si NO está ocupado, mostrar información completa de la reserva
+  const tieneEspacioAsignado = reservaActiva.space !== null && reservaActiva.space !== undefined;
+  
+  const result = await Swal.fire({
+    title: `Tu Reserva`,
+    html: `
+      <div style="text-align: left; padding: 10px;">
+        <p><strong>Estado:</strong> ${reservaActiva.estado}</p>
+        ${tieneEspacioAsignado ? 
+          `<p><strong>Espacio asignado:</strong> ${reservaActiva.space}</p>` : 
+          '<p><strong>Espacio:</strong> Aún no asignado</p>'
+        }
+        <p><strong>Bicicleta:</strong> ${reservaActiva.bike?.brand || 'N/A'} ${reservaActiva.bike?.model || ''}</p>
+        <p><strong>Fecha:</strong> ${new Date(reservaActiva.created_at).toLocaleDateString()}</p>
+        ${!tieneEspacioAsignado && reservaActiva.estado === 'solicitada' ? 
+          '<p style="color: #666; font-style: italic; margin-top: 10px;">Presenta tu token al guardia para que asigne un espacio a tu bicicleta.</p>' : 
+          ''
+        }
+      </div>
+    `,
+    showCancelButton: true,
+    showDenyButton: reservaActiva.estado === 'solicitada',
+    confirmButtonText: 'Mostrar Token',
+    denyButtonText: 'Cancelar Reserva',
+    cancelButtonText: 'Cerrar',
+    denyButtonColor: '#d33',
+    confirmButtonColor: '#3085d6'
+  });
+  
+  if (result.isConfirmed) {
+    // Mostrar token
+    await Swal.fire({
+      title: 'Tu Token de Retiro',
       html: `
-        <div style="text-align: left; padding: 10px;">
-          <p><strong>Estado:</strong> ${reservaActiva.estado}</p>
-          ${tieneEspacioAsignado ? 
-            `<p><strong>Espacio asignado:</strong> ${reservaActiva.space}</p>` : 
-            '<p><strong>Espacio:</strong> Aún no asignado</p>'
-          }
-          <p><strong>Bicicleta:</strong> ${reservaActiva.bike?.brand || 'N/A'} ${reservaActiva.bike?.model || ''}</p>
-          <p><strong>Fecha:</strong> ${new Date(reservaActiva.created_at).toLocaleDateString()}</p>
-          ${!tieneEspacioAsignado && reservaActiva.estado === 'solicitada' ? 
-            '<p style="color: #666; font-style: italic; margin-top: 10px;">Presenta tu token al guardia para que asigne un espacio a tu bicicleta.</p>' : 
-            ''
-          }
+        <div style="text-align: center; padding: 20px;">
+          <div style="background: #2b74ad; color: white; padding: 30px; border-radius: 10px; font-size: 48px; font-weight: bold; letter-spacing: 10px;">
+            ${reservaActiva.token}
+          </div>
+          <p style="margin-top: 20px; color: #666;">
+            ${tieneEspacioAsignado ? 
+              `Presenta este token al guardia para ${reservaActiva.estado === 'solicitada' ? 'ingresar' : 'retirar'} tu bicicleta` :
+              'Presenta este token al guardia para que asigne un espacio a tu bicicleta'
+            }
+          </p>
         </div>
       `,
-      showCancelButton: true,
-      showDenyButton: reservaActiva.estado === 'solicitada',
-      confirmButtonText: 'Mostrar Token',
-      denyButtonText: 'Cancelar Reserva',
-      cancelButtonText: 'Cerrar',
-      denyButtonColor: '#d33',
-      confirmButtonColor: '#3085d6'
+      confirmButtonText: 'Entendido'
     });
-    
-    if (result.isConfirmed) {
-      // Mostrar token
-      await Swal.fire({
-        title: 'Tu Token de Retiro',
-        html: `
-          <div style="text-align: center; padding: 20px;">
-            <div style="background: #2b74ad; color: white; padding: 30px; border-radius: 10px; font-size: 48px; font-weight: bold; letter-spacing: 10px;">
-              ${reservaActiva.token}
-            </div>
-            <p style="margin-top: 20px; color: #666;">
-              ${tieneEspacioAsignado ? 
-                `Presenta este token al guardia para ${reservaActiva.estado === 'solicitada' ? 'ingresar' : 'retirar'} tu bicicleta` :
-                'Presenta este token al guardia para que asigne un espacio a tu bicicleta'
-              }
-            </p>
-          </div>
-        `,
-        confirmButtonText: 'Entendido'
-      });
-    } else if (result.isDenied && reservaActiva.estado === 'solicitada') {
-      // Cancelar reserva
-      await handleCancelUserReserve(reservaActiva.token);
-    }
-  };
+  } else if (result.isDenied && reservaActiva.estado === 'solicitada') {
+    // Cancelar reserva
+    await handleCancelUserReserve(reservaActiva.token);
+  }
+};
 
   // 🎯 CANCELAR RESERVA DEL USUARIO
   const handleCancelUserReserve = async (token) => {
@@ -581,8 +595,6 @@ const Espacios = () => {
               ))}
             </div>
           </div>
-
-          {/* MODAL PARA CREAR RESERVA */}
           {showReserveModal && userRole === 'user' && (
             <div className="modal-overlay">
               <div className="modal-content">
@@ -646,8 +658,6 @@ const Espacios = () => {
               </div>
             </div>
           )}
-
-          {/* INSTRUCCIONES */}
           <div className="instructions">
             {userRole === 'user' ? (
               <p className="user-instruction">
