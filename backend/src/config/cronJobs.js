@@ -5,12 +5,12 @@ import { cancelExpiredReserves } from '../services/reserve.service.js';
 import { AppDataSource } from './configDb.js';
 
 export function setupCronJobs() {
-    // Programar tarea para ejecutar todos los días a las 20:02
+    
     cron.schedule('2 20 * * *', async () => {
         try {
             console.log(`[${new Date().toISOString()}] Ejecutando generación automática de reporte diario...`);
             
-            // Asegurar conexión a la base de datos
+            
             if (!AppDataSource.isInitialized) {
                 await AppDataSource.initialize();
                 console.log('Conexión a BD inicializada para cron job');
@@ -27,7 +27,7 @@ export function setupCronJobs() {
         timezone: "America/Santiago"
     });
     
-    // Programar tarea para limpiar reservas expiradas cada 5 minutos
+    
     cron.schedule('*/5 * * * *', async () => {
         try {
             console.log(`[${new Date().toISOString()}] Ejecutando limpieza de reservas expiradas...`);

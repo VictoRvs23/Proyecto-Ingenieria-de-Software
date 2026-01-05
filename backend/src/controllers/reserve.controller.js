@@ -46,7 +46,7 @@ export async function getReserves(req, res) {
 
 export async function createReserve(req, res) {
     try {
-        // Validar horario (no permitir entre 20:00 y 8:00)
+        
         if (isBetween8PMAnd8AM()) {
             return handleErrorClient(res, 403, 
                 "No se pueden crear reservas entre las 20:00 hrs y las 8:00 hrs del día siguiente");
@@ -69,7 +69,7 @@ export async function createReserve(req, res) {
 
 export async function updateReserve(req, res) {
     try {
-        // Validar horario (no permitir entre 20:00 y 8:00)
+        
         if (isBetween8PMAnd8AM()) {
             return handleErrorClient(res, 403, 
                 "No se pueden editar reservas entre las 20:00 hrs y las 8:00 hrs del día siguiente");

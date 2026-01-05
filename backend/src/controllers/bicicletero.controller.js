@@ -33,23 +33,22 @@ export const getStatus = async (req, res) => {
     }
 };
 
-// Nuevo endpoint para verificar disponibilidad
+
 export const checkAvailability = async (req, res) => {
   try {
     const { number } = req.params;
     if (!number) {
       return res.status(400).json({ error: "Falta parámetro: number" });
     }
-    const service = new BicicleteroService(); // Crear instancia del servicio
-    const data = await service.checkAvailability(number); // Llamar al método
+    const service = new BicicleteroService();
+    const data = await service.checkAvailability(number); 
     return res.json(data);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };
 
-// Los endpoints entryBike y exitBike ahora están obsoletos
-// Se mantienen por compatibilidad pero lanzan error
+
 
 export const entryBike = async (req, res) => {
   try {
